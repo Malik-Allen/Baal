@@ -1,0 +1,28 @@
+cmake_minimum_required(VERSION 3.27.2)
+
+project(Baal)
+set(CMAKE_CXX_STANDARD 20)
+
+include_directories(${PROJECT_SOURCE_DIR}/include)
+
+file(GLOB_RECURSE SOURCES "${PROJECT_SOURCE_DIR}/src/*.cpp")
+
+add_executable(Baal ${SOURCES})
+
+target_include_directories(Baal PRIVATE ${PROJECT_SOURCE_DIR}/include)
+
+# Path to the Mjolnir repository
+set(MJOLNIR_PATH ${PROJECT_SOURCE_DIR}/../Mjolnir)
+
+# Find Mjolnir library
+add_subdirectory(${MJOLNIR_PATH} ${CMAKE_BINARY_DIR}/Mjolnir)
+
+# Link Mjolnir to the project
+target_link_libraries(Baal PRIVATE Mjolnir)
+
+# If requires linking with Vulkan library
+find_package(Vulkan REQUIRED)
+target_link_libraries(Baal PRIVATE Vulkan::Vulkan)
+
+# Print a final message
+message(STATUS "CMake configuration for Baal project is complete.")
