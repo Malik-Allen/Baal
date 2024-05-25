@@ -1,13 +1,11 @@
-#include "core/vulkan/devices/Instance.h"
+#include "Baal.h"
 
-#include <Mjolnir.h>
-
+using namespace Baal;
 
 int main()
 {
-	Mjolnir::Math::Transform transform;
-	Mjolnir::Math::TestQuaternion();
-	Mjolnir::Math::TestTransform();
+	VK::Renderer renderer("Test Flight");
+	return 0;
 }
 
 
