@@ -1,9 +1,11 @@
 #include "Baal.h"
+#include "../src/utility/DebugLog.h"
 
 using namespace Baal;
 
 int main()
 {
+	DEBUG_INIT();
 	VK::Renderer renderer("Test Flight");
 	return 0;
 }

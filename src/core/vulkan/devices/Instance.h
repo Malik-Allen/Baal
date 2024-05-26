@@ -15,8 +15,6 @@ namespace Baal
 {
 	namespace VK
 	{
-		class PhysicalDevice;
-
 		/*
 		* Main responsibilities:
 		*	Initializing the VkInstance
@@ -29,8 +27,10 @@ namespace Baal
 		{
 		public:
 			explicit Instance(
-				const string& appName
-			);
+				const string& appName, 
+				const bool bEnableDebugValidationExtension = true,
+				const std::vector<const char*>& requiredExtensions = {},
+				const std::vector<const char*>& requiredValidationLayers = {});
 
 			Instance(const Instance&) = delete;
 			Instance(Instance&&) = delete;
@@ -43,9 +43,15 @@ namespace Baal
 			const VkInstance& GetVkInstance() const;
 
 		private:
-			VkInstance vkInstance;
-			vector<std::unique_ptr<PhysicalDevice>> gpus;
+			void QueryAvailableLayers(std::vector<VkLayerProperties>& outLayers) const;
+			void QueryAvailableExtensions(std::vector<VkExtensionProperties>& outExtensions) const;
+
+			bool IsLayerAvailable(const char* layerName, const std::vector<VkLayerProperties>& layers) const;
+			bool IsExtensionAvailable(const char* extensionName, const std::vector<VkExtensionProperties>& extensions) const;
+
+			VkInstance vkInstance{ VK_NULL_HANDLE };
 			vector<const char*> enabledExtensions;
+			VkDebugUtilsMessengerEXT debugUtilsMessenger{ VK_NULL_HANDLE };
 		};
 	}
 }
