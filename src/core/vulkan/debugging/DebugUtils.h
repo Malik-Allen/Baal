@@ -7,6 +7,8 @@
 
 #include <vulkan/vulkan_core.h>
 
+// Derived-from: https://docs.vulkan.org/samples/latest/samples/extensions/debug_utils/README.html
+
 namespace Baal
 {
 	namespace VK

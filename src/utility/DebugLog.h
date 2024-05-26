@@ -99,7 +99,7 @@ namespace Baal
 			output.append( BuildTimeStamp() );
 			output.append( "[" );
 			output.append( ToString( logType ) );
-			output.append( "]\t" );
+			output.append( "] " );
 			output.append( BuildFunctionSignature( function, line ) );
 			output.append( ":\t" );
 			output.append( message );
@@ -125,7 +125,7 @@ namespace Baal
 			output.append( BuildTimeStamp() );
 			output.append( "[" );
 			output.append( ToString( logType ) );
-			output.append( "]\t" );
+			output.append( "] " );
 			output.append( BuildFunctionSignature( function, line ) );
 			output.append( ":\t" );
 			output.append( message );
