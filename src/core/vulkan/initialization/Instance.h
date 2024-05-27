@@ -15,6 +15,8 @@ namespace Baal
 {
 	namespace VK
 	{
+		class PhysicalDevice;
+
 		/*
 		* Main responsibilities:
 		*	Initializing the VkInstance
@@ -49,9 +51,13 @@ namespace Baal
 			bool IsLayerAvailable(const char* layerName, const std::vector<VkLayerProperties>& layers) const;
 			bool IsExtensionAvailable(const char* extensionName, const std::vector<VkExtensionProperties>& extensions) const;
 
+			void QueryPhysicalDevices(std::vector<VkPhysicalDevice>& outDevices) const;
+			void SelectPhysicalDevice(std::vector<VkPhysicalDevice>& devices);
+
 			VkInstance vkInstance{ VK_NULL_HANDLE };
-			vector<const char*> enabledExtensions;
+			std::vector<const char*> enabledExtensions;
 			VkDebugUtilsMessengerEXT debugUtilsMessenger{ VK_NULL_HANDLE };
+			std::unique_ptr<PhysicalDevice> physicalDevice;
 		};
 	}
 }

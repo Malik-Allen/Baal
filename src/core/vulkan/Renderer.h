@@ -3,7 +3,7 @@
 #ifndef BAAL_VK_RENDERER_H
 #define BAAL_VK_RENDERER_H
 
-#include "devices/Instance.h"
+#include "initialization/Instance.h"
 
 using namespace std;
 

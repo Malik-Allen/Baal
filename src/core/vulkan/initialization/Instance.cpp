@@ -3,6 +3,7 @@
 #include "Instance.h"
 
 #include "../debugging/DebugUtils.h"
+#include "../devices/PhysicalDevice.h"
 
 #include <stdexcept>
 
@@ -117,10 +118,16 @@ namespace Baal
 					throw std::runtime_error("Failed to create vulkan debug utils messenger!");
 				}
 			}
+
+			std::vector<VkPhysicalDevice> availableDevices;
+			QueryPhysicalDevices(availableDevices);
+			SelectPhysicalDevice(availableDevices);
 		}
 
 		Instance::~Instance()
 		{
+			physicalDevice.reset();
+
 			DestroyDebugUtilsMessengerEXT(vkInstance, debugUtilsMessenger, nullptr);
 			vkDestroyInstance(vkInstance, nullptr);
 		}
@@ -182,6 +189,36 @@ namespace Baal
 				}
 			}
 			return false;
+		}
+
+		void Instance::QueryPhysicalDevices(std::vector<VkPhysicalDevice>& outDevices) const
+		{
+			uint32_t count;
+			vkEnumeratePhysicalDevices(vkInstance, &count, nullptr);
+			outDevices.resize(count);
+			vkEnumeratePhysicalDevices(vkInstance, &count, outDevices.data());
+
+			DEBUG_LOG(LOG::INFO, "Found {} physical devices.", count);
+
+			VkPhysicalDeviceProperties properties;
+			for(auto& device : outDevices)
+			{
+				vkGetPhysicalDeviceProperties(device, &properties);
+
+				DEBUG_LOG(LOG::INFO, "\tDevice: \"{}\" \t Vulkan Version: {}", properties.deviceName, properties.apiVersion);
+			}
+		}
+
+		void Instance::SelectPhysicalDevice(std::vector<VkPhysicalDevice>& devices)
+		{
+			for(auto& device : devices)
+			{
+				// This is a chance to look at the QueueFamily Properties for each Physical Device
+				// However, for the purpose of getting started we will select the first avaialble device
+
+				physicalDevice = make_unique<PhysicalDevice>(device);
+				break;
+			}
 		}
 	}
 }
