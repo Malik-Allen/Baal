@@ -7,7 +7,13 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 
 file(GLOB_RECURSE SOURCES "${PROJECT_SOURCE_DIR}/src/*.cpp")
 
-add_executable(Baal ${SOURCES})
+if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+    # This is the main project
+    add_executable(Baal ${SOURCES})
+else()
+    # This is a subproject
+    add_library(Baal STATIC ${SOURCES})
+endif()
 
 target_include_directories(Baal PRIVATE ${PROJECT_SOURCE_DIR}/include)
 
