@@ -38,7 +38,14 @@ The `PhysicalDevice` represents a single complete implementation of Vulkan or in
 ### Physical Devices
 Looked up by an Instance, a PhysicalDevice can be selected based on its avaialble properties, version, etc. Its up to the developer to select the PhysicalDevice.
 
-Each PhysicalDevice will have properties on its avaialble the `Queues` and their `QueueFamilies`.
+Each PhysicalDevice will have properties on its avaialble the `Queues` and their `QueueFamilies` which can be queried.
+
+### Logical Device
+Once a PhysicalDevice has been selected a LogicalDevice can then be created. That corresponding LogicalDevice can now be used as the interface of the PhysicalDevice.
+
+Note: A single LogicalDevice can be created from a group of PhysicalDevice. Groups of PhysicalDevice using a single LogicalDevice must support iddentical extensions, features, and properties.
+
 
 # Next Up
 - Logical and Queues
+- Creating Logical Device using the Physical Device --> Completing the Logical Device Constructor and Deconstrutor, print out some properties, confirmations of the Logical Device succesffuly created

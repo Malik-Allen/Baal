@@ -14,6 +14,7 @@ namespace Baal
 
 		class PhysicalDevice
 		{
+			friend class LogicalDevice;
 		public:
 			explicit PhysicalDevice(VkPhysicalDevice& _vkPhysicalDevice);
 			PhysicalDevice(const PhysicalDevice&) = delete;
@@ -22,10 +23,12 @@ namespace Baal
 			~PhysicalDevice();
 
 			PhysicalDevice& operator=(const PhysicalDevice&) = delete;
-			PhysicalDevice& operator = (PhysicalDevice&&) = delete;
+			PhysicalDevice& operator=(PhysicalDevice&&) = delete;
 
 		private:
 			VkPhysicalDevice vkPhysicalDevice{VK_NULL_HANDLE};
+
+			VkPhysicalDevice& GetPhysicalDevice();
 		};
 	}
 }
