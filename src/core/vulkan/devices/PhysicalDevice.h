@@ -4,6 +4,7 @@
 #define BAAL_VK_PHYSICALDEVICE_H
 
 #include <vulkan/vulkan_core.h>
+#include <vector>
 
 namespace Baal
 {
@@ -14,7 +15,6 @@ namespace Baal
 
 		class PhysicalDevice
 		{
-			friend class LogicalDevice;
 		public:
 			explicit PhysicalDevice(VkPhysicalDevice& _vkPhysicalDevice);
 			PhysicalDevice(const PhysicalDevice&) = delete;
@@ -25,10 +25,14 @@ namespace Baal
 			PhysicalDevice& operator=(const PhysicalDevice&) = delete;
 			PhysicalDevice& operator=(PhysicalDevice&&) = delete;
 
+			VkPhysicalDevice GetPhysicalDevice() const;
+
+			const VkPhysicalDeviceProperties& GetProperties() const;
+			const std::vector<VkQueueFamilyProperties>& GetQueueFamilyProperties() const;
 		private:
 			VkPhysicalDevice vkPhysicalDevice{VK_NULL_HANDLE};
-
-			VkPhysicalDevice& GetPhysicalDevice();
+			VkPhysicalDeviceProperties properties;
+			std::vector<VkQueueFamilyProperties> queueFamilyproperties;
 		};
 	}
 }

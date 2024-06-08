@@ -132,9 +132,14 @@ namespace Baal
 			vkDestroyInstance(vkInstance, nullptr);
 		}
 
-		const VkInstance& Instance::GetVkInstance() const
+		VkInstance& Instance::GetVkInstance()
 		{
 			return vkInstance;
+		}
+
+		PhysicalDevice& Instance::GetGPU()
+		{
+			return *physicalDevice.get();
 		}
 
 		void Instance::QueryAvailableLayers(std::vector<VkLayerProperties>& outLayers) const

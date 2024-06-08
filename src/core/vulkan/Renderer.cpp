@@ -2,6 +2,9 @@
 
 #include "Renderer.h"
 
+#include "../src/core/vulkan/initialization/Instance.h"
+#include "../src/core/vulkan/devices/LogicalDevice.h"
+
 namespace Baal
 {
 	namespace VK
@@ -9,6 +12,8 @@ namespace Baal
 		Renderer::Renderer(const string& appName) 
 		{
 			instance = make_unique<Instance>(appName);
+			
+			device = make_unique<LogicalDevice>(instance->GetGPU());
 		}
 
 		Renderer::~Renderer() 

@@ -3,7 +3,8 @@
 #ifndef BAAL_VK_RENDERER_H
 #define BAAL_VK_RENDERER_H
 
-#include "initialization/Instance.h"
+#include <memory>
+#include <string>
 
 using namespace std;
 
@@ -11,6 +12,9 @@ namespace Baal
 {
 	namespace VK
 	{
+		class Instance;
+		class LogicalDevice;
+
 		class Renderer
 		{
 		public:
@@ -29,6 +33,7 @@ namespace Baal
 			void Shutdown();
 
 			unique_ptr<Instance> instance;
+			unique_ptr<LogicalDevice> device;
 		};
 	}
 }

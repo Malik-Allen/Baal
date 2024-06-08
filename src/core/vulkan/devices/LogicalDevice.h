@@ -12,11 +12,11 @@ namespace Baal
 		class PhysicalDevice;
 
 		// The interface that is used to interact with the vkPhysicalDevice
-
-
+		
 		class LogicalDevice
 		{
-			explicit LogicalDevice(PhysicalDevice& physicalDevice);
+		public:
+			explicit LogicalDevice(const PhysicalDevice& _physicalDevice);
 			LogicalDevice(const LogicalDevice&) = delete;
 			LogicalDevice(LogicalDevice&&) = delete;
 
@@ -24,6 +24,9 @@ namespace Baal
 
 			LogicalDevice& operator=(const LogicalDevice&) = delete;
 			LogicalDevice& operator = (LogicalDevice&&) = delete;
+		private:
+			const PhysicalDevice& physicalDevice;
+			VkDevice device{ VK_NULL_HANDLE };
 		};
 	}
 }

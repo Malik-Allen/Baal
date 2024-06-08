@@ -42,7 +42,8 @@ namespace Baal
 			Instance& operator=(const Instance&) = delete;
 			Instance& operator = (Instance&&) = delete;
 
-			const VkInstance& GetVkInstance() const;
+			VkInstance& GetVkInstance();
+			PhysicalDevice& GetGPU();
 
 		private:
 			void QueryAvailableLayers(std::vector<VkLayerProperties>& outLayers) const;
@@ -55,6 +56,7 @@ namespace Baal
 			void SelectPhysicalDevice(std::vector<VkPhysicalDevice>& devices);
 
 			VkInstance vkInstance{ VK_NULL_HANDLE };
+			std::vector<const char*> enabledLayers;
 			std::vector<const char*> enabledExtensions;
 			VkDebugUtilsMessengerEXT debugUtilsMessenger{ VK_NULL_HANDLE };
 			std::unique_ptr<PhysicalDevice> physicalDevice;
