@@ -32,8 +32,8 @@ namespace Baal
 			void Render();
 			void Shutdown();
 
-			unique_ptr<Instance> instance;
-			unique_ptr<LogicalDevice> device;
+			std::unique_ptr<Instance> instance;
+			std::unique_ptr<LogicalDevice> device;
 		};
 	}
 }

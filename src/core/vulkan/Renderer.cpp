@@ -4,6 +4,7 @@
 
 #include "../src/core/vulkan/initialization/Instance.h"
 #include "../src/core/vulkan/devices/LogicalDevice.h"
+#include "../src/core/vulkan/commands/CommandPool.h"
 
 namespace Baal
 {
@@ -11,13 +12,18 @@ namespace Baal
 	{
 		Renderer::Renderer(const string& appName) 
 		{
-			instance = make_unique<Instance>(appName);
+			instance = std::make_unique<Instance>(appName);
 			
-			device = make_unique<LogicalDevice>(instance->GetGPU());
+			device = std::make_unique<LogicalDevice>(instance->GetGPU());
+
+			
 		}
 
 		Renderer::~Renderer() 
-		{}
+		{
+			device.reset();
+			instance.reset();
+		}
 
 		void Renderer::Init()
 		{
