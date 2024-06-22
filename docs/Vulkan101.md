@@ -22,10 +22,10 @@ https://github.com/SaschaWillems/Vulkan-Samples/tree/main/framework/core
 The Vulkan `Instance`, simply put, when a `VkInstance` is created, the Vulkan library is initialized.
 
 The `Instance` is responsible for the following:
-	- Enabling layers
-	- Enabling extensions
-	- Finding Physical Devices (GPUs)
-	- Setting up debug callbacks
+- Enabling layers
+- Enabling extensions
+- Finding Physical Devices (GPUs)
+- Setting up debug callbacks
 
 ### Layers
 - When `Layers` are enabled, they are inserted into the call chain for Vulkan commands. They are useful for things like logging, tracing, validation etc.
@@ -52,9 +52,30 @@ Note: A single LogicalDevice can be created from a group of PhysicalDevice. Grou
 
 When a Logical Device is created all of the GPUs queues are created as well. This is where you have an opportunity to define the queue priorities based on the needs of the application and what is avaialble on the GPU.
 
-Note: Queues with the same priority do not guarantee order, they may come in any order
+> **Note:** Queues with the same priority do not guarantee order, they may come in any order
 
-Note: Queues are created and destroyed along with the Logical Device. (Their lifetime are coupled)
+> **Note:** Queues are created and destroyed along with the Logical Device. (Their lifetime are coupled)
+
+### Command Buffers
+Command Buffers are objects that can record commands and send them to a Logical Device Queue to be executed.
+
+There are two levels for Command Buffers. There are `Primary` Command Buffers, which can execute `Secondary` Command Buffers, and can be submitted to Queues. There are `Secondary` Command Buffers, which can be executed by `Primary` Command Buffers, which are not directly submitted to Queues.
+
+Each Command Buffer can be in one of the following states:
+- `Initial`, when a Command Buffer is allocated, it is in the initial state.
+- `Recording`, in this state Commands can be recorded to the Command Buffer
+- `Executable`, the recording state has ended, now the Command Buffer can be submitted to a queue, recorded to another command buffer, or reset to its initial state
+- `Pending`, when submitted to a queue, the buffer will enter the pending state. During which, Command Buffers must not be modified, since the device could be processing the commands recorded to it. After completion a command buffer can revert back to its Executbale or Invalid state.
+- `Invalid`, when modifying or deleting a resource recorded by a command buffer, will transition the command buffer to the invalid state. Command Buffers in this state can only freed or reset.
+
+The Lifecycle of a Command Buffer:
+
+![Lifecycle of a Command Buffer](resources/TheLifeOfACommandBuffer.png)
+
+> **Note:** If a secondary command buffer moves to initial or invalid state, then all primary command buffers that is recorded in will move to the invalid state. A primary command buffer changing to any other state does not affect the secondary command buffers recorded on it.
+
+### Command Pools
+
 
 # Next Up
 - Command Buffers
