@@ -4,12 +4,14 @@
 #define BAAL_LOGICAL_DEVICE_H
 
 #include <vulkan/vulkan_core.h>
+#include <memory>
 
 namespace Baal
 {
 	namespace VK
 	{
 		class PhysicalDevice;
+		class CommandPool;
 
 		// The interface that is used to interact with the vkPhysicalDevice
 		
@@ -26,9 +28,11 @@ namespace Baal
 			LogicalDevice& operator = (LogicalDevice&&) = delete;
 
 			VkDevice& GetVkDevice() { return device; }
+
 		private:
 			const PhysicalDevice& physicalDevice;
 			VkDevice device{ VK_NULL_HANDLE };
+			std::unique_ptr<CommandPool> commandPool;
 		};
 	}
 }

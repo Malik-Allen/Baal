@@ -8,9 +8,12 @@ I will never write this renderer from scratch again, I want to make it simple to
 To my future self, your welcome!
 
 # Resources
+https://registry.khronos.org/vulkan/specs/1.3/html/
 https://registry.khronos.org/vulkan/specs/1.1/html/vkspec.html#introduction
 
 https://github.com/SaschaWillems/Vulkan-Samples/tree/main/framework/core
+
+https://vulkan-tutorial.com/
 
 # Obseravations
 
@@ -75,7 +78,8 @@ The Lifecycle of a Command Buffer:
 > **Note:** If a secondary command buffer moves to initial or invalid state, then all primary command buffers that is recorded in will move to the invalid state. A primary command buffer changing to any other state does not affect the secondary command buffers recorded on it.
 
 ### Command Pools
-
+Command Pools are opaque objects that Command Buffers Memory is allocated from. This is done to reduce the cost over time for the resource creation of Command Buffers.
 
 # Next Up
 - Command Buffers
+- Command Pool

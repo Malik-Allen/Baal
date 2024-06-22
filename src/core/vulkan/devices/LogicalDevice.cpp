@@ -2,6 +2,7 @@
 
 #include "LogicalDevice.h"
 #include "../src/core/vulkan/devices/PhysicalDevice.h"
+#include "../src/core/vulkan/commands/CommandPool.h"
 
 #include <stdexcept>
 
@@ -40,11 +41,23 @@ namespace Baal
 			deviceInfo.queueCreateInfoCount = deviceQueueInfos.size();
 			deviceInfo.pQueueCreateInfos = deviceQueueInfos.data();
 
-			vkCreateDevice(physicalDevice.GetVkPhysicalDevice(), &deviceInfo, nullptr, &device);
+			VkResult result;
+			result = vkCreateDevice(physicalDevice.GetVkPhysicalDevice(), &deviceInfo, nullptr, &device);
+
+			if (result != VK_SUCCESS) 
+			{
+				throw std::runtime_error("Failed to create device!");
+			}
+
+			commandPool = std::make_unique<CommandPool>(*this, 0);
+
+			// TODO: Add logic to find the Graphics Family Queue Index VK_QUEUE_GRAPHICS_BIT, pass that to the CommandPool constructor
 		}
 
 		LogicalDevice::~LogicalDevice()
 		{
+			commandPool.reset();
+
 			vkDestroyDevice(device, nullptr);
 		}
 	}
