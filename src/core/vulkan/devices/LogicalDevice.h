@@ -24,6 +24,8 @@ namespace Baal
 
 			LogicalDevice& operator=(const LogicalDevice&) = delete;
 			LogicalDevice& operator = (LogicalDevice&&) = delete;
+
+			VkDevice& GetVkDevice() { return device; }
 		private:
 			const PhysicalDevice& physicalDevice;
 			VkDevice device{ VK_NULL_HANDLE };

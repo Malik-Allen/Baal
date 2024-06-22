@@ -25,7 +25,7 @@ namespace Baal
 			PhysicalDevice& operator=(const PhysicalDevice&) = delete;
 			PhysicalDevice& operator=(PhysicalDevice&&) = delete;
 
-			VkPhysicalDevice GetPhysicalDevice() const;
+			VkPhysicalDevice GetVkPhysicalDevice() const;
 
 			const VkPhysicalDeviceProperties& GetProperties() const;
 			const std::vector<VkQueueFamilyProperties>& GetQueueFamilyProperties() const;

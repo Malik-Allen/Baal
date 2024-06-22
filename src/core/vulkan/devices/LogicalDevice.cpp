@@ -40,7 +40,7 @@ namespace Baal
 			deviceInfo.queueCreateInfoCount = deviceQueueInfos.size();
 			deviceInfo.pQueueCreateInfos = deviceQueueInfos.data();
 
-			vkCreateDevice(physicalDevice.GetPhysicalDevice(), &deviceInfo, nullptr, &device);
+			vkCreateDevice(physicalDevice.GetVkPhysicalDevice(), &deviceInfo, nullptr, &device);
 		}
 
 		LogicalDevice::~LogicalDevice()

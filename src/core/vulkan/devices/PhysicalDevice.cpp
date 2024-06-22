@@ -26,7 +26,7 @@ namespace Baal
 
 		}
 
-		VkPhysicalDevice PhysicalDevice::GetPhysicalDevice() const
+		VkPhysicalDevice PhysicalDevice::GetVkPhysicalDevice() const
 		{
 			return vkPhysicalDevice;
 		}
