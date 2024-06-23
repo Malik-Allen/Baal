@@ -1,4 +1,4 @@
-// MIT License, Copyright (c) 2023 Malik Allen
+// MIT License, Copyright (c) 2019 Malik Allen
 
 #ifndef BAAL_LOGICAL_DEVICE_H
 #define BAAL_LOGICAL_DEVICE_H
