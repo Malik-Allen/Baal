@@ -51,7 +51,7 @@ Each PhysicalDevice will have properties on its avaialble the `Queues` and their
 ### Logical Device
 Once a PhysicalDevice has been selected a LogicalDevice can then be created. That corresponding LogicalDevice can now be used as the interface of the PhysicalDevice.
 
-Note: A single LogicalDevice can be created from a group of PhysicalDevice. Groups of PhysicalDevice using a single LogicalDevice must support iddentical extensions, features, and properties.
+> **Note:** A single LogicalDevice can be created from a group of PhysicalDevice. Groups of PhysicalDevice using a single LogicalDevice must support iddentical extensions, features, and properties.
 
 When a Logical Device is created all of the GPUs queues are created as well. This is where you have an opportunity to define the queue priorities based on the needs of the application and what is avaialble on the GPU.
 
@@ -61,6 +61,8 @@ When a Logical Device is created all of the GPUs queues are created as well. Thi
 
 ### Command Buffers
 Command Buffers are objects that can record commands and send them to a Logical Device Queue to be executed.
+
+Recorded commands include commands to bind pipelines and descriptor sets to the command buffer, commands to modify dynamic state, commands to draw (for graphics rendering), commands to dispatch (for compute), commands to execute secondary command buffers (for primary command buffers only), commands to copy buffers and images, and other commands.
 
 There are two levels for Command Buffers. There are `Primary` Command Buffers, which can execute `Secondary` Command Buffers, and can be submitted to Queues. There are `Secondary` Command Buffers, which can be executed by `Primary` Command Buffers, which are not directly submitted to Queues.
 
@@ -83,3 +85,5 @@ Command Pools are opaque objects that Command Buffers Memory is allocated from. 
 # Next Up
 - Command Buffers
 - Command Pool 
+- Command Buffer Recording
+- Command Buffer Submission
