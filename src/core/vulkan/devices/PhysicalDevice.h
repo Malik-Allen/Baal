@@ -29,10 +29,12 @@ namespace Baal
 
 			const VkPhysicalDeviceProperties& GetProperties() const;
 			const std::vector<VkQueueFamilyProperties>& GetQueueFamilyProperties() const;
+			uint32_t GetQueueFamilyIndex(VkQueueFlags flags) const;
+
 		private:
 			VkPhysicalDevice vkPhysicalDevice{VK_NULL_HANDLE};
 			VkPhysicalDeviceProperties properties;
-			std::vector<VkQueueFamilyProperties> queueFamilyproperties;
+			std::vector<VkQueueFamilyProperties> queueFamilyProperties;
 		};
 	}
 }

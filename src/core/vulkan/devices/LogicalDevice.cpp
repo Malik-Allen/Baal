@@ -49,9 +49,7 @@ namespace Baal
 				throw std::runtime_error("Failed to create device!");
 			}
 
-			commandPool = std::make_unique<CommandPool>(*this, 0);
-
-			// TODO: Add logic to find the Graphics Family Queue Index VK_QUEUE_GRAPHICS_BIT, pass that to the CommandPool constructor
+			commandPool = std::make_unique<CommandPool>(*this, physicalDevice.GetQueueFamilyIndex(VK_QUEUE_GRAPHICS_BIT));
 		}
 
 		LogicalDevice::~LogicalDevice()

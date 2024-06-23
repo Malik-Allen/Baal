@@ -15,8 +15,8 @@ namespace Baal
 
 			uint32_t count;
 			vkGetPhysicalDeviceQueueFamilyProperties(vkPhysicalDevice, &count, nullptr);
-			queueFamilyproperties.resize(count);
-			vkGetPhysicalDeviceQueueFamilyProperties(vkPhysicalDevice, &count, queueFamilyproperties.data());
+			queueFamilyProperties.resize(count);
+			vkGetPhysicalDeviceQueueFamilyProperties(vkPhysicalDevice, &count, queueFamilyProperties.data());
 
 			DEBUG_LOG(LOG::INFO, "{} queue families avalable", count);
 		}
@@ -38,7 +38,20 @@ namespace Baal
 		
 		const std::vector<VkQueueFamilyProperties>& PhysicalDevice::GetQueueFamilyProperties() const
 		{
-			return queueFamilyproperties;
+			return queueFamilyProperties;
+		}
+
+		uint32_t PhysicalDevice::GetQueueFamilyIndex(VkQueueFlags flags) const
+		{
+			uint32_t size = queueFamilyProperties.size();
+			for (uint32_t i = 0; i < size; ++i) 
+			{
+				if (queueFamilyProperties[i].queueFlags & flags) 
+				{
+					return i;
+				}
+			}
+			throw std::runtime_error("Could not find matching queue family index");
 		}
 	}
 }

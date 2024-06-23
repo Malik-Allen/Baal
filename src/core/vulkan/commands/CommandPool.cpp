@@ -16,6 +16,7 @@ namespace Baal
 		{
 			VkCommandPoolCreateInfo createInfo{ VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
 			createInfo.queueFamilyIndex = queueFamilyIndex;
+			createInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 
 			VkResult result;
 			result = vkCreateCommandPool(device.GetVkDevice(), &createInfo, nullptr, &vkCommandPool);
@@ -25,7 +26,7 @@ namespace Baal
 				throw std::runtime_error("Failed to create command pool!");
 			}
 
-			DEBUG_LOG(LOG::INFO, "Created command pool...QueueFamilyIndex: {}", queueFamilyIndex);
+			DEBUG_LOG(LOG::INFO, "Created command pool... QueueFamilyIndex: {}", queueFamilyIndex);
 		}
 
 		CommandPool::~CommandPool() 
