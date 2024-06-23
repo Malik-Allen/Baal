@@ -59,6 +59,9 @@ When a Logical Device is created all of the GPUs queues are created as well. Thi
 
 > **Note:** Queues are created and destroyed along with the Logical Device. (Their lifetime are coupled)
 
+
+## Commands
+
 ### Command Buffers
 Command Buffers are objects that can record commands and send them to a Logical Device Queue to be executed.
 
