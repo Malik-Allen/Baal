@@ -11,6 +11,7 @@ namespace Baal
 	{
 		class LogicalDevice;
 
+		// Used to allocate memory for command buffers
 		class CommandPool
 		{
 		public:
@@ -23,6 +24,9 @@ namespace Baal
 
 			CommandPool& operator=(const CommandPool&) = delete;
 			CommandPool& operator=(CommandPool&&) = delete;
+
+			VkCommandPool& GetVkCommandPool() { return vkCommandPool; }
+			LogicalDevice& GetDevice() { return device; };
 
 		private:
 			VkCommandPool vkCommandPool{ VK_NULL_HANDLE };
