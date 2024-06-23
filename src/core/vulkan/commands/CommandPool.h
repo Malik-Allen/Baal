@@ -11,7 +11,7 @@ namespace Baal
 	{
 		class LogicalDevice;
 
-		// Used to allocate memory for command buffers
+		// Block of memory where Command Buffers are allocated from
 		class CommandPool
 		{
 		public:
