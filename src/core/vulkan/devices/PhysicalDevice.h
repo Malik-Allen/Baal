@@ -1,4 +1,4 @@
-// MIT License, Copyright (c) 2019 Malik Allen
+// MIT License, Copyright (c) 2023 Malik Allen
 
 #ifndef BAAL_VK_PHYSICALDEVICE_H
 #define BAAL_VK_PHYSICALDEVICE_H
