@@ -9,10 +9,6 @@ To my future self, your welcome!
 
 # Resources
 https://registry.khronos.org/vulkan/specs/1.3/html/
-https://registry.khronos.org/vulkan/specs/1.1/html/vkspec.html#introduction
-
-https://github.com/SaschaWillems/Vulkan-Samples/tree/main/framework/core
-
 https://vulkan-tutorial.com/
 
 # Obseravations
