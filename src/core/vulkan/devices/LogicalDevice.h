@@ -11,7 +11,6 @@ namespace Baal
 	namespace VK
 	{
 		class PhysicalDevice;
-		class CommandPool;
 
 		// The interface that is used to interact with the vkPhysicalDevice
 		
@@ -32,7 +31,6 @@ namespace Baal
 		private:
 			const PhysicalDevice& physicalDevice;
 			VkDevice device{ VK_NULL_HANDLE };
-			std::unique_ptr<CommandPool> commandPool;
 		};
 	}
 }

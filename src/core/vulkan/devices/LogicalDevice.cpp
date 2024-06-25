@@ -2,7 +2,6 @@
 
 #include "LogicalDevice.h"
 #include "../src/core/vulkan/devices/PhysicalDevice.h"
-#include "../src/core/vulkan/commands/CommandPool.h"
 
 #include <stdexcept>
 
@@ -48,14 +47,10 @@ namespace Baal
 			{
 				throw std::runtime_error("Failed to create device!");
 			}
-
-			commandPool = std::make_unique<CommandPool>(*this, physicalDevice.GetQueueFamilyIndex(VK_QUEUE_GRAPHICS_BIT));
 		}
 
 		LogicalDevice::~LogicalDevice()
 		{
-			commandPool.reset();
-
 			vkDestroyDevice(device, nullptr);
 		}
 	}
