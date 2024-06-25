@@ -27,9 +27,53 @@ namespace Baal
 			}
 		}
 
+		CommandBuffer::CommandBuffer(CommandPool& _commandPool, VkCommandBuffer& _commandBuffer) :
+			commandPool(_commandPool),
+			vkCommandBuffer(_commandBuffer)
+		{
+		}
+
+		CommandBuffer::CommandBuffer(CommandBuffer&& other) noexcept :
+			commandPool(other.commandPool)
+		{
+			if (this != &other) 
+			{
+				vkCommandBuffer = other.vkCommandBuffer;
+				other.vkCommandBuffer = VK_NULL_HANDLE;
+			}
+		}
+
 		CommandBuffer::~CommandBuffer()
 		{
-			vkFreeCommandBuffers(commandPool.GetDevice().GetVkDevice(), commandPool.GetVkCommandPool(), 1, &vkCommandBuffer);
+			if (vkCommandBuffer != VK_NULL_HANDLE) 
+			{
+				vkFreeCommandBuffers(commandPool.GetDevice().GetVkDevice(), commandPool.GetVkCommandPool(), 1, &vkCommandBuffer);
+			}
+		}
+
+		void CommandBuffer::BeginRecording(VkCommandBufferUsageFlags flags)
+		{
+			VkCommandBufferBeginInfo beginInfo = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
+			beginInfo.flags = flags;
+
+			VkResult result;
+			result = vkBeginCommandBuffer(vkCommandBuffer, &beginInfo);
+
+			if (result != VK_SUCCESS)
+			{
+				throw std::runtime_error("Failed to begin recording command buffer!");
+			}
+		}
+
+		void CommandBuffer::EndRecording()
+		{
+			VkResult result;
+			result = vkEndCommandBuffer(vkCommandBuffer);
+
+			if (result != VK_SUCCESS)
+			{
+				throw std::runtime_error("Failed to end recording command buffer!");
+			}
 		}
 	}
 }

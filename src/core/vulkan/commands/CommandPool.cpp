@@ -2,6 +2,7 @@
 
 #include "CommandPool.h"
 #include "../src/core/vulkan/devices/LogicalDevice.h"
+#include "../src/core/vulkan/commands/CommandBuffer.h"
 #include "../src/utility/DebugLog.h"
 
 #include <stdexcept>
@@ -32,6 +33,26 @@ namespace Baal
 		CommandPool::~CommandPool() 
 		{
 			vkDestroyCommandPool(device.GetVkDevice(), vkCommandPool, nullptr);
+		}
+
+		VkResult CommandPool::CreateCommandBuffers(uint32_t count, VkCommandBufferLevel level, std::vector<CommandBuffer>& outCommandBuffers)
+		{
+			VkCommandBufferAllocateInfo allocateInfo{ VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO };
+			allocateInfo.commandPool = vkCommandPool;
+			allocateInfo.level = level;
+			allocateInfo.commandBufferCount = count;
+
+			std::vector<VkCommandBuffer> buffers;
+			buffers.resize(count);
+
+			VkResult result;
+			result = vkAllocateCommandBuffers(GetDevice().GetVkDevice(), &allocateInfo, buffers.data());
+
+			for (size_t i = 0; i < buffers.size(); ++i) 
+			{
+				outCommandBuffers.push_back(CommandBuffer(*this, buffers[i]));
+			}
+			return result;
 		}
 	}
 }

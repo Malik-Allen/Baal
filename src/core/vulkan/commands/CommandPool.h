@@ -4,12 +4,14 @@
 #define BAAL_VK_COMMANDPOOL_H
 
 #include <vulkan/vulkan_core.h>
+#include <vector>
 
 namespace Baal 
 {
 	namespace VK 
 	{
 		class LogicalDevice;
+		class CommandBuffer;
 
 		// Block of memory where Command Buffers are allocated from
 		class CommandPool
@@ -27,6 +29,8 @@ namespace Baal
 
 			VkCommandPool& GetVkCommandPool() { return vkCommandPool; }
 			LogicalDevice& GetDevice() { return device; };
+
+			VkResult CreateCommandBuffers(uint32_t count, VkCommandBufferLevel level, std::vector<CommandBuffer>& outCommandBuffers);
 
 		private:
 			VkCommandPool vkCommandPool{ VK_NULL_HANDLE };

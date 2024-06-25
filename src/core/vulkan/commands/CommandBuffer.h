@@ -15,15 +15,19 @@ namespace Baal
 		class CommandBuffer
 		{
 		public:
-			explicit CommandBuffer(CommandPool& _commandPool, VkCommandBufferLevel level);
+			CommandBuffer(CommandPool& _commandPool, VkCommandBufferLevel level);
+			CommandBuffer(CommandPool& _commandPool, VkCommandBuffer& _commandBuffer);
 
 			CommandBuffer(const CommandBuffer&) = delete;
-			CommandBuffer(CommandBuffer&&) = delete;
+			CommandBuffer(CommandBuffer&& other) noexcept;
 
 			~CommandBuffer();
 
 			CommandBuffer& operator=(const CommandBuffer&) = delete;
 			CommandBuffer& operator=(CommandBuffer&&) = delete;
+
+			void BeginRecording(VkCommandBufferUsageFlags flags);
+			void EndRecording();
 
 		private:
 			VkCommandBuffer vkCommandBuffer{VK_NULL_HANDLE};
