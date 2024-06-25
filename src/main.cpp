@@ -7,6 +7,7 @@ int main()
 {
 	DEBUG_INIT();
 	VK::Renderer renderer("Test Flight");
+	renderer.Init();
 	return 0;
 }
 

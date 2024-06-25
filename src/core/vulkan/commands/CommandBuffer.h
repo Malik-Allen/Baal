@@ -15,6 +15,7 @@ namespace Baal
 		class CommandBuffer
 		{
 		public:
+			CommandBuffer() = delete;
 			CommandBuffer(CommandPool& _commandPool, VkCommandBufferLevel level);
 			CommandBuffer(CommandPool& _commandPool, VkCommandBuffer& _commandBuffer);
 

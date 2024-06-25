@@ -5,6 +5,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 using namespace std;
 
@@ -14,6 +15,8 @@ namespace Baal
 	{
 		class Instance;
 		class LogicalDevice;
+		class CommandPool;
+		class CommandBuffer;
 
 		class Renderer
 		{
@@ -28,12 +31,18 @@ namespace Baal
 			Renderer& operator = (Renderer&&) = delete;
 
 		private:
-			void Init();
 			void Render();
 			void Shutdown();
 
 			std::unique_ptr<Instance> instance;
 			std::unique_ptr<LogicalDevice> device;
+			std::unique_ptr<CommandPool> commandPool;
+
+			std::vector<CommandBuffer> drawCommands;
+
+		public:
+			void Init();
+
 		};
 	}
 }
