@@ -1,13 +1,26 @@
 #include "Baal.h"
 #include "../src/utility/DebugLog.h"
+#include <GLFW/glfw3.h>
 
 using namespace Baal;
 
 int main()
 {
 	DEBUG_INIT();
-	VK::Renderer renderer("Test Flight");
+	GLFWwindow* window;
+	
+	glfwInit();
+	
+	glfwWindowHint( GLFW_CLIENT_API, GLFW_NO_API );
+	
+	window = glfwCreateWindow( 800, 600, "Vulkan", nullptr, nullptr );
+
+	VK::Renderer renderer("Test Flight", window);
+
 	renderer.Init();
+
+	glfwDestroyWindow(window);
+	glfwTerminate();
 	return 0;
 }
 

@@ -2,22 +2,29 @@
 
 #include "Renderer.h"
 
+#include "../src/core/vulkan/debugging/Error.h"
 #include "../src/core/vulkan/initialization/Instance.h"
 #include "../src/core/vulkan/devices/PhysicalDevice.h"
 #include "../src/core/vulkan/devices/LogicalDevice.h"
 #include "../src/core/vulkan/commands/CommandPool.h"
 #include "../src/core/vulkan/commands/CommandBuffer.h"
 
+
 #include <stdexcept>
+#include <GLFW/glfw3.h>
 
 namespace Baal
 {
 	namespace VK
 	{
-		Renderer::Renderer(const string& appName) 
+		Renderer::Renderer(const std::string& appName, GLFWwindow* window)
 		{
-			instance = std::make_unique<Instance>(appName);
-			
+			std::vector<const char*> extensions = GetRequiredGLFWExtenstions();
+
+			instance = std::make_unique<Instance>(appName, true, extensions);
+
+			VK_CHECK(glfwCreateWindowSurface(instance.get()->GetVkInstance(), window, nullptr, &surface), "creating window surface");
+
 			device = std::make_unique<LogicalDevice>(instance->GetGPU());
 
 			commandPool = std::make_unique<CommandPool>(*device.get(), instance->GetGPU().GetQueueFamilyIndex(VK_QUEUE_GRAPHICS_BIT));
@@ -29,25 +36,31 @@ namespace Baal
 
 			commandPool.reset();
 			device.reset();
+
+			vkDestroySurfaceKHR(instance.get()->GetVkInstance(), surface, nullptr);
+
 			instance.reset();
 		}
 
 		void Renderer::Init()
 		{
 			drawCommands.reserve(3);
-
-			VkResult result;
-			result = commandPool->CreateCommandBuffers(3, VK_COMMAND_BUFFER_LEVEL_PRIMARY, drawCommands);
-			if (result != VK_SUCCESS) 
-			{
-				throw std::runtime_error("Failed to create draw commands!");
-			}
+			VK_CHECK(commandPool->CreateCommandBuffers(3, VK_COMMAND_BUFFER_LEVEL_PRIMARY, drawCommands), "creating draw commands");
 		}
 
-		void Renderer::Render()
+		void Renderer::RenderFrame()
 		{}
 
 		void Renderer::Shutdown()
 		{}
+
+		std::vector<const char*> Renderer::GetRequiredGLFWExtenstions() const
+		{
+			uint32_t glfwExtensionCount = 0;
+			const char** glfwExtensions;
+			glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+			std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
+			return extensions;
+		}
 	}
 }

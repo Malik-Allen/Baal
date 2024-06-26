@@ -6,8 +6,11 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <vulkan/vulkan_core.h>
 
 using namespace std;
+
+class GLFWwindow;
 
 namespace Baal
 {
@@ -21,7 +24,7 @@ namespace Baal
 		class Renderer
 		{
 		public:
-			explicit Renderer(const string& appName);
+			explicit Renderer(const std::string& appName, GLFWwindow* window);
 			Renderer(const Renderer&) = delete;
 			Renderer(Renderer&&) = delete;
 
@@ -31,18 +34,20 @@ namespace Baal
 			Renderer& operator = (Renderer&&) = delete;
 
 		private:
-			void Render();
-			void Shutdown();
+			std::vector<const char*> GetRequiredGLFWExtenstions() const;
 
 			std::unique_ptr<Instance> instance;
 			std::unique_ptr<LogicalDevice> device;
-			std::unique_ptr<CommandPool> commandPool;
 
+			VkSurfaceKHR surface;
+
+			std::unique_ptr<CommandPool> commandPool;
 			std::vector<CommandBuffer> drawCommands;
 
 		public:
 			void Init();
-
+			void RenderFrame();
+			void Shutdown();
 		};
 	}
 }
