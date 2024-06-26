@@ -82,7 +82,6 @@ The Lifecycle of a Command Buffer:
 Command Pools are opaque objects that Command Buffers Memory is allocated from. This is done to reduce the cost over time for the resource creation of Command Buffers.
 
 # Next Up
-- Command Buffers
-- Command Pool 
-- Command Buffer Recording
+- Window/Surface Setup for Flow Engine https://vulkan-tutorial.com/Drawing_a_triangle/Presentation/Window_surface
 - Command Buffer Submission
+- 
