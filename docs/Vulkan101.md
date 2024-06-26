@@ -10,6 +10,7 @@ To my future self, your welcome!
 # Resources
 https://registry.khronos.org/vulkan/specs/1.3/html/
 https://vulkan-tutorial.com/
+https://vkguide.dev/
 
 # Obseravations
 
@@ -40,30 +41,36 @@ Vulkan has two concepts of devices. A `PhysicalDevice` and a `LogicalDevice`.
 The `PhysicalDevice` represents a single complete implementation of Vulkan or in other words represents a GPU. A `LogicalDevice` represents an instance of that implementaion with its own state and resources.
 
 ### Physical Devices
-Looked up by an Instance, a PhysicalDevice can be selected based on its avaialble properties, version, etc. Its up to the developer to select the PhysicalDevice.
+Looked up by an Instance, a Physical Device can be selected based on its avaialble properties, version, etc. Its up to the developer to select their desired Physical Device.
 
-Each PhysicalDevice will have properties on its avaialble the `Queues` and their `QueueFamilies` which can be queried.
+Each Physical Device will have properties on its avaialble `Queues` and their `QueueFamilies`.
 
 ### Logical Device
-Once a PhysicalDevice has been selected a LogicalDevice can then be created. That corresponding LogicalDevice can now be used as the interface of the PhysicalDevice.
+Once a Physical Device has been selected, a Logical Device can then be created. That corresponding Logical Device can now be used as the interface of the PhysicalDevice.
 
-> **Note:** A single LogicalDevice can be created from a group of PhysicalDevice. Groups of PhysicalDevice using a single LogicalDevice must support iddentical extensions, features, and properties.
-
-When a Logical Device is created all of the GPUs queues are created as well. This is where you have an opportunity to define the queue priorities based on the needs of the application and what is avaialble on the GPU.
+When a Logical Device is created all of the GPU's queues are created as well. This is where you have an opportunity to define the `Queue Priorities` based on the needs of the application and what is avaialble on the GPU.
 
 > **Note:** Queues with the same priority do not guarantee order, they may come in any order
 
 > **Note:** Queues are created and destroyed along with the Logical Device. (Their lifetime are coupled)
 
+A single Logical Device can be created from a group of Physical Devices. Groups of Physical Devices using a single Logical Device must support identical extensions, features, and properties.
+
+### Queues
+`CommandBuffers` are submitted to Queues to be executed on the GPU. Every GPU has multiple queues available. You can use multiple queues at the same time (in parallel).
+
+All Queues come from a `QueueFamily`. A Queue Family defines the type of Queue and what commands that Queue supports. (Examples of Queue Families include: Graphics, Compute, Transfer, etc.)
+
+> **Note:** When creating Command Pool, it is created for a specific Queue Family. All Command Buffers created from the corresponding Command Pool can only be used for that Queue Family.
 
 ## Commands
 
 ### Command Buffers
-Command Buffers are objects that can record commands and send them to a Logical Device Queue to be executed.
+Command Buffers are objects that can record commands and send them to a Queue to be executed.
 
 Recorded commands include commands to bind pipelines and descriptor sets to the command buffer, commands to modify dynamic state, commands to draw (for graphics rendering), commands to dispatch (for compute), commands to execute secondary command buffers (for primary command buffers only), commands to copy buffers and images, and other commands.
 
-There are two levels for Command Buffers. There are `Primary` Command Buffers, which can execute `Secondary` Command Buffers, and can be submitted to Queues. There are `Secondary` Command Buffers, which can be executed by `Primary` Command Buffers, which are not directly submitted to Queues.
+There are two levels for Command Buffers. There are `Primary` Command Buffers, which can execute Secondary Command Buffers, and can be submitted to Queues. There are `Secondary` Command Buffers, which can be executed by Primary Command Buffers, which are not directly submitted to Queues.
 
 Each Command Buffer can be in one of the following states:
 - `Initial`, when a Command Buffer is allocated, it is in the initial state.
@@ -79,9 +86,8 @@ The Lifecycle of a Command Buffer:
 > **Note:** If a secondary command buffer moves to initial or invalid state, then all primary command buffers that is recorded in will move to the invalid state. A primary command buffer changing to any other state does not affect the secondary command buffers recorded on it.
 
 ### Command Pools
-Command Pools are opaque objects that Command Buffers Memory is allocated from. This is done to reduce the cost over time for the resource creation of Command Buffers.
+Command Pools are opaque objects that Command Buffers' memory is allocated from. This is done to reduce the cost over time for the resource creation of Command Buffers.
 
 # Next Up
-- Window/Surface Setup for Flow Engine https://vulkan-tutorial.com/Drawing_a_triangle/Presentation/Window_surface
 - Command Buffer Submission
-- 
+- Synchronization & Cache Control
