@@ -48,7 +48,7 @@ Each Physical Device will have properties on its avaialble `Queues` and their `Q
 ### Logical Device
 Once a Physical Device has been selected, a Logical Device can then be created. That corresponding Logical Device can now be used as the interface of the PhysicalDevice.
 
-When a Logical Device is created all of the GPU's queues are created as well. This is where you have an opportunity to define the `Queue Priorities` based on the needs of the application and what is avaialble on the GPU.
+When a Logical Device is created, all of the GPU's queues are created as well. This is where you have an opportunity to define the `Queue Priorities`, based on the needs of the application and what is avaialble on the GPU.
 
 > **Note:** Queues with the same priority do not guarantee order, they may come in any order
 
@@ -89,5 +89,6 @@ The Lifecycle of a Command Buffer:
 Command Pools are opaque objects that Command Buffers' memory is allocated from. This is done to reduce the cost over time for the resource creation of Command Buffers.
 
 # Next Up
+- Add VK_CHECKS() to neccessary locations
 - Command Buffer Submission
 - Synchronization & Cache Control
