@@ -49,10 +49,31 @@ namespace Baal
 		}
 
 		void Renderer::RenderFrame()
-		{}
+		{
+			drawCommands[0].Reset();
+			drawCommands[0].BeginRecording(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+			VkViewport viewport{};
+			viewport.x = 0.0f;
+			viewport.y = 0.0f;
+			viewport.width = 800.0f;
+			viewport.height = 600.0f;
+			viewport.minDepth = 0.0f;
+			viewport.maxDepth = 1.0f;
+			vkCmdSetViewport(drawCommands[0].GetVkCommandBuffer(), 0, 1, &viewport);
+			drawCommands[0].EndRecording();
+
+			VkSubmitInfo submitInfo = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
+			
+			submitInfo.commandBufferCount = 1;
+			submitInfo.pCommandBuffers = &drawCommands[0].GetVkCommandBuffer();
+
+			VK_CHECK(vkQueueSubmit(device->GetGraphicsQueue(), 1, &submitInfo, nullptr), "submitting graphics queue");
+			VK_CHECK(vkQueueWaitIdle(device->GetGraphicsQueue()), "waiting idle graphics queue");
+		}
 
 		void Renderer::Shutdown()
-		{}
+		{
+		}
 
 		std::vector<const char*> Renderer::GetRequiredGLFWExtenstions() const
 		{

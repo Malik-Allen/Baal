@@ -58,5 +58,10 @@ namespace Baal
 		{
 			VK_CHECK(vkEndCommandBuffer(vkCommandBuffer), "ending command buffer recording");
 		}
+
+		void CommandBuffer::Reset()
+		{
+			VK_CHECK(vkResetCommandBuffer(vkCommandBuffer, 0), "resetting command buffer");
+		}
 	}
 }

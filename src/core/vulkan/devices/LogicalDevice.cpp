@@ -42,6 +42,8 @@ namespace Baal
 			deviceInfo.pQueueCreateInfos = deviceQueueInfos.data();
 
 			VK_CHECK(vkCreateDevice(physicalDevice.GetVkPhysicalDevice(), &deviceInfo, nullptr, &device), "creating device");
+
+			vkGetDeviceQueue(device, physicalDevice.GetQueueFamilyIndex(VK_QUEUE_GRAPHICS_BIT), 0, &graphicsQueue);
 		}
 
 		LogicalDevice::~LogicalDevice()

@@ -89,6 +89,5 @@ The Lifecycle of a Command Buffer:
 Command Pools are opaque objects that Command Buffers' memory is allocated from. This is done to reduce the cost over time for the resource creation of Command Buffers.
 
 # Next Up
-- Add VK_CHECKS() to neccessary locations
 - Command Buffer Submission
 - Synchronization & Cache Control

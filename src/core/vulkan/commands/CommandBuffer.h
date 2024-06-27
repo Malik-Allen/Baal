@@ -29,6 +29,9 @@ namespace Baal
 
 			void BeginRecording(VkCommandBufferUsageFlags flags);
 			void EndRecording();
+			void Reset();
+
+			VkCommandBuffer& GetVkCommandBuffer() { return vkCommandBuffer; }
 
 		private:
 			VkCommandBuffer vkCommandBuffer{VK_NULL_HANDLE};

@@ -19,6 +19,15 @@ int main()
 
 	renderer.Init();
 
+	int i = 0;
+	while (i < 1000) 
+	{
+		renderer.RenderFrame();
+		++i;
+	}
+	
+	renderer.Shutdown();
+
 	glfwDestroyWindow(window);
 	glfwTerminate();
 	return 0;

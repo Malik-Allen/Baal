@@ -27,10 +27,12 @@ namespace Baal
 			LogicalDevice& operator = (LogicalDevice&&) = delete;
 
 			VkDevice& GetVkDevice() { return device; }
+			VkQueue& GetGraphicsQueue() { return graphicsQueue; };
 
 		private:
 			const PhysicalDevice& physicalDevice;
 			VkDevice device{ VK_NULL_HANDLE };
+			VkQueue graphicsQueue{ VK_NULL_HANDLE };
 		};
 	}
 }
