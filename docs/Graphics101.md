@@ -28,7 +28,7 @@ The goal of Physics-Based Rendering is to create highly realistic images by accu
 
 ![Ray Trace Car Demo](resources/RayTraceReflectionsCar.jpg)
 
-Computing or processing trillions of particles in a simulation requires hardware that does not exist in today's world. So, for efficiency, we have created a model where we combine actions of many photons at the same time.
+Computing or processing trillions of particles in a simulation, requires hardware that does not exist in today's world. So, for efficiency, we have created a model where we combine actions of many photons at the same time.
 
 We create an equation, that given some light sources, considers the energy that arrives at a camera sensor. It accounts for direction of the light, the area of the light, the size of the pixel, transmissiveness, amongst other things. This equation is called the `Rendering Equation`.
 Through this model, we don't have to consider the trillions of particles of light in a given scene.
@@ -54,12 +54,12 @@ Light is `Electromagnetic Radiation`. Light can propagate along a ray through a 
 
 ![Electromagnetic Spectrum](resources/ElectromagneticSpectrum.png)
 
-Objects that are `Transparent`, allow Light Radiation to propagte through them. In physics and computer graphics, we use as a functional paramater, called `Transmittance`, to model and simulate transparency and translucency.
+Objects that are `Transparent`, allow Light Radiation to propagte through them. In physics and computer graphics, we use as a functional paramater, called `Transmittance`, to model and simulate transparency and translucency of an object.
 
 Visible Light is just one small part of the Electromagnetic Spectrum. For example, we are not able to see through our skin and muscle tissues, because Visible Light Radiation is unable to propagate through them.
 However, we can see through our skin and muscle tissues using `X-ray Radiation`. The frequency of X-ray Radiation allows it to propagate through our skin. We can then convert the X-ray Radiation into Visible Light Radiation.
 
-Not all objects are uniform in their Transparency or Translucency. For example, there are some areas of our skin, tissue that some light is able to propagate through. Like your ears, nose, parts of your hand, etc. This is called `subsurface scattering`.
+Not all objects are uniform in their Transparency or Translucency. For example, there are some areas of our skin, tissue that some light is able to propagate through, interact underneath the surface of our skin, before exiting. Like your ears, nose, parts of your hand, etc. This is called `subsurface scattering`.
 
 ![Subsurface Scattering](resources/SubsurfaceScattering.jpg)
 
