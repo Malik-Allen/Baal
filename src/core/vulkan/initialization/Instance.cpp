@@ -3,6 +3,7 @@
 #include "Instance.h"
 
 #include "../debugging/DebugUtils.h"
+#include "../debugging/Error.h"
 #include "../devices/PhysicalDevice.h"
 
 #include <stdexcept>
@@ -101,22 +102,11 @@ namespace Baal
 			instanceInfo.enabledLayerCount = enabledLayers.size();
 			instanceInfo.ppEnabledLayerNames = enabledLayers.data();
 
-			VkResult result;
-			result = vkCreateInstance(&instanceInfo, nullptr, &vkInstance);
-
-			if(result != VK_SUCCESS)
-			{
-				throw std::runtime_error("Failed to create vulkan instance!");
-			}
+			VK_CHECK(vkCreateInstance(&instanceInfo, nullptr, &vkInstance), "creating vulkan instance");
 
 			if(bIsDebugUtilsReady)
 			{
-				result = CreateDebugUtilsMessengerEXT(vkInstance, &debugUtilsInfo, nullptr, &debugUtilsMessenger);
-
-				if(result != VK_SUCCESS)
-				{
-					throw std::runtime_error("Failed to create vulkan debug utils messenger!");
-				}
+				VK_CHECK(CreateDebugUtilsMessengerEXT(vkInstance, &debugUtilsInfo, nullptr, &debugUtilsMessenger), "creating vulkan debug utils messenger");
 			}
 
 			std::vector<VkPhysicalDevice> availableDevices;

@@ -3,7 +3,7 @@
 #include "CommandPool.h"
 #include "../src/core/vulkan/devices/LogicalDevice.h"
 #include "../src/core/vulkan/commands/CommandBuffer.h"
-#include "../src/utility/DebugLog.h"
+#include "../src/core/vulkan/debugging/Error.h"
 
 #include <stdexcept>
 
@@ -19,13 +19,7 @@ namespace Baal
 			createInfo.queueFamilyIndex = queueFamilyIndex;
 			createInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 
-			VkResult result;
-			result = vkCreateCommandPool(device.GetVkDevice(), &createInfo, nullptr, &vkCommandPool);
-
-			if (result != VK_SUCCESS) 
-			{
-				throw std::runtime_error("Failed to create command pool!");
-			}
+			VK_CHECK(vkCreateCommandPool(device.GetVkDevice(), &createInfo, nullptr, &vkCommandPool), "creating command pool");
 
 			DEBUG_LOG(LOG::INFO, "Created command pool... QueueFamilyIndex: {}", queueFamilyIndex);
 		}

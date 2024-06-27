@@ -3,6 +3,7 @@
 #include "CommandBuffer.h"
 #include "../src/core/vulkan/commands/CommandPool.h"
 #include "../src/core/vulkan/devices/LogicalDevice.h"
+#include "../src/core/vulkan/debugging/Error.h"
 
 #include <stdexcept>
 
@@ -18,13 +19,7 @@ namespace Baal
 			allocateInfo.level = level;
 			allocateInfo.commandBufferCount = 1;
 
-			VkResult result;
-			result = vkAllocateCommandBuffers(commandPool.GetDevice().GetVkDevice(), &allocateInfo, &vkCommandBuffer);
-
-			if (result != VK_SUCCESS) 
-			{
-				throw std::runtime_error("Failed to allocate command buffer memory!");
-			}
+			VK_CHECK(vkAllocateCommandBuffers(commandPool.GetDevice().GetVkDevice(), &allocateInfo, &vkCommandBuffer), "allocatiing command buffer");
 		}
 
 		CommandBuffer::CommandBuffer(CommandPool& _commandPool, VkCommandBuffer& _commandBuffer) :
@@ -56,24 +51,12 @@ namespace Baal
 			VkCommandBufferBeginInfo beginInfo = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
 			beginInfo.flags = flags;
 
-			VkResult result;
-			result = vkBeginCommandBuffer(vkCommandBuffer, &beginInfo);
-
-			if (result != VK_SUCCESS)
-			{
-				throw std::runtime_error("Failed to begin recording command buffer!");
-			}
+			VK_CHECK(vkBeginCommandBuffer(vkCommandBuffer, &beginInfo), "beginning command buffer recording");
 		}
 
 		void CommandBuffer::EndRecording()
 		{
-			VkResult result;
-			result = vkEndCommandBuffer(vkCommandBuffer);
-
-			if (result != VK_SUCCESS)
-			{
-				throw std::runtime_error("Failed to end recording command buffer!");
-			}
+			VK_CHECK(vkEndCommandBuffer(vkCommandBuffer), "ending command buffer recording");
 		}
 	}
 }

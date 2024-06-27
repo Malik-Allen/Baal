@@ -2,6 +2,7 @@
 
 #include "LogicalDevice.h"
 #include "../src/core/vulkan/devices/PhysicalDevice.h"
+#include "../src/core/vulkan/debugging/Error.h"
 
 #include <stdexcept>
 
@@ -40,13 +41,7 @@ namespace Baal
 			deviceInfo.queueCreateInfoCount = deviceQueueInfos.size();
 			deviceInfo.pQueueCreateInfos = deviceQueueInfos.data();
 
-			VkResult result;
-			result = vkCreateDevice(physicalDevice.GetVkPhysicalDevice(), &deviceInfo, nullptr, &device);
-
-			if (result != VK_SUCCESS) 
-			{
-				throw std::runtime_error("Failed to create device!");
-			}
+			VK_CHECK(vkCreateDevice(physicalDevice.GetVkPhysicalDevice(), &deviceInfo, nullptr, &device), "creating device");
 		}
 
 		LogicalDevice::~LogicalDevice()
