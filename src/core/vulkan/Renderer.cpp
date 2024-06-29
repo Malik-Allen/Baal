@@ -19,7 +19,7 @@ namespace Baal
 	{
 		Renderer::Renderer(const std::string& appName, GLFWwindow* window)
 		{
-			std::vector<const char*> extensions = GetRequiredGLFWExtenstions();
+			const std::vector<const char*> extensions = GetRequiredExtenstions();
 
 			instance = std::make_unique<Instance>(appName, true, extensions);
 
@@ -73,6 +73,20 @@ namespace Baal
 
 		void Renderer::Shutdown()
 		{
+		}
+
+		std::vector<const char*> Renderer::GetRequiredExtenstions() const
+		{
+			const std::vector<const char*> glfwExtensions = GetRequiredGLFWExtenstions();
+			const std::vector<const char*> miscExtensions = {};
+
+			std::vector<const char*> requiredExtensions;
+			requiredExtensions.reserve(glfwExtensions.size() + miscExtensions.size());
+
+			requiredExtensions.insert(requiredExtensions.end(), glfwExtensions.begin(), glfwExtensions.end());
+			requiredExtensions.insert(requiredExtensions.end(), miscExtensions.begin(), miscExtensions.end());
+			
+			return requiredExtensions;
 		}
 
 		std::vector<const char*> Renderer::GetRequiredGLFWExtenstions() const
