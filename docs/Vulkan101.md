@@ -88,6 +88,15 @@ The Lifecycle of a Command Buffer:
 ### Command Pools
 Command Pools are opaque objects that Command Buffers' memory is allocated from. This is done to reduce the cost over time for the resource creation of Command Buffers.
 
+## Framebuffer
+A `Framebuffer` organizes the memory resources needed to render an image. Essentially functioning as a queue of images that are waiting to be presented to the screen.
+
+It holds the color data for each pixel that will be displayed on screen. Its often implemented as an area of memory in RAM or VRAM. 
+
+### Swap Chain
+In Vulkan, a `Swap Chain` is the implementation of a Framebuffer.
+
+
 # Next Up
-- Command Buffer Submission
+- Swap Chains
 - Synchronization & Cache Control
