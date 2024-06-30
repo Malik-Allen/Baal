@@ -1,4 +1,4 @@
-// MIT License, Copyright (c) 2019 Malik Allen
+// MIT License, Copyright (c) 2024 Malik Allen
 
 #ifndef BAAL_VK_RENDERER_H
 #define BAAL_VK_RENDERER_H

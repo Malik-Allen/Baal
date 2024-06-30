@@ -1,4 +1,4 @@
-// MIT License, Copyright (c) 2019 Malik Allen
+// MIT License, Copyright (c) 2024 Malik Allen
 
 #include "CommandBuffer.h"
 #include "../src/core/vulkan/commands/CommandPool.h"
