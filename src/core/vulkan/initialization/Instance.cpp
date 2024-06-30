@@ -13,7 +13,7 @@ namespace Baal
 	namespace VK
 	{
 		Instance::Instance(
-			const string& appName, 
+			const std::string& appName, 
 			const bool bEnableDebugValidationExtension /*= true*/,
 			const std::vector<const char*>& requiredExtensions /*= {}*/,
 			const std::vector<const char*>& requiredValidationLayers /*= {}*/)
@@ -154,7 +154,7 @@ namespace Baal
 			outExtensions.resize(extCount);
 			vkEnumerateInstanceExtensionProperties(nullptr, &extCount, outExtensions.data());
 
-			DEBUG_LOG(LOG::INFO, "Available Extension Count: {}", extCount);
+			DEBUG_LOG(LOG::INFO, "Available Instance Extension Count: {}", extCount);
 
 			for(const VkExtensionProperties& ext : outExtensions)
 			{
@@ -166,7 +166,7 @@ namespace Baal
 		{
 			for(auto& availableLayer : layers)
 			{
-				if (strcmp(availableLayer.layerName, layerName) == 0)
+				if (std::strcmp(availableLayer.layerName, layerName) == 0)
 				{
 					return true;
 				}
@@ -178,7 +178,7 @@ namespace Baal
 		{
 			for(auto& availableExtension : extensions)
 			{
-				if (strcmp(availableExtension.extensionName, extensionName) == 0)
+				if (std::strcmp(availableExtension.extensionName, extensionName) == 0)
 				{
 					return true;
 				}
@@ -211,7 +211,7 @@ namespace Baal
 				// This is a chance to look at the QueueFamily Properties for each Physical Device
 				// However, for the purpose of getting started we will select the first avaialble device
 
-				physicalDevice = make_unique<PhysicalDevice>(device);
+				physicalDevice = std::make_unique<PhysicalDevice>(device);
 				break;
 			}
 		}

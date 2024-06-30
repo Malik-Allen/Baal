@@ -4,12 +4,11 @@
 #define BAAL_VK_INSTANCE_H
 
 #include <vulkan/vulkan_core.h>
+
 #include <string>
 #include <unordered_map>
 #include <vector>
 #include <memory>
-
-using namespace std;
 
 namespace Baal
 {
@@ -29,7 +28,7 @@ namespace Baal
 		{
 		public:
 			explicit Instance(
-				const string& appName, 
+				const std::string& appName, 
 				const bool bEnableDebugValidationExtension = true,
 				const std::vector<const char*>& requiredExtensions = {},
 				const std::vector<const char*>& requiredValidationLayers = {});
