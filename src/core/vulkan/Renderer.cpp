@@ -6,10 +6,11 @@
 #include "../src/core/vulkan/initialization/Instance.h"
 #include "../src/core/vulkan/devices/PhysicalDevice.h"
 #include "../src/core/vulkan/devices/LogicalDevice.h"
+#include "../src/core/vulkan/presentation/Surface.h"
 #include "../src/core/vulkan/commands/CommandPool.h"
 #include "../src/core/vulkan/commands/CommandBuffer.h"
 
-
+#include <vulkan/vulkan_core.h>
 #include <stdexcept>
 #include <GLFW/glfw3.h>
 
@@ -23,7 +24,7 @@ namespace Baal
 
 			instance = std::make_unique<Instance>(appName, true, extensions);
 
-			VK_CHECK(glfwCreateWindowSurface(instance.get()->GetVkInstance(), window, nullptr, &surface), "creating window surface");
+			surface = std::make_unique<Surface>(*instance.get(), window);
 
 			device = std::make_unique<LogicalDevice>(instance->GetGPU());
 
@@ -37,7 +38,7 @@ namespace Baal
 			commandPool.reset();
 			device.reset();
 
-			vkDestroySurfaceKHR(instance.get()->GetVkInstance(), surface, nullptr);
+			surface.reset();
 
 			instance.reset();
 		}

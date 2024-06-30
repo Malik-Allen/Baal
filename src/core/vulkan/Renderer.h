@@ -6,9 +6,6 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <vulkan/vulkan_core.h>
-
-using namespace std;
 
 class GLFWwindow;
 
@@ -18,6 +15,7 @@ namespace Baal
 	{
 		class Instance;
 		class LogicalDevice;
+		class Surface;
 		class CommandPool;
 		class CommandBuffer;
 
@@ -40,7 +38,7 @@ namespace Baal
 			std::unique_ptr<Instance> instance;
 			std::unique_ptr<LogicalDevice> device;
 
-			VkSurfaceKHR surface;
+			std::unique_ptr<Surface> surface;
 
 			std::unique_ptr<CommandPool> commandPool;
 			std::vector<CommandBuffer> drawCommands;
