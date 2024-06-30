@@ -33,6 +33,7 @@ The `Instance` is responsible for the following:
 ### Extensions
 - When `Extensions` are enabled, they provide new Vulkan commands, structures, and enumerants. Extensions are part of layers.
 
+> **Note:** Instance extensions and Device extensions are supported independent of one another.
 
 ## Devices
 
@@ -94,9 +95,16 @@ A `Framebuffer` organizes the memory resources needed to render an image. Essent
 It holds the color data for each pixel that will be displayed on screen. Its often implemented as an area of memory in RAM or VRAM. 
 
 ### Swap Chain
-In Vulkan, a `Swap Chain` is the implementation of a Framebuffer.
+In Vulkan, a `Swap Chain` is the implementation of a Framebuffer. (Array of presentable images that are associated with a Surface).
+
+> **Note:** A `Surface` is an abstraction of a Window/Device that is being displayed to.
+
+https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkSwapchainKHR.html
+
 
 
 # Next Up
 - Swap Chains
+- Query Swap Chain Support/ Properties
+- Configure Swap Chain presentation based on what is available
 - Synchronization & Cache Control
