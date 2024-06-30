@@ -5,6 +5,7 @@
 
 #include <vulkan/vulkan_core.h>
 #include <memory>
+#include <vector>
 
 namespace Baal
 {
@@ -17,7 +18,7 @@ namespace Baal
 		class LogicalDevice
 		{
 		public:
-			explicit LogicalDevice(const PhysicalDevice& _physicalDevice);
+			explicit LogicalDevice(const PhysicalDevice& _physicalDevice, const std::vector<const char*>& requiredExtensions = {});
 			LogicalDevice(const LogicalDevice&) = delete;
 			LogicalDevice(LogicalDevice&&) = delete;
 
@@ -33,6 +34,10 @@ namespace Baal
 			const PhysicalDevice& physicalDevice;
 			VkDevice device{ VK_NULL_HANDLE };
 			VkQueue graphicsQueue{ VK_NULL_HANDLE };
+			std::vector<const char*> enabledExtensions;
+
+			void QueryAvailableExtensions(std::vector<VkExtensionProperties>& outExtensions) const;
+			bool IsExtensionAvailable(const char* extensionName, const std::vector<VkExtensionProperties>& extensions) const;
 		};
 	}
 }

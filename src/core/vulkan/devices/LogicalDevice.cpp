@@ -4,13 +4,11 @@
 #include "../src/core/vulkan/devices/PhysicalDevice.h"
 #include "../src/core/vulkan/debugging/Error.h"
 
-#include <stdexcept>
-
 namespace Baal
 {
 	namespace VK
 	{
-		LogicalDevice::LogicalDevice(const PhysicalDevice& _physicalDevice):
+		LogicalDevice::LogicalDevice(const PhysicalDevice& _physicalDevice, const std::vector<const char*>& requiredExtensions):
 			physicalDevice(_physicalDevice)
 		{
 			std::vector<VkDeviceQueueCreateInfo> deviceQueueInfos;
@@ -41,6 +39,28 @@ namespace Baal
 			deviceInfo.queueCreateInfoCount = deviceQueueInfos.size();
 			deviceInfo.pQueueCreateInfos = deviceQueueInfos.data();
 
+			std::vector<VkExtensionProperties> availableExts;
+			QueryAvailableExtensions(availableExts);
+
+			std::vector<const char*> requestedExts(requiredExtensions);
+
+			std::vector<const char*> enabledExts;
+			for (auto requiredExt : requestedExts)
+			{
+				if (IsExtensionAvailable(requiredExt, availableExts))
+				{
+					enabledExts.push_back(requiredExt);
+					DEBUG_LOG(LOG::INFO, "Enabled Ext: {}", requiredExt);
+				}
+				else
+				{
+					DEBUG_LOG(LOG::WARNING, "{} is NOT avaialble!", requiredExt);
+				}
+			}
+
+			deviceInfo.enabledExtensionCount = enabledExts.size();
+			deviceInfo.ppEnabledExtensionNames = enabledExts.data();
+
 			VK_CHECK(vkCreateDevice(physicalDevice.GetVkPhysicalDevice(), &deviceInfo, nullptr, &device), "creating device");
 
 			vkGetDeviceQueue(device, physicalDevice.GetQueueFamilyIndex(VK_QUEUE_GRAPHICS_BIT), 0, &graphicsQueue);
@@ -49,6 +69,33 @@ namespace Baal
 		LogicalDevice::~LogicalDevice()
 		{
 			vkDestroyDevice(device, nullptr);
+		}
+
+		void LogicalDevice::QueryAvailableExtensions(std::vector<VkExtensionProperties>& outExtensions) const
+		{
+			uint32_t extCount;
+			vkEnumerateDeviceExtensionProperties(physicalDevice.GetVkPhysicalDevice(), nullptr, &extCount, nullptr);
+			outExtensions.resize(extCount);
+			vkEnumerateDeviceExtensionProperties(physicalDevice.GetVkPhysicalDevice(), nullptr, &extCount, outExtensions.data());
+
+			DEBUG_LOG(LOG::INFO, "Available Device Extension Count: {}", extCount);
+
+			for (const VkExtensionProperties& ext : outExtensions)
+			{
+				DEBUG_LOG(LOG::INFO, "Ext: {}", ext.extensionName);
+			}
+		}
+
+		bool LogicalDevice::IsExtensionAvailable(const char* extensionName, const std::vector<VkExtensionProperties>& extensions) const
+		{
+			for (auto& availableExtension : extensions)
+			{
+				if (std::strcmp(availableExtension.extensionName, extensionName) == 0)
+				{
+					return true;
+				}
+			}
+			return false;
 		}
 	}
 }

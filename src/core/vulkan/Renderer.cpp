@@ -20,13 +20,14 @@ namespace Baal
 	{
 		Renderer::Renderer(const std::string& appName, GLFWwindow* window)
 		{
-			const std::vector<const char*> extensions = GetRequiredExtenstions();
+			const std::vector<const char*> instanceExtensions = GetRequiredInstanceExtenstions();
+			const std::vector<const char*> deviceExtensions = GetRequiredDeviceExtenstions();
 
-			instance = std::make_unique<Instance>(appName, true, extensions);
+			instance = std::make_unique<Instance>(appName, true, instanceExtensions);
 
 			surface = std::make_unique<Surface>(*instance.get(), window);
 
-			device = std::make_unique<LogicalDevice>(instance->GetGPU());
+			device = std::make_unique<LogicalDevice>(instance->GetGPU(), deviceExtensions);
 
 			commandPool = std::make_unique<CommandPool>(*device.get(), instance->GetGPU().GetQueueFamilyIndex(VK_QUEUE_GRAPHICS_BIT));
 		}
@@ -76,7 +77,7 @@ namespace Baal
 		{
 		}
 
-		std::vector<const char*> Renderer::GetRequiredExtenstions() const
+		std::vector<const char*> Renderer::GetRequiredInstanceExtenstions() const
 		{
 			const std::vector<const char*> glfwExtensions = GetRequiredGLFWExtenstions();
 			const std::vector<const char*> miscExtensions = {};
@@ -97,6 +98,12 @@ namespace Baal
 			glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 			std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
 			return extensions;
+		}
+
+		std::vector<const char*> Renderer::GetRequiredDeviceExtenstions() const
+		{
+			const std::vector<const char*> miscExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
+			return miscExtensions;
 		}
 	}
 }

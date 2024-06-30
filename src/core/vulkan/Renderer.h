@@ -32,8 +32,12 @@ namespace Baal
 			Renderer& operator = (Renderer&&) = delete;
 
 		private:
-			std::vector<const char*> GetRequiredExtenstions() const;
+			std::vector<const char*> GetRequiredInstanceExtenstions() const;
 			std::vector<const char*> GetRequiredGLFWExtenstions() const;
+
+			std::vector<const char*> GetRequiredDeviceExtenstions() const;
+
+
 
 			std::unique_ptr<Instance> instance;
 			std::unique_ptr<LogicalDevice> device;
