@@ -16,6 +16,7 @@ namespace Baal
 		class Instance;
 		class LogicalDevice;
 		class Surface;
+		class SwapChain;
 		class CommandPool;
 		class CommandBuffer;
 
@@ -37,12 +38,11 @@ namespace Baal
 
 			std::vector<const char*> GetRequiredDeviceExtenstions() const;
 
-
-
 			std::unique_ptr<Instance> instance;
 			std::unique_ptr<LogicalDevice> device;
 
 			std::unique_ptr<Surface> surface;
+			std::unique_ptr<SwapChain> swapChain;
 
 			std::unique_ptr<CommandPool> commandPool;
 			std::vector<CommandBuffer> drawCommands;

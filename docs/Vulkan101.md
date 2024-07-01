@@ -94,6 +94,8 @@ A `Framebuffer` organizes the memory resources needed to render an image. Essent
 
 It holds the color data for each pixel that will be displayed on screen. Its often implemented as an area of memory in RAM or VRAM. 
 
+> **Note:** `V-Sync` is accomplished with a Framebuffer, presenting the images with the `Refresh Rate` of the screen.
+
 ### Swap Chain
 In Vulkan, a `Swap Chain` is the implementation of a Framebuffer. (Array of presentable images that are associated with a Surface).
 

@@ -7,6 +7,7 @@
 #include "../src/core/vulkan/devices/PhysicalDevice.h"
 #include "../src/core/vulkan/devices/LogicalDevice.h"
 #include "../src/core/vulkan/presentation/Surface.h"
+#include "../src/core/vulkan/presentation/SwapChain.h"
 #include "../src/core/vulkan/commands/CommandPool.h"
 #include "../src/core/vulkan/commands/CommandBuffer.h"
 
@@ -29,6 +30,8 @@ namespace Baal
 
 			device = std::make_unique<LogicalDevice>(instance->GetGPU(), deviceExtensions);
 
+			swapChain = std::make_unique<SwapChain>(instance->GetGPU(), *device.get(), *surface.get());
+
 			commandPool = std::make_unique<CommandPool>(*device.get(), instance->GetGPU().GetQueueFamilyIndex(VK_QUEUE_GRAPHICS_BIT));
 		}
 
@@ -37,6 +40,9 @@ namespace Baal
 			drawCommands.clear();
 
 			commandPool.reset();
+
+			swapChain.reset();
+
 			device.reset();
 
 			surface.reset();
