@@ -11,7 +11,7 @@ namespace Baal
 {
 	namespace VK
 	{
-		SwapChain::SwapChain(PhysicalDevice& _gpu, LogicalDevice& _device, Surface& _surface):
+		SwapChain::SwapChain(PhysicalDevice& _gpu, LogicalDevice& _device, Surface& _surface, uint32_t width, uint32_t height):
 			gpu(_gpu),
 			device(_device),
 			surface(_surface)
@@ -25,8 +25,20 @@ namespace Baal
 			std::vector<VkPresentModeKHR> presentModes;
 			QuerySurfacePresentModes(presentModes);
 
+			const VkSurfaceFormatKHR selectedSurfaceFormat = SelectSurfaceFormat(formats);
+			const VkPresentModeKHR selectedPresentMode = SelectPresentMode(presentModes);
+
 			VkSwapchainCreateInfoKHR swapChainInfo = { VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR };
 			swapChainInfo.surface = surface.GetVkSurface();
+			swapChainInfo.imageFormat = selectedSurfaceFormat.format;
+			swapChainInfo.imageColorSpace = selectedSurfaceFormat.colorSpace;
+
+			swapChainInfo.minImageCount = surfaceCapabilities.minImageCount;
+			swapChainInfo.imageExtent = VkExtent2D(width, height);
+
+			swapChainInfo.presentMode = selectedPresentMode;
+			swapChainInfo.imageArrayLayers = surfaceCapabilities.maxImageArrayLayers;
+			swapChainInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 			
 			VK_CHECK(vkCreateSwapchainKHR(device.GetVkDevice(), &swapChainInfo, nullptr, &vkSwapChain), "creating swap chain");
 		}
@@ -75,6 +87,39 @@ namespace Baal
 				presentModeString = std::string(string_VkPresentModeKHR(presentMode));
 				DEBUG_LOG(LOG::INFO, "PresentMode: {} ", presentModeString);
 			}
+		}
+
+		VkSurfaceFormatKHR SwapChain::SelectSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& formats)
+		{
+			if (formats.size() == 0)
+			{
+				DEBUG_LOG(LOG::ERRORLOG, "Cannot select Surface Format from empty list of formats!");
+				assert(false);
+			}
+
+			// For now this will work to get things going, in the future we can create a priority list to select the desired surface format and color space
+			for (size_t i = 0; i < formats.size(); ++i) 
+			{
+				if (formats[i].format == VK_FORMAT_R8G8B8A8_SRGB && formats[i].colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+				{
+					return formats[i];
+				}
+			}
+			return formats[0];
+		}
+
+		VkPresentModeKHR SwapChain::SelectPresentMode(const std::vector<VkPresentModeKHR>& presentModes)
+		{
+			// For now this will work to get things going, in the future we can create a priority list to select the desired present mode
+			for (size_t i = 0; i < presentModes.size(); ++i)
+			{
+				if (presentModes[i] == VK_PRESENT_MODE_FIFO_KHR)
+				{
+					return presentModes[i];
+				}
+			}
+
+			return VK_PRESENT_MODE_FIFO_KHR;
 		}
 	}
 }

@@ -30,7 +30,11 @@ namespace Baal
 
 			device = std::make_unique<LogicalDevice>(instance->GetGPU(), deviceExtensions);
 
-			swapChain = std::make_unique<SwapChain>(instance->GetGPU(), *device.get(), *surface.get());
+			int width = 0;
+			int height = 0;
+			glfwGetFramebufferSize(window, &width, &height);
+
+			swapChain = std::make_unique<SwapChain>(instance->GetGPU(), *device.get(), *surface.get(), static_cast<uint32_t>(width), static_cast<uint32_t>(height));
 
 			commandPool = std::make_unique<CommandPool>(*device.get(), instance->GetGPU().GetQueueFamilyIndex(VK_QUEUE_GRAPHICS_BIT));
 		}

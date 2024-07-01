@@ -19,7 +19,7 @@ namespace Baal
 		class SwapChain
 		{
 		public:
-			explicit SwapChain(PhysicalDevice& _gpu, LogicalDevice& _device, Surface& _surface);
+			explicit SwapChain(PhysicalDevice& _gpu, LogicalDevice& _device, Surface& _surface, uint32_t width, uint32_t height);
 			SwapChain(const SwapChain&) = delete;
 			SwapChain(SwapChain&&) = delete;
 
@@ -37,6 +37,9 @@ namespace Baal
 			void QuerySurfaceCapabilities(VkSurfaceCapabilitiesKHR& outCapabilities);
 			void QueurySurfaceFormats(std::vector<VkSurfaceFormatKHR>& outFormats);
 			void QuerySurfacePresentModes(std::vector<VkPresentModeKHR>& outPresentModes);
+
+			VkSurfaceFormatKHR SelectSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& formats);
+			VkPresentModeKHR SelectPresentMode(const std::vector<VkPresentModeKHR>& presentModes);
 		};
 	}
 }
