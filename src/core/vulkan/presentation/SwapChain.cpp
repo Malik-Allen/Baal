@@ -39,6 +39,10 @@ namespace Baal
 			swapChainInfo.presentMode = selectedPresentMode;
 			swapChainInfo.imageArrayLayers = surfaceCapabilities.maxImageArrayLayers;
 			swapChainInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+
+			swapChainInfo.preTransform = surfaceCapabilities.currentTransform;
+			swapChainInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+			swapChainInfo.clipped = VK_TRUE;			
 			
 			VK_CHECK(vkCreateSwapchainKHR(device.GetVkDevice(), &swapChainInfo, nullptr, &vkSwapChain), "creating swap chain");
 		}
