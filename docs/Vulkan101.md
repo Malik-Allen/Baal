@@ -97,14 +97,30 @@ It holds the color data for each pixel that will be displayed on screen. Its oft
 > **Note:** `V-Sync` is accomplished with a Framebuffer, presenting the images with the `Refresh Rate` of the screen.
 
 ### Swap Chain
-In Vulkan, a `Swap Chain` is the implementation of a Framebuffer. (Array of presentable images that are associated with a Surface).
+In Vulkan, a `Swap Chain` is the implementation of a Framebuffer. (Array of presentable `Images` that are associated with a Surface).
 
 > **Note:** A `Surface` is an abstraction of a Window/Device that is being displayed to.
 
 https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkSwapchainKHR.html
 
+## Resource Creation
+Vulkan supports two primary resource types: `Buffers` and `Images`. Resources are views of memory with formatting and dimensionality.
+
+Buffers provide access to raw arrays of bytes. Images can be multi-deminsional and may have metadata. 
+
+### Buffers
+Buffers represent linear array data. Buffers can be used for various things, by binding them to a Graphics or Compute Pipeline. (Binding is done via DescriptorSets or through Commands)
+
+### Buffer Views
+Buffer Views are used to represent the contigous memory of a Buffer, along with its formatting, that will outline how it should be read/interperated.
+
 ### Images
-An image is an array of data (Up to 3 arrays of data). Which can be used for various things. (i.e. SwapChain images, RenderTargets, Textures, etc.)
+An Image is an array of data (Up to 3 arrays of data). Which can be used for various things. (i.e. SwapChain images, RenderTargets, Textures, etc.)
+
+> **Note:** While Images contain data, there are not directly used by the Pipeline Shaders. `Image Views` are used to represent Images and their subresources, containg additional metadata for the Pipeline.
+
+### Image View
+An Image View represents an Image with all its subresources. An Image View contains additional metadata used by Pipeline Shaders. When created, an Image Views must be comptable with the Image that it will be representing.
 
 
 # Next Up
