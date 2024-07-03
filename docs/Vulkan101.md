@@ -103,6 +103,8 @@ In Vulkan, a `Swap Chain` is the implementation of a Framebuffer. (Array of pres
 
 https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkSwapchainKHR.html
 
+### Images
+An image is an array of data (Up to 3 arrays of data). Which can be used for various things. (i.e. SwapChain images, RenderTargets, Textures, etc.)
 
 
 # Next Up

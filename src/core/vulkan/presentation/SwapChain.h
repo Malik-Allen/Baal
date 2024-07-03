@@ -33,6 +33,7 @@ namespace Baal
 			PhysicalDevice& gpu;
 			LogicalDevice& device;
 			Surface& surface;
+			std::vector<VkImage> images;
 
 			void QuerySurfaceCapabilities(VkSurfaceCapabilitiesKHR& outCapabilities);
 			void QueurySurfaceFormats(std::vector<VkSurfaceFormatKHR>& outFormats);

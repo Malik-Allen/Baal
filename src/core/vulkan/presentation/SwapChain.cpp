@@ -45,6 +45,11 @@ namespace Baal
 			swapChainInfo.clipped = VK_TRUE;			
 			
 			VK_CHECK(vkCreateSwapchainKHR(device.GetVkDevice(), &swapChainInfo, nullptr, &vkSwapChain), "creating swap chain");
+
+			uint32_t imageCount = 0;
+			VK_CHECK(vkGetSwapchainImagesKHR(device.GetVkDevice(), vkSwapChain, &imageCount, nullptr), "getting swap chain image count");
+			images.resize(imageCount);
+			VK_CHECK(vkGetSwapchainImagesKHR(device.GetVkDevice(), vkSwapChain, &imageCount, images.data()), "getting swap chain image data");
 		}
 
 		SwapChain::~SwapChain()
