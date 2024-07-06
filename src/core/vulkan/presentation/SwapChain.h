@@ -28,11 +28,15 @@ namespace Baal
 			SwapChain& operator=(const SwapChain&) = delete;
 			SwapChain& operator = (SwapChain&&) = delete;
 
+			VkSurfaceFormatKHR GetSurfaceFormat() const { return surfaceFormat; }
+			const std::vector<VkImage>& GetImages() const { return images; };
+
 		private:
 			VkSwapchainKHR vkSwapChain{VK_NULL_HANDLE};
 			PhysicalDevice& gpu;
 			LogicalDevice& device;
 			Surface& surface;
+			VkSurfaceFormatKHR surfaceFormat;
 			std::vector<VkImage> images;
 
 			void QuerySurfaceCapabilities(VkSurfaceCapabilitiesKHR& outCapabilities);

@@ -25,13 +25,13 @@ namespace Baal
 			std::vector<VkPresentModeKHR> presentModes;
 			QuerySurfacePresentModes(presentModes);
 
-			const VkSurfaceFormatKHR selectedSurfaceFormat = SelectSurfaceFormat(formats);
+			surfaceFormat = SelectSurfaceFormat(formats);
 			const VkPresentModeKHR selectedPresentMode = SelectPresentMode(presentModes);
 
 			VkSwapchainCreateInfoKHR swapChainInfo = { VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR };
 			swapChainInfo.surface = surface.GetVkSurface();
-			swapChainInfo.imageFormat = selectedSurfaceFormat.format;
-			swapChainInfo.imageColorSpace = selectedSurfaceFormat.colorSpace;
+			swapChainInfo.imageFormat = surfaceFormat.format;
+			swapChainInfo.imageColorSpace = surfaceFormat.colorSpace;
 
 			swapChainInfo.minImageCount = surfaceCapabilities.minImageCount;
 			swapChainInfo.imageExtent = VkExtent2D(width, height);

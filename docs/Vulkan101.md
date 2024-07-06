@@ -124,7 +124,5 @@ An Image View represents an Image with all its subresources. An Image View conta
 
 
 # Next Up
-- Swap Chains
-- Query Swap Chain Support/ Properties
-- Configure Swap Chain presentation based on what is available
+- Creating Image Views that will be used for presentation from the SwapChain Images
 - Synchronization & Cache Control

@@ -45,6 +45,8 @@ namespace Baal
 
 			commandPool.reset();
 
+			DestroySwapChainImageViews();
+
 			swapChain.reset();
 
 			device.reset();
@@ -56,6 +58,9 @@ namespace Baal
 
 		void Renderer::Init()
 		{
+			CreateSwapChainImageViews();
+
+			// Create FrameBuffer
 			drawCommands.reserve(3);
 			VK_CHECK(commandPool->CreateCommandBuffers(3, VK_COMMAND_BUFFER_LEVEL_PRIMARY, drawCommands), "creating draw commands");
 		}
@@ -114,6 +119,48 @@ namespace Baal
 		{
 			const std::vector<const char*> miscExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 			return miscExtensions;
+		}
+
+		void Renderer::CreateSwapChainImageViews()
+		{
+			DestroySwapChainImageViews();
+
+			const std::vector<VkImage>& swapChainImages = swapChain->GetImages();
+
+			swapChainImageViews.resize(swapChainImages.size());
+
+			VkImageViewCreateInfo imageViewInfo = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
+			for (size_t i = 0; i < swapChainImages.size(); ++i)
+			{
+				imageViewInfo.image = swapChainImages[i];
+				imageViewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+				imageViewInfo.format = swapChain->GetSurfaceFormat().format;
+
+				imageViewInfo.components = {
+					VK_COMPONENT_SWIZZLE_R,
+					VK_COMPONENT_SWIZZLE_G,
+					VK_COMPONENT_SWIZZLE_B,
+					VK_COMPONENT_SWIZZLE_A 
+				};
+
+				imageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+				imageViewInfo.subresourceRange.baseMipLevel = 0;
+				imageViewInfo.subresourceRange.levelCount = 1;
+				imageViewInfo.subresourceRange.baseArrayLayer = 0;
+				imageViewInfo.subresourceRange.layerCount = 1;
+
+				VK_CHECK(vkCreateImageView(device->GetVkDevice(), &imageViewInfo, nullptr, &swapChainImageViews[i]), "creating swap chain image view");
+			}
+		}
+
+		void Renderer::DestroySwapChainImageViews()
+		{
+			for (size_t i = 0; i < swapChainImageViews.size(); ++i)
+			{
+				vkDestroyImageView(device->GetVkDevice(), swapChainImageViews[i], nullptr);
+			}
+
+			swapChainImageViews.clear();
 		}
 	}
 }

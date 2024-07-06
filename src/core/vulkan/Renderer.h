@@ -7,6 +7,8 @@
 #include <string>
 #include <vector>
 
+#include <vulkan/vulkan_core.h>
+
 class GLFWwindow;
 
 namespace Baal
@@ -38,11 +40,15 @@ namespace Baal
 
 			std::vector<const char*> GetRequiredDeviceExtenstions() const;
 
+			void CreateSwapChainImageViews();
+			void DestroySwapChainImageViews();
+
 			std::unique_ptr<Instance> instance;
 			std::unique_ptr<LogicalDevice> device;
 
 			std::unique_ptr<Surface> surface;
 			std::unique_ptr<SwapChain> swapChain;
+			std::vector<VkImageView> swapChainImageViews;
 
 			std::unique_ptr<CommandPool> commandPool;
 			std::vector<CommandBuffer> drawCommands;
