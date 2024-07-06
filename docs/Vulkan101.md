@@ -124,5 +124,11 @@ An Image View represents an Image with all its subresources. An Image View conta
 
 
 # Next Up
-- Creating Image Views that will be used for presentation from the SwapChain Images
+- Pipeline + Render Passes
+	- https://registry.khronos.org/vulkan/specs/1.3/html/chap10.html
+	- https://registry.khronos.org/vulkan/specs/1.3/html/chap10.html
+- Frame Buffer finalization (Swap Chain Recreation)
+	- https://vulkan-tutorial.com/Drawing_a_triangle/Drawing/Framebuffers
 - Synchronization & Cache Control
+	- https://vulkan-tutorial.com/Drawing_a_triangle/Drawing/Frames_in_flight
+	- https://registry.khronos.org/vulkan/specs/1.3/html/chap7.html
