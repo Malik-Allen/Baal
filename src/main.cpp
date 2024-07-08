@@ -30,6 +30,10 @@ int main()
 
 	glfwDestroyWindow(window);
 	glfwTerminate();
+
+	Mesh m = Mesh(BAAL_MODELS_DIRECTORY, "teapot.obj");
+
+
 	return 0;
 }
 

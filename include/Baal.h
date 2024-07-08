@@ -4,5 +4,6 @@
 #define BAAL_H
 
 #include "../src/core/vulkan/Renderer.h"
+#include "../src/core/3d/Mesh.h"
 
 #endif // BAAL_H

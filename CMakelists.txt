@@ -46,5 +46,10 @@ set(GLFW_INSTALL OFF)
 add_subdirectory(${GLFW_PATH} ${CMAKE_BINARY_DIR}/glfw)
 target_link_libraries(Baal PRIVATE glfw)
 
+# Path to the TinyOBJ repository
+set(TINYOBJ_PATH ${PROJECT_SOURCE_DIR}/../tinyobjloader)
+add_subdirectory(${TINYOBJ_PATH} ${CMAKE_BINARY_DIR}/tinyobjloader)
+target_link_libraries(Baal PRIVATE tinyobjloader)
+
 # Print a final message
 message(STATUS "CMake configuration for Baal project is complete.")

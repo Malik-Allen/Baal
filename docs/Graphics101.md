@@ -11,6 +11,10 @@ https://en.wikipedia.org/wiki/Physically_based_rendering
 https://en.wikipedia.org/wiki/Rendering_equation
 https://learnopengl.com/Introduction
 
+https://en.wikipedia.org/wiki/List_of_common_3D_test_models
+https://en.wikipedia.org/wiki/Utah_teapot#
+https://en.wikipedia.org/wiki/Level_of_detail_(computer_graphics)
+
 
 # Intro
 Realistic rendering simulates light using models from physics and computer science to create images.
