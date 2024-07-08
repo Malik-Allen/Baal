@@ -124,15 +124,7 @@ An Image View represents an Image with all its subresources. An Image View conta
 
 
 # Next Up
-- Object Loading
-- Pipeline + Render Passes
-	- https://registry.khronos.org/vulkan/specs/1.3/html/chap10.html
-	- https://registry.khronos.org/vulkan/specs/1.3/html/chap10.html
-- Frame Buffer finalization (Swap Chain Recreation)
-	- https://vulkan-tutorial.com/Drawing_a_triangle/Drawing/Framebuffers
-- Synchronization & Cache Control
-	- https://vulkan-tutorial.com/Drawing_a_triangle/Drawing/Frames_in_flight
-	- https://registry.khronos.org/vulkan/specs/1.3/html/chap7.html
-- Material Loading
-- Blinn Phong Shading, Shader Loading
-- Camera
+- Draw Triangle
+	- Pipeline + Render Passes
+		- https://registry.khronos.org/vulkan/specs/1.3/html/chap10.html
+		- https://registry.khronos.org/vulkan/specs/1.3/html/chap10.html
