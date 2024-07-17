@@ -119,9 +119,32 @@ An Image is an array of data (Up to 3 arrays of data). Which can be used for var
 
 > **Note:** While Images contain data, there are not directly used by the Pipeline Shaders. `Image Views` are used to represent Images and their subresources, containg additional metadata for the Pipeline.
 
-### Image View
+### Image Views
 An Image View represents an Image with all its subresources. An Image View contains additional metadata used by Pipeline Shaders. When created, an Image Views must be comptable with the Image that it will be representing.
 
+
+## Pipelines
+In computer graphics, the `Graphics Pipeline` is a sequence of operations that convert textures, vertices, and meshes into pixels on a render target.
+
+### Graphics Pipeline
+The Graphics Pipeline is made up of `Programmable` and `Fixed-Function` stages. In Programmable stages, code can be uploaded (i.e. Shaders). Where as, in Fixed-Function stages, parameters are passed to pre-defined functionality.
+
+The Graphics Pipeline is split into the following stages:
+
+![The Graphics Pipeline Stages](resources/GraphicsPipelineStages.png)
+> **Note:** In the the above image: `Green` stages are Fixed-Function stages. `Orange` stages are Programmable stages.
+
+1. `Input Assembler`, collects data from specified vertex and index buffers.
+1. `Vertex Shader`, runs for every vertex and passed per-vertex data down the pipeline.
+1. `Tessellation Shader`, can subdivide geometry based on rules to increase mesh quality.
+1. `Geometry Shader`, runs on every primitive and can discard it or add more primitives.
+1. `Rasterization`, transforms primitives into fragments and any fragments outside of the screen or behind other fragments are discarded.
+1. `Fragement Shader`, runs for all surviving fragments and interpolates passed vertex-data to determine depth and color values.
+1. `Color Blending`, mixes different fragments that map to the same pixel in the same frame considering things like transparency.
+1. `Output Frame`, the result frame outputed to the framebuffer
+
+### Compute Pipleine
+The Compute Pipeline is used to read and write memory from Images and Buffers
 
 # Next Up
 - Draw Triangle
