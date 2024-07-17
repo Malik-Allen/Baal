@@ -135,13 +135,13 @@ The Graphics Pipeline is split into the following stages:
 > **Note:** In the the above image: `Green` stages are Fixed-Function stages. `Orange` stages are Programmable stages.
 
 1. `Input Assembler`, collects data from specified vertex and index buffers.
-1. `Vertex Shader`, runs for every vertex and passed per-vertex data down the pipeline.
+1. `Vertex Shader`, runs for every vertex and passes per-vertex data down the pipeline.
 1. `Tessellation Shader`, can subdivide geometry based on rules to increase mesh quality.
 1. `Geometry Shader`, runs on every primitive and can discard it or add more primitives.
 1. `Rasterization`, transforms primitives into fragments and any fragments outside of the screen or behind other fragments are discarded.
 1. `Fragement Shader`, runs for all surviving fragments and interpolates passed vertex-data to determine depth and color values.
 1. `Color Blending`, mixes different fragments that map to the same pixel in the same frame considering things like transparency.
-1. `Output Frame`, the result frame outputed to the framebuffer
+1. `Output Frame`, the result frame outputed to the framebuffer.
 
 ### Compute Pipleine
 The Compute Pipeline is used to read and write memory from Images and Buffers
