@@ -144,6 +144,17 @@ The Graphics Pipeline is split into the following stages:
 1. `Fragement Shader`, runs for all surviving fragments and interpolates passed vertex-data to determine depth and color values.
 1. `Color Blending`, mixes different fragments that map to the same pixel in the same frame considering things like transparency. Which is then passed to the framebuffer.
 
+### Shaders
+Shaders are executable operations that execute at the various stages of the Graphics and Compute Pipelines.
+
+Shaders can read from input variables. Read from and write to output variables. Input and output variables can be used to transfer data between shader stages in a pipeline.
+
+#### Vertex Shader
+The Vertex Shader processes each incoming vertex and its data (position, normal, texture coordinates, color, etc.). The output from this process is a Vec4 Clip Coordinate. 
+This Clip Coordinate is turned into a `Normalized Device Coordinate`. Finally the Normalized Device Coordinate is mapped the the Framebuffer, as shown in the image below.
+
+![Normalized Device Coordinates](resources/NormalizedDeviceCoordinates.png)
+
 ### Compute Pipleine
 The Compute Pipeline is used to read and write memory from Images and Buffers
 

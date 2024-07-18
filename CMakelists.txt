@@ -51,5 +51,13 @@ set(TINYOBJ_PATH ${PROJECT_SOURCE_DIR}/../tinyobjloader)
 add_subdirectory(${TINYOBJ_PATH} ${CMAKE_BINARY_DIR}/tinyobjloader)
 target_link_libraries(Baal PRIVATE tinyobjloader)
 
+# Path to the glslang repository
+set(GLSLANG_PATH ${PROJECT_SOURCE_DIR}/../glslang)
+
+set(ENABLE_OPT 0)
+add_subdirectory(${GLSLANG_PATH} ${CMAKE_BINARY_DIR}/glslang)
+target_link_libraries(Baal PRIVATE glslang SPIRV glslang-default-resource-limits)
+
+
 # Print a final message
 message(STATUS "CMake configuration for Baal project is complete.")
