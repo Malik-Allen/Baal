@@ -11,7 +11,6 @@
 #include "../src/core/vulkan/commands/CommandPool.h"
 #include "../src/core/vulkan/commands/CommandBuffer.h"
 #include "../src/core/vulkan/pipeline/ShaderModule.h"
-#include "../src/utility/Directories.h"
 
 #include <vulkan/vulkan_core.h>
 #include <stdexcept>
@@ -66,7 +65,7 @@ namespace Baal
 			drawCommands.reserve(3);
 			VK_CHECK(commandPool->CreateCommandBuffers(3, VK_COMMAND_BUFFER_LEVEL_PRIMARY, drawCommands), "creating draw commands");
 
-			ShaderModule sm = ShaderModule(*device.get(), VK_SHADER_STAGE_VERTEX_BIT, BAAL_SHADERS_DIRECTORY, "Triangle.vert");
+			ShaderModule sm = ShaderModule(*device.get(), VK_SHADER_STAGE_VERTEX_BIT, SHADERS_DIR, "Triangle.vert");
 		}
 
 		void Renderer::RenderFrame()

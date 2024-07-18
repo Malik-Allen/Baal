@@ -7,6 +7,10 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 
 file(GLOB_RECURSE SOURCES "${PROJECT_SOURCE_DIR}/src/*.cpp")
 
+# Define the root directory for resources
+set(MODELS_DIR "${PROJECT_SOURCE_DIR}/src/resources/models/")
+set(SHADERS_DIR "${PROJECT_SOURCE_DIR}/src/resources/shaders/")
+
 if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
     # This is the main project
     add_executable(Baal ${SOURCES})
@@ -23,6 +27,10 @@ target_include_directories(Baal PUBLIC
 target_include_directories(Baal PRIVATE
                            "${PROJECT_SOURCE_DIR}/src"
                            "${CMAKE_BINARY_DIR}/src")
+
+# Pass the resource directory to the compiler
+target_compile_definitions(Baal PRIVATE MODELS_DIR="${MODELS_DIR}")
+target_compile_definitions(Baal PRIVATE SHADERS_DIR="${SHADERS_DIR}")
 
 # Path to the Mjolnir repository
 set(MJOLNIR_PATH ${PROJECT_SOURCE_DIR}/../Mjolnir)

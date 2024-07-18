@@ -1,6 +1,5 @@
 #include "Baal.h"
 #include "../src/utility/DebugLog.h"
-#include "../src/utility/Directories.h"
 #include <GLFW/glfw3.h>
 
 using namespace Baal;
@@ -32,7 +31,7 @@ int main()
 	glfwDestroyWindow(window);
 	glfwTerminate();
 
-	Mesh m = Mesh(BAAL_MODELS_DIRECTORY, "teapot.obj");
+	Mesh m = Mesh(MODELS_DIR, "teapot.obj");
 
 
 	return 0;
