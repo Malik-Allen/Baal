@@ -12,6 +12,9 @@ namespace Baal
 	{
 		class LogicalDevice;
 
+		// Responsible for loading and compiling shader files
+		// TODO: Add logic to save and read a spirv file if one exists for the shader, instead of recompiling each time. For now this is enough until compile times take up too much time
+
 		class ShaderModule
 		{
 		public:
@@ -27,8 +30,7 @@ namespace Baal
 		private:
 			VkShaderModule vkShaderModule;
 			LogicalDevice& device;
-			uint32_t id;
-
+			VkShaderStageFlagBits stage;
 			// Compile Source Code
 			std::vector<uint32_t> spirv;
 

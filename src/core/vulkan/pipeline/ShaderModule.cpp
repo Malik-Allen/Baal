@@ -13,8 +13,9 @@ namespace Baal
 {
 	namespace VK
 	{
-		ShaderModule::ShaderModule(LogicalDevice& _device, VkShaderStageFlagBits stage, const char* parentDirectory, const char* shaderFileName):
-			device(_device)
+		ShaderModule::ShaderModule(LogicalDevice& _device, VkShaderStageFlagBits _stage, const char* parentDirectory, const char* shaderFileName):
+			device(_device),
+			stage(_stage)
 		{
 			std::vector<char> sourceCode = ReadShaderFromFile(parentDirectory, shaderFileName);
 
