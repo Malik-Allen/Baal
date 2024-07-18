@@ -7,10 +7,6 @@
 
 #include <Mjolnir.h>
 
-#ifndef BAAL_MODELS_DIRECTORY
-#define BAAL_MODELS_DIRECTORY "../../../src/resources/models/"
-#endif !BAAL_MODELS_DIRECTORY
-
 namespace Baal
 {
 	struct Vertex 

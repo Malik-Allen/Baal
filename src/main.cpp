@@ -1,5 +1,6 @@
 #include "Baal.h"
 #include "../src/utility/DebugLog.h"
+#include "../src/utility/Directories.h"
 #include <GLFW/glfw3.h>
 
 using namespace Baal;
