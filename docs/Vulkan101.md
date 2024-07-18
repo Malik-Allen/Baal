@@ -127,7 +127,9 @@ An Image View represents an Image with all its subresources. An Image View conta
 In computer graphics, the `Graphics Pipeline` is a sequence of operations that convert textures, vertices, and meshes into pixels on a render target.
 
 ### Graphics Pipeline
-The Graphics Pipeline is made up of `Programmable` and `Fixed-Function` stages. In Programmable stages, code can be uploaded (i.e. Shaders). Where as, in Fixed-Function stages, parameters are passed to pre-defined functionality.
+The Graphics Pipeline is made up of `Programmable` and `Fixed-Function` stages. 
+
+In Programmable stages, code can be uploaded (For example: different types of Shaders). Where as, in Fixed-Function stages, parameters are passed to pre-defined functionality.
 
 The Graphics Pipeline is split into the following stages:
 
@@ -140,8 +142,7 @@ The Graphics Pipeline is split into the following stages:
 1. `Geometry Shader`, runs on every primitive and can discard it or add more primitives.
 1. `Rasterization`, transforms primitives into fragments and any fragments outside of the screen or behind other fragments are discarded.
 1. `Fragement Shader`, runs for all surviving fragments and interpolates passed vertex-data to determine depth and color values.
-1. `Color Blending`, mixes different fragments that map to the same pixel in the same frame considering things like transparency.
-1. `Output Frame`, the result frame outputed to the framebuffer.
+1. `Color Blending`, mixes different fragments that map to the same pixel in the same frame considering things like transparency. Which is then passed to the framebuffer.
 
 ### Compute Pipleine
 The Compute Pipeline is used to read and write memory from Images and Buffers
