@@ -78,7 +78,8 @@ namespace Baal
 			shader.setSourceEntryPoint(entryPoint.c_str());
 			
 			EShMessages messages = (EShMessages)(EShMsgSpvRules | EShMsgVulkanRules);
-			if (!shader.parse(GetDefaultResources(), 100, false, messages)) {
+			if (!shader.parse(GetDefaultResources(), 100, false, messages)) 
+			{
 				outLog = std::string(shader.getInfoLog()) + "\n" + std::string(shader.getInfoDebugLog());
 				return false;
 			}
@@ -86,7 +87,8 @@ namespace Baal
 			glslang::TProgram program;
 			program.addShader(&shader);
 
-			if (!program.link(messages)) {
+			if (!program.link(messages)) 
+			{
 				outLog = std::string(program.getInfoLog()) + "\n" + std::string(program.getInfoDebugLog());
 				return false;
 			}
@@ -106,5 +108,5 @@ namespace Baal
 			glslang::FinalizeProcess();
 			return true;
 		}
-}
+	}
 }

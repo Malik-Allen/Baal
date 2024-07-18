@@ -53,7 +53,8 @@ namespace Baal
 			std::string shaderFilePath = std::string(parentDirectory) + std::string(shaderFileName);
 			std::ifstream file(shaderFilePath, std::ios::ate | std::ios::binary);
 
-			if (!file.is_open()) {
+			if (!file.is_open()) 
+			{
 				DEBUG_LOG(LOG::ERRORLOG, "Failed to open shader file: {}", shaderFilePath);
 				assert(false);
 			}

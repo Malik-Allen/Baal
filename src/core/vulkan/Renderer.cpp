@@ -65,7 +65,7 @@ namespace Baal
 			drawCommands.reserve(3);
 			VK_CHECK(commandPool->CreateCommandBuffers(3, VK_COMMAND_BUFFER_LEVEL_PRIMARY, drawCommands), "creating draw commands");
 
-			ShaderModule sm = ShaderModule(*device.get(), VK_SHADER_STAGE_VERTEX_BIT, SHADERS_DIR, "Triangle.vert");
+			ShaderModule sm = ShaderModule(*device.get(), VK_SHADER_STAGE_VERTEX_BIT, BAAL_SHADERS_DIR, "Triangle.vert");
 		}
 
 		void Renderer::RenderFrame()

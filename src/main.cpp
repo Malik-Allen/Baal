@@ -31,7 +31,7 @@ int main()
 	glfwDestroyWindow(window);
 	glfwTerminate();
 
-	Mesh m = Mesh(MODELS_DIR, "teapot.obj");
+	Mesh m = Mesh(BAAL_MODELS_DIR, "teapot.obj");
 
 
 	return 0;
