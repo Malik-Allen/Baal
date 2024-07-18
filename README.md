@@ -10,3 +10,12 @@ These are the outcomes that I want from this renderer:
 - Create shaders in GLSL or HLSL
 - Simple UI
 - Simple Camera
+
+# Dependancies
+## External Libraries
+- https://vulkan.lunarg.com/
+- https://github.com/glfw/glfw
+- https://github.com/KhronosGroup/glslang
+- https://github.com/tinyobjloader/tinyobjloader
+## My Libraries
+- https://github.com/Malik-Allen/Mjolnir
