@@ -21,6 +21,7 @@ namespace Baal
 		class SwapChain;
 		class CommandPool;
 		class CommandBuffer;
+		class GraphicsPipeline;
 
 		class Renderer
 		{
@@ -43,6 +44,11 @@ namespace Baal
 			void CreateSwapChainImageViews();
 			void DestroySwapChainImageViews();
 
+			void CreatePipelines();
+			void DestroyPipelines();
+
+			void CreateForwardPipeline();
+
 			std::unique_ptr<Instance> instance;
 			std::unique_ptr<LogicalDevice> device;
 
@@ -52,6 +58,8 @@ namespace Baal
 
 			std::unique_ptr<CommandPool> commandPool;
 			std::vector<CommandBuffer> drawCommands;
+
+			std::unique_ptr<GraphicsPipeline> forwardPipeline;
 
 		public:
 			void Init();

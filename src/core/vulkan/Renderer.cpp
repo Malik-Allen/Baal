@@ -11,6 +11,7 @@
 #include "../src/core/vulkan/commands/CommandPool.h"
 #include "../src/core/vulkan/commands/CommandBuffer.h"
 #include "../src/core/vulkan/pipeline/ShaderModule.h"
+#include "../src/core/vulkan/pipeline/GraphicsPipeline.h"
 
 #include <vulkan/vulkan_core.h>
 #include <stdexcept>
@@ -46,6 +47,8 @@ namespace Baal
 
 			commandPool.reset();
 
+			DestroyPipelines();
+
 			DestroySwapChainImageViews();
 
 			swapChain.reset();
@@ -65,7 +68,7 @@ namespace Baal
 			drawCommands.reserve(3);
 			VK_CHECK(commandPool->CreateCommandBuffers(3, VK_COMMAND_BUFFER_LEVEL_PRIMARY, drawCommands), "creating draw commands");
 
-			ShaderModule sm = ShaderModule(*device.get(), VK_SHADER_STAGE_VERTEX_BIT, BAAL_SHADERS_DIR, "Triangle.vert");
+			CreatePipelines();
 		}
 
 		void Renderer::RenderFrame()
@@ -164,6 +167,25 @@ namespace Baal
 			}
 
 			swapChainImageViews.clear();
+		}
+
+		void Renderer::CreatePipelines()
+		{
+			CreateForwardPipeline();
+		}
+
+		void Renderer::DestroyPipelines()
+		{
+			forwardPipeline.reset();
+		}
+
+		void Renderer::CreateForwardPipeline()
+		{
+			std::vector<ShaderModule> shaderStages;
+			shaderStages.push_back(ShaderModule(*device.get(), VK_SHADER_STAGE_VERTEX_BIT, BAAL_SHADERS_DIR, "Triangle.vert"));
+			shaderStages.push_back(ShaderModule(*device.get(), VK_SHADER_STAGE_FRAGMENT_BIT, BAAL_SHADERS_DIR, "Triangle.frag"));
+
+			forwardPipeline = std::make_unique<GraphicsPipeline>(*device.get(), shaderStages);
 		}
 	}
 }
