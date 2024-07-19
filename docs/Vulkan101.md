@@ -158,6 +158,53 @@ This Clip Coordinate is turned into a `Normalized Device Coordinate`. Finally th
 ### Compute Pipleine
 The Compute Pipeline is used to read and write memory from Images and Buffers
 
+## The Different Graphics Pipelines
+In rendering applications its common to have multiple pipelines. It provides an opportunity to optimize performance per-pipeline, allows for different `Render Passes` and different rendering configurations.
+
+For example, you could create a different pipeline for the 2D interface in your application and another pipeline for 3D objects in your world. 
+You can create a seperate pipeline for dynamic and static objects, where static objects use simpler shaders and dynamic more complex.
+You can create pipelines for special effects, like shadows, particles and Screen-Space Reflections.
+
+The following is a list of common use-cases for Graphics Pipelines:
+1. `Forward Rendering` Pipeline
+	-  Used for straightforward rendering where all shading and lighting calculations are done in a single pass. 
+	- Common in applications with limited dynamic lights or simpler scenes.
+1. `Deferred Rendering` Pipeline
+	-  Separates geometry and lighting into multiple passes, first writing geometry information to a G-buffer, then applying lighting in a subsequent pass.
+	- Efficient for scenes with many dynamic lights.
+1. `Shadow Mapping` Pipeline
+	-  Used for rendering shadows in a scene. 
+	- Involves rendering the scene from the light's perspective to create a depth map (shadow map).
+1. `Post-Processing` Pipeline
+	-  Applied after the main rendering to add effects such as bloom, motion blur, tone mapping, and depth of field.
+1. Particle System Pipeline
+	-  Specialized for rendering particles, such as smoke, fire, and explosions. 
+	- Often uses instancing and other optimizations to handle large numbers of particles.
+1. `SkyBox` Pipeline
+	-  Used for rendering the background environment, like a skybox or skydome. 
+	- Typically involves rendering a textured box or dome around the scene (`Cubemap`).
+1. `Ambient Occlusion` Pipeline
+	-  Adds ambient occlusion effects to simulate soft shadows in creases and corners. 
+	- Techniques like SSAO (Screen-Space Ambient Occlusion) are common.
+1. `Instanced Rendering` Pipeline
+	-  Optimizes the rendering of multiple instances of the same geometry. 
+	- Common in scenes with many repeated objects, like forests or crowds.
+1. Water Rendering Pipeline
+	-  Used for rendering realistic water surfaces. 
+	- Typically involves reflections, refractions, and wave simulations.
+1. Wireframe Rendering Pipeline
+	-  Renders objects in wireframe mode. 
+	- Useful for debugging and visualizing geometric structures.
+1. `Volumetric Lighting` Pipeline
+	-  Simulates light scattering through a medium, like fog or smoke. 
+	- Adds realism to scenes with volumetric effects.
+1. Compute Shader Pipeline
+	-  Uses compute shaders for tasks like physics simulations, particle updates, or complex lighting calculations. 
+	- Separate from traditional graphics pipelines but often integrated into the rendering process.
+1. `Ray-tracing` Pipeline
+	-  Uses ray tracing techniques for realistic lighting, shadows, and reflections. 
+	- More computationally intensive but provides higher visual fidelity.
+
 # Next Up
 - Draw Triangle
 	- Pipeline + Render Passes

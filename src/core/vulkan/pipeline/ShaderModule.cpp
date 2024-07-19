@@ -43,9 +43,28 @@ namespace Baal
 			VK_CHECK(vkCreateShaderModule(device.GetVkDevice(), &shaderModuleInfo, nullptr, &vkShaderModule), "creating shader module");
 		}
 
+		ShaderModule::ShaderModule(ShaderModule&& other) noexcept:
+			device(other.device),
+			stage(other.stage)
+		{
+			if (this != &other)
+			{
+				vkShaderModule = other.vkShaderModule;
+				spirv = other.spirv;
+
+				other.vkShaderModule = VK_NULL_HANDLE;
+				other.spirv.clear();
+			}			
+		}
+
 		ShaderModule::~ShaderModule()
 		{
-			vkDestroyShaderModule(device.GetVkDevice(), vkShaderModule, nullptr);
+			spirv.clear();
+
+			if (vkShaderModule != VK_NULL_HANDLE) 
+			{
+				vkDestroyShaderModule(device.GetVkDevice(), vkShaderModule, nullptr);
+			}
 		}
 
 		std::vector<char> ShaderModule::ReadShaderFromFile(const char* parentDirectory, const char* shaderFileName)

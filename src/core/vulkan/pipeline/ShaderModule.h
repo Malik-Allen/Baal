@@ -20,12 +20,15 @@ namespace Baal
 		public:
 			explicit ShaderModule(LogicalDevice& _device, VkShaderStageFlagBits stage, const char* parentDirectory, const char* shaderFileName);
 			ShaderModule(const ShaderModule&) = delete;
-			ShaderModule(ShaderModule&&) = delete;
+			ShaderModule(ShaderModule&& other) noexcept;
 
 			~ShaderModule();
 
 			ShaderModule& operator=(const ShaderModule&) = delete;
 			ShaderModule& operator = (ShaderModule&&) = delete;
+
+			VkShaderModule GetVkShaderModule() const { return vkShaderModule; }
+			VkShaderStageFlagBits GetStage() const { return stage; }
 
 		private:
 			VkShaderModule vkShaderModule{VK_NULL_HANDLE};
