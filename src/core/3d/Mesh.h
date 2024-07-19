@@ -1,7 +1,7 @@
 // MIT License, Copyright (c) 2024 Malik Allen
 
-#ifndef BAAL_MESH
-#define BAAL_MESH
+#ifndef BAAL_MESH_H
+#define BAAL_MESH_H
 
 #include <vector>
 
@@ -39,4 +39,4 @@ namespace Baal
 	};
 }
 
-#endif // !BAAL_MESH
+#endif // !BAAL_MESH_H

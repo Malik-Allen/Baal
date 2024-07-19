@@ -1,7 +1,7 @@
 // MIT License, Copyright (c) 2024 Malik Allen
 
-#ifndef BAAL_SHADER_MODULE
-#define BAAL_SHADER_MODULE
+#ifndef BAAL_SHADER_MODULE_H
+#define BAAL_SHADER_MODULE_H
 
 #include <vulkan/vulkan_core.h>
 #include <vector>
@@ -28,7 +28,7 @@ namespace Baal
 			ShaderModule& operator = (ShaderModule&&) = delete;
 
 		private:
-			VkShaderModule vkShaderModule;
+			VkShaderModule vkShaderModule{VK_NULL_HANDLE};
 			LogicalDevice& device;
 			VkShaderStageFlagBits stage;
 			// Compile Source Code
@@ -39,4 +39,4 @@ namespace Baal
 	}
 }
 
-#endif // BAAL_SHADER_MODULE
+#endif // !BAAL_SHADER_MODULE_H

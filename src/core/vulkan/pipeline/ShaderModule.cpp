@@ -2,9 +2,9 @@
 
 #include "ShaderModule.h"
 
-#include "../devices/LogicalDevice.h"
-#include "../utility/GLSLCompiler.h"
-#include "../debugging/Error.h"
+#include "../src/core/vulkan/devices/LogicalDevice.h"
+#include "../src/core/vulkan/debugging/Error.h"
+#include "../src/core/vulkan/utility/GLSLCompiler.h"
 
 #include <fstream>
 #include <cassert>

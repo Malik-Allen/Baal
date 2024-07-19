@@ -1,7 +1,7 @@
 // MIT License, Copyright (c) 2024 Malik Allen
 
-#ifndef BAAL_GLSL_COMPILER
-#define BAAL_GLSL_COMPILER
+#ifndef BAAL_GLSL_COMPILER_H
+#define BAAL_GLSL_COMPILER_H
 
 #include <vulkan/vulkan_core.h>
 #include <vector>
@@ -34,4 +34,4 @@ namespace Baal
 	}
 }
 
-#endif // BAAL_GLSL_COMPILER
+#endif // !BAAL_GLSL_COMPILER_H
