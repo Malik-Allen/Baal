@@ -184,8 +184,8 @@ namespace Baal
 			std::vector<ShaderModule> shaderStages;
 			shaderStages.push_back(ShaderModule(*device.get(), VK_SHADER_STAGE_VERTEX_BIT, BAAL_SHADERS_DIR, "Triangle.vert"));
 			shaderStages.push_back(ShaderModule(*device.get(), VK_SHADER_STAGE_FRAGMENT_BIT, BAAL_SHADERS_DIR, "Triangle.frag"));
-
-			forwardPipeline = std::make_unique<GraphicsPipeline>(*device.get(), shaderStages);
+			
+			forwardPipeline = std::make_unique<GraphicsPipeline>(*device.get(), shaderStages, swapChain->GetExtent().width, swapChain->GetExtent().height);
 		}
 	}
 }

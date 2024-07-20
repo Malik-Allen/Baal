@@ -7,6 +7,8 @@
 #include "../src/core/vulkan/presentation/Surface.h"
 #include "../src/core/vulkan/debugging/Error.h"
 
+#include <algorithm>
+
 namespace Baal
 {
 	namespace VK
@@ -34,7 +36,12 @@ namespace Baal
 			swapChainInfo.imageColorSpace = surfaceFormat.colorSpace;
 
 			swapChainInfo.minImageCount = surfaceCapabilities.minImageCount;
-			swapChainInfo.imageExtent = VkExtent2D(width, height);
+
+			const VkExtent2D desiredExtent = VkExtent2D(width, height);
+			extent.width = std::clamp(desiredExtent.width, surfaceCapabilities.minImageExtent.width, surfaceCapabilities.maxImageExtent.width);
+			extent.height = std::clamp(desiredExtent.height, surfaceCapabilities.minImageExtent.height, surfaceCapabilities.maxImageExtent.height);
+
+			swapChainInfo.imageExtent = extent;
 
 			swapChainInfo.presentMode = selectedPresentMode;
 			swapChainInfo.imageArrayLayers = surfaceCapabilities.maxImageArrayLayers;

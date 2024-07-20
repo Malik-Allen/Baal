@@ -30,6 +30,7 @@ namespace Baal
 
 			VkSurfaceFormatKHR GetSurfaceFormat() const { return surfaceFormat; }
 			const std::vector<VkImage>& GetImages() const { return images; };
+			VkExtent2D GetExtent() const { return extent; }
 
 		private:
 			VkSwapchainKHR vkSwapChain{VK_NULL_HANDLE};
@@ -38,6 +39,7 @@ namespace Baal
 			Surface& surface;
 			VkSurfaceFormatKHR surfaceFormat;
 			std::vector<VkImage> images;
+			VkExtent2D extent;
 
 			void QuerySurfaceCapabilities(VkSurfaceCapabilitiesKHR& outCapabilities);
 			void QueurySurfaceFormats(std::vector<VkSurfaceFormatKHR>& outFormats);

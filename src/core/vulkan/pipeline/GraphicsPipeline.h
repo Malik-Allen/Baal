@@ -16,7 +16,7 @@ namespace Baal
 		class GraphicsPipeline
 		{
 		public:
-			GraphicsPipeline(LogicalDevice& _device, std::vector<ShaderModule>& _shaderStages);
+			explicit GraphicsPipeline(LogicalDevice& _device, std::vector<ShaderModule>& _shaderStages, const uint32_t width, const uint32_t height);
 			GraphicsPipeline(const GraphicsPipeline&) = delete;
 			GraphicsPipeline(GraphicsPipeline&&) = delete;
 
@@ -27,6 +27,7 @@ namespace Baal
 
 		private:
 			VkPipeline pipeline{VK_NULL_HANDLE};
+			VkPipelineLayout layout{ VK_NULL_HANDLE };
 			LogicalDevice& device;
 			std::vector<ShaderModule>& shaderStages;
 		};
