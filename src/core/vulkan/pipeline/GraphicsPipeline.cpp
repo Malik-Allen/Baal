@@ -4,13 +4,14 @@
 
 #include "../src/core/vulkan/devices/LogicalDevice.h"
 #include "../src/core/vulkan/pipeline/ShaderModule.h"
+#include "../src/core/vulkan/pipeline/RenderPass.h"
 #include "../src/core/vulkan/debugging/Error.h"
 
 namespace Baal
 {
 	namespace VK
 	{
-		GraphicsPipeline::GraphicsPipeline(LogicalDevice& _device, std::vector<ShaderModule>& _shaderStages, const uint32_t width, const uint32_t height):
+		GraphicsPipeline::GraphicsPipeline(LogicalDevice& _device, std::vector<ShaderModule>& _shaderStages, RenderPass& renderPass, const uint32_t width, const uint32_t height):
 			device(_device),
 			shaderStages(_shaderStages)
 		{
@@ -119,6 +120,7 @@ namespace Baal
 			pipelineInfo.pMultisampleState = &multisampling;
 			pipelineInfo.pColorBlendState = &colorBlending;
 			pipelineInfo.layout = layout;
+			pipelineInfo.renderPass = renderPass.GetVkRenderPass();
 			
 			VK_CHECK(vkCreateGraphicsPipelines(device.GetVkDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline), "creating graphics pipeline");
 		}

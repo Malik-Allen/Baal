@@ -7,11 +7,6 @@ I will never write this renderer from scratch again, I want to make it simple to
 
 To my future self, your welcome!
 
-# Resources
-https://registry.khronos.org/vulkan/specs/1.3/html/
-https://vulkan-tutorial.com/
-https://vkguide.dev/
-
 # Obseravations
 
 - Device, Instance, Physical Device are good starting points for the renderer
@@ -172,13 +167,26 @@ While viewports define the transformation from the image to the framebuffer, sci
 
 ### Rasterizer
 Takes the geometry of shape, provided by its vertices in the Vertex Shader and turns it into Fragments, to be colored by the Fragment Shader.
-The Rasterizer performs `Depth Testing` and `Face Culling` and the Scissor Test.
+The Rasterizer performs `Depth Testing`(Z-Buffering) and `Face Culling`(Back-Face Culling) and the Scissor Test.
 
 ### Multisampling Anti-aliasing
 Anti-aliasing is achieved by merging the results of the Fragment Shader, where multiple polygons rasterize to the same pixel.
 
 ### Compute Pipleine
 The Compute Pipeline is used to read and write memory from Images and Buffers
+
+## Renderpass
+In Vulkan a Renderpass describes how many Color and Depth bufffers, how many Samples there will be for each of them and how all of its contents should be handled during the rendering operations.
+
+> **Note:** `Sample` can be described as single data point in Multisampling. Which is used in Anti-aliasing. The higher the Sample count, the higher the memory and perfomance cost.(i.e. 1 sample per pixel (not Multisampling), 4 samples per pixel, 6, 8, etc.)
+
+Describing the Color or Depth buffers are done through Attachments. Where the Sameple count is passed a parameter. Along with that, Attachments also describe how data is loaded and stored before and after rendering.
+
+> **Note:** `Stencil Buffer` is an extra Data Buffer used in computer graphics in addition to the Color and Depth Buffers. This buffer is per-pixel and works on integer values. 
+The combination of stencil and depth buffer make a lot of things possible. Such as such as stencil shadow volumes, Two-Sided Stencil, compositing, decaling, dissolves, fades, swipes, silhouettes, outline drawing, or highlighting of intersections between complex primitives.
+
+The Renderpass is can be made up of multiple `Subpasses`. Where Subpasses, are rendering operations that dependent on the content of the previous data in the Framebuffer. 
+Grouping the rendering operations into one Renderpass can allow Vulkan to optomize the performance of the operations.
 
 ## The Different Graphics Pipelines
 In rendering applications its common to have multiple pipelines. It provides an opportunity to optimize performance per-pipeline, allows for different `Render Passes` and different rendering configurations.
@@ -232,3 +240,14 @@ The following is a list of common use-cases for Graphics Pipelines:
 	- Pipeline + Render Passes
 		- https://registry.khronos.org/vulkan/specs/1.3/html/chap10.html
 		- https://registry.khronos.org/vulkan/specs/1.3/html/chap10.html
+
+
+# Resources
+https://registry.khronos.org/vulkan/specs/1.3/html/
+https://vulkan-tutorial.com/
+https://vkguide.dev/
+
+## Graphics Pipeline
+https://en.wikipedia.org/wiki/Z-buffering
+https://en.wikipedia.org/wiki/Back-face_culling
+https://en.wikipedia.org/wiki/Multisample_anti-aliasing

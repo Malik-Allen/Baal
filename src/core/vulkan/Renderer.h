@@ -22,6 +22,7 @@ namespace Baal
 		class CommandPool;
 		class CommandBuffer;
 		class GraphicsPipeline;
+		class RenderPass;
 
 		class Renderer
 		{
@@ -59,6 +60,7 @@ namespace Baal
 			std::unique_ptr<CommandPool> commandPool;
 			std::vector<CommandBuffer> drawCommands;
 
+			std::unique_ptr<RenderPass> renderPass;
 			std::unique_ptr<GraphicsPipeline> forwardPipeline;
 
 		public:

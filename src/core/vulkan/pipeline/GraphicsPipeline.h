@@ -12,11 +12,14 @@ namespace Baal
 	{
 		class LogicalDevice;
 		class ShaderModule;
+		class RenderPass;
+
+		// Sets up Shader Stages and Fixed-Function stages of pipeline
 
 		class GraphicsPipeline
 		{
 		public:
-			explicit GraphicsPipeline(LogicalDevice& _device, std::vector<ShaderModule>& _shaderStages, const uint32_t width, const uint32_t height);
+			explicit GraphicsPipeline(LogicalDevice& _device, std::vector<ShaderModule>& _shaderStages, RenderPass& renderPass, const uint32_t width, const uint32_t height);
 			GraphicsPipeline(const GraphicsPipeline&) = delete;
 			GraphicsPipeline(GraphicsPipeline&&) = delete;
 
