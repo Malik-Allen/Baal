@@ -15,7 +15,7 @@ namespace Baal
 		struct Attachment
 		{
 			VkImageUsageFlagBits usage;
-			VkAttachmentDescription2 description;
+			VkAttachmentDescription description;
 		};
 
 		// Used to define the color and depth buffers, sample counts, and data loading and saving before an after rendering operations are performed.
@@ -36,7 +36,7 @@ namespace Baal
 			VkRenderPass& GetVkRenderPass() { return vkRenderPass; };
 
 		private:
-			VkRenderPass vkRenderPass;
+			VkRenderPass vkRenderPass{VK_NULL_HANDLE};
 			LogicalDevice& device;
 			std::vector<Attachment> attachments;
 		};

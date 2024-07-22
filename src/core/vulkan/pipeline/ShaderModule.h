@@ -15,10 +15,17 @@ namespace Baal
 		// Responsible for loading and compiling shader files
 		// TODO: Add logic to save and read a spirv file if one exists for the shader, instead of recompiling each time. For now this is enough until compile times take up too much time
 
+		struct ShaderInfo
+		{
+			VkShaderStageFlagBits stage;
+			const char* parentDirectory; 
+			const char* shaderFileName;
+		};
+
 		class ShaderModule
 		{
 		public:
-			explicit ShaderModule(LogicalDevice& _device, VkShaderStageFlagBits stage, const char* parentDirectory, const char* shaderFileName);
+			explicit ShaderModule(LogicalDevice& _device, const ShaderInfo& shaderInfo);
 			ShaderModule(const ShaderModule&) = delete;
 			ShaderModule(ShaderModule&& other) noexcept;
 

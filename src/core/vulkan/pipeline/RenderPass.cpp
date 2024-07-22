@@ -13,10 +13,10 @@ namespace Baal
 			device(_device),
 			attachments(_attachments)
 		{
-			std::vector<VkAttachmentDescription2> vkAttachments;
-			std::vector<VkAttachmentReference2> colorAttachmentRefs;
+			std::vector<VkAttachmentDescription> vkAttachments;
+			std::vector<VkAttachmentReference> colorAttachmentRefs;
 
-			VkAttachmentReference2 attachmentRef;
+			VkAttachmentReference attachmentRef;
 			for (size_t i = 0; i < attachments.size(); ++i)
 			{
 				vkAttachments.push_back(attachments[i].description);
@@ -29,7 +29,7 @@ namespace Baal
 				}
 			}
 
-			VkSubpassDescription2 subpass = {VK_STRUCTURE_TYPE_SUBPASS_DESCRIPTION_2};
+			VkSubpassDescription subpass = {};
 			subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 			subpass.flags = 0;
 			subpass.inputAttachmentCount = 0;
@@ -37,17 +37,24 @@ namespace Baal
 			subpass.colorAttachmentCount = colorAttachmentRefs.size();
 			subpass.pColorAttachments = colorAttachmentRefs.data();
 
-			VkRenderPassCreateInfo2 renderPassInfo = { VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO_2 };
+			VkSubpassDependency dependency = {};
+			dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+			dependency.dstSubpass = 0;
+			dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+			dependency.srcAccessMask = 0;
+			dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+			dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+			VkRenderPassCreateInfo renderPassInfo = { VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO };
 			renderPassInfo.flags = 0;
-			renderPassInfo.dependencyCount = 0;
 			renderPassInfo.attachmentCount = vkAttachments.size();
 			renderPassInfo.pAttachments = vkAttachments.data();
-
-			// For now we will use a single subpass
 			renderPassInfo.subpassCount = 1;
 			renderPassInfo.pSubpasses = &subpass;
+			renderPassInfo.dependencyCount = 1;
+			renderPassInfo.pDependencies = &dependency;
 			
-			VK_CHECK(vkCreateRenderPass2(device.GetVkDevice(), &renderPassInfo, nullptr, &vkRenderPass), "creating renderpass");
+			VK_CHECK(vkCreateRenderPass(device.GetVkDevice(), &renderPassInfo, nullptr, &vkRenderPass), "creating renderpass");
 		}
 
 		RenderPass::~RenderPass()

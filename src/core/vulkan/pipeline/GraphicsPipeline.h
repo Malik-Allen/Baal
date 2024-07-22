@@ -11,6 +11,7 @@ namespace Baal
 	namespace VK
 	{
 		class LogicalDevice;
+		struct ShaderInfo;
 		class ShaderModule;
 		class RenderPass;
 
@@ -19,7 +20,7 @@ namespace Baal
 		class GraphicsPipeline
 		{
 		public:
-			explicit GraphicsPipeline(LogicalDevice& _device, std::vector<ShaderModule>& _shaderStages, RenderPass& renderPass, const uint32_t width, const uint32_t height);
+			explicit GraphicsPipeline(LogicalDevice& _device, std::vector<ShaderInfo>& shaderInfo, RenderPass& renderPass, const uint32_t width, const uint32_t height);
 			GraphicsPipeline(const GraphicsPipeline&) = delete;
 			GraphicsPipeline(GraphicsPipeline&&) = delete;
 
@@ -32,7 +33,7 @@ namespace Baal
 			VkPipeline pipeline{VK_NULL_HANDLE};
 			VkPipelineLayout layout{ VK_NULL_HANDLE };
 			LogicalDevice& device;
-			std::vector<ShaderModule>& shaderStages;
+			std::vector<ShaderModule> shaderStages;
 		};
 	}
 }

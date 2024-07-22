@@ -188,7 +188,6 @@ namespace Baal
 
 			Attachment colorAttachment;
 			colorAttachment.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-			colorAttachment.description.sType = VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2;
 			colorAttachment.description.flags = 0;
 			colorAttachment.description.format = swapChain->GetSurfaceFormat().format;
 			colorAttachment.description.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -199,15 +198,15 @@ namespace Baal
 			colorAttachment.description.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 			colorAttachment.description.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
-			// attachments.push_back(colorAttachment);
+			attachments.push_back(colorAttachment);
 
 			renderPass = std::make_unique<RenderPass>(*device.get(), attachments);
 
-			std::vector<ShaderModule> shaderStages;
-			shaderStages.push_back(ShaderModule(*device.get(), VK_SHADER_STAGE_VERTEX_BIT, BAAL_SHADERS_DIR, "Triangle.vert"));
-			shaderStages.push_back(ShaderModule(*device.get(), VK_SHADER_STAGE_FRAGMENT_BIT, BAAL_SHADERS_DIR, "Triangle.frag"));
+			std::vector<ShaderInfo> shaderInfo;
+			shaderInfo.push_back(ShaderInfo(VK_SHADER_STAGE_VERTEX_BIT, BAAL_SHADERS_DIR, "Triangle.vert"));
+			shaderInfo.push_back(ShaderInfo(VK_SHADER_STAGE_FRAGMENT_BIT, BAAL_SHADERS_DIR, "Triangle.frag"));
 			
-			forwardPipeline = std::make_unique<GraphicsPipeline>(*device.get(), shaderStages, *renderPass.get(), swapChain->GetExtent().width, swapChain->GetExtent().height);
+			forwardPipeline = std::make_unique<GraphicsPipeline>(*device.get(), shaderInfo, *renderPass.get(), swapChain->GetExtent().width, swapChain->GetExtent().height);
 		}
 	}
 }

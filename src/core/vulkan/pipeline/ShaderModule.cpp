@@ -13,13 +13,13 @@ namespace Baal
 {
 	namespace VK
 	{
-		ShaderModule::ShaderModule(LogicalDevice& _device, VkShaderStageFlagBits _stage, const char* parentDirectory, const char* shaderFileName):
+		ShaderModule::ShaderModule(LogicalDevice& _device, const ShaderInfo& shaderInfo):
 			device(_device),
-			stage(_stage)
+			stage(shaderInfo.stage)
 		{
-			std::vector<char> sourceCode = ReadShaderFromFile(parentDirectory, shaderFileName);
+			std::vector<char> sourceCode = ReadShaderFromFile(shaderInfo.parentDirectory, shaderInfo.shaderFileName);
 
-			std::string fileName = std::string(shaderFileName);
+			std::string fileName = std::string(shaderInfo.shaderFileName);
 			DEBUG_LOG(LOG::INFO, "Compiling shader {} ....", fileName);
 
 			GLSLCompiler glslCompiler;

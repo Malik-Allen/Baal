@@ -11,10 +11,14 @@ namespace Baal
 {
 	namespace VK
 	{
-		GraphicsPipeline::GraphicsPipeline(LogicalDevice& _device, std::vector<ShaderModule>& _shaderStages, RenderPass& renderPass, const uint32_t width, const uint32_t height):
-			device(_device),
-			shaderStages(_shaderStages)
+		GraphicsPipeline::GraphicsPipeline(LogicalDevice& _device, std::vector<ShaderInfo>& shaderInfo, RenderPass& renderPass, const uint32_t width, const uint32_t height):
+			device(_device)
 		{
+			for (size_t i = 0; i < shaderInfo.size(); ++i)
+			{
+				shaderStages.push_back(ShaderModule(device, shaderInfo[i]));
+			}
+
 			std::vector<VkPipelineShaderStageCreateInfo> pipelineStages(shaderStages.size());
 
 			VkPipelineShaderStageCreateInfo shaderStageInfo = { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO };
@@ -121,16 +125,16 @@ namespace Baal
 			pipelineInfo.pColorBlendState = &colorBlending;
 			pipelineInfo.layout = layout;
 			pipelineInfo.renderPass = renderPass.GetVkRenderPass();
+			pipelineInfo.subpass = 0;
 			
 			VK_CHECK(vkCreateGraphicsPipelines(device.GetVkDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline), "creating graphics pipeline");
 		}
 
 		GraphicsPipeline::~GraphicsPipeline()
 		{
-			shaderStages.clear();
-
 			vkDestroyPipeline(device.GetVkDevice(), pipeline, nullptr);
 			vkDestroyPipelineLayout(device.GetVkDevice(), layout, nullptr);
+			shaderStages.clear();
 		}
 	}
 }
