@@ -31,6 +31,7 @@ namespace Baal
 			VkSurfaceFormatKHR GetSurfaceFormat() const { return surfaceFormat; }
 			const std::vector<VkImage>& GetImages() const { return images; };
 			VkExtent2D GetExtent() const { return extent; }
+			VkSwapchainKHR& GetVkSwapChain() { return vkSwapChain; }
 
 		private:
 			VkSwapchainKHR vkSwapChain{VK_NULL_HANDLE};

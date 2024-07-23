@@ -54,6 +54,11 @@ namespace Baal
 			void CreateFramebuffers();
 			void DestroyFramebuffers();
 
+			void CreateDrawCommandBuffers();
+			void DestroyDrawCommandBuffers();
+
+			void BuildCommandBuffers();
+
 			std::unique_ptr<Instance> instance;
 			std::unique_ptr<LogicalDevice> device;
 
@@ -67,6 +72,8 @@ namespace Baal
 			std::unique_ptr<RenderPass> renderPass;
 			std::unique_ptr<GraphicsPipeline> forwardPipeline;
 			std::vector<Framebuffer> framebuffers;
+
+			uint32_t currentFrame = 0;
 
 		public:
 			void Init();

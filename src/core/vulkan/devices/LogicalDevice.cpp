@@ -2,13 +2,14 @@
 
 #include "LogicalDevice.h"
 #include "../src/core/vulkan/devices/PhysicalDevice.h"
+#include "../src/core/vulkan/presentation/Surface.h"
 #include "../src/core/vulkan/debugging/Error.h"
 
 namespace Baal
 {
 	namespace VK
 	{
-		LogicalDevice::LogicalDevice(const PhysicalDevice& _physicalDevice, const std::vector<const char*>& requiredExtensions):
+		LogicalDevice::LogicalDevice(const PhysicalDevice& _physicalDevice, Surface& surface, const std::vector<const char*>& requiredExtensions):
 			physicalDevice(_physicalDevice)
 		{
 			std::vector<VkDeviceQueueCreateInfo> deviceQueueInfos;
@@ -64,6 +65,17 @@ namespace Baal
 			VK_CHECK(vkCreateDevice(physicalDevice.GetVkPhysicalDevice(), &deviceInfo, nullptr, &device), "creating device");
 
 			vkGetDeviceQueue(device, physicalDevice.GetQueueFamilyIndex(VK_QUEUE_GRAPHICS_BIT), 0, &graphicsQueue);
+			
+			for (uint32_t i = 0; i < queueFamilyCount; ++i) 
+			{
+				VkBool32 presentSupport = false;
+				vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice.GetVkPhysicalDevice(), i, surface.GetVkSurface(), &presentSupport);
+
+				if (presentSupport) {
+					vkGetDeviceQueue(device, i, 0, &presentQueue);
+					break;
+				}
+			}
 		}
 
 		LogicalDevice::~LogicalDevice()

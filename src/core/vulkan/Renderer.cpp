@@ -32,7 +32,7 @@ namespace Baal
 
 			surface = std::make_unique<Surface>(*instance.get(), window);
 
-			device = std::make_unique<LogicalDevice>(instance->GetGPU(), deviceExtensions);
+			device = std::make_unique<LogicalDevice>(instance->GetGPU(), *surface.get(), deviceExtensions);
 
 			int width = 0;
 			int height = 0;
@@ -45,7 +45,7 @@ namespace Baal
 
 		Renderer::~Renderer() 
 		{
-			drawCommands.clear();
+			DestroyDrawCommandBuffers();
 
 			commandPool.reset();
 
@@ -68,36 +68,30 @@ namespace Baal
 		{
 			CreateSwapChainImageViews();
 
-			// Create FrameBuffer
-			drawCommands.reserve(3);
-			VK_CHECK(commandPool->CreateCommandBuffers(3, VK_COMMAND_BUFFER_LEVEL_PRIMARY, drawCommands), "creating draw commands");
-
 			CreatePipelines();
 
 			CreateFramebuffers();
+
+			CreateDrawCommandBuffers();
 		}
 
 		void Renderer::RenderFrame()
 		{
-			drawCommands[0].Reset();
-			drawCommands[0].BeginRecording(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
-			VkViewport viewport{};
-			viewport.x = 0.0f;
-			viewport.y = 0.0f;
-			viewport.width = 800.0f;
-			viewport.height = 600.0f;
-			viewport.minDepth = 0.0f;
-			viewport.maxDepth = 1.0f;
-			vkCmdSetViewport(drawCommands[0].GetVkCommandBuffer(), 0, 1, &viewport);
-			drawCommands[0].EndRecording();
+			BuildCommandBuffers();
 
 			VkSubmitInfo submitInfo = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
-			
 			submitInfo.commandBufferCount = 1;
-			submitInfo.pCommandBuffers = &drawCommands[0].GetVkCommandBuffer();
+			submitInfo.pCommandBuffers = &drawCommands[currentFrame].GetVkCommandBuffer();
 
 			VK_CHECK(vkQueueSubmit(device->GetGraphicsQueue(), 1, &submitInfo, nullptr), "submitting graphics queue");
 			VK_CHECK(vkQueueWaitIdle(device->GetGraphicsQueue()), "waiting idle graphics queue");
+
+			VkPresentInfoKHR presentInfo = { VK_STRUCTURE_TYPE_PRESENT_INFO_KHR };
+			presentInfo.swapchainCount = 1;
+			presentInfo.pSwapchains = &swapChain->GetVkSwapChain();
+			presentInfo.pImageIndices = &currentFrame;
+
+			vkQueuePresentKHR(device->GetPresentQueue(), &presentInfo);
 		}
 
 		void Renderer::Shutdown()
@@ -228,6 +222,66 @@ namespace Baal
 		void Renderer::DestroyFramebuffers()
 		{
 			framebuffers.clear();
+		}
+
+		void Renderer::CreateDrawCommandBuffers()
+		{
+			const uint32_t framebufferCount = framebuffers.size();
+			drawCommands.reserve(framebufferCount);
+			VK_CHECK(commandPool->CreateCommandBuffers(framebufferCount, VK_COMMAND_BUFFER_LEVEL_PRIMARY, drawCommands), "creating draw commands");
+
+			currentFrame = 0;
+		}
+
+		void Renderer::DestroyDrawCommandBuffers()
+		{
+			drawCommands.clear();
+		}
+
+		void Renderer::BuildCommandBuffers()
+		{
+			VkRenderPassBeginInfo renderPassInfo = { VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO };
+			renderPassInfo.renderPass = renderPass->GetVkRenderPass();
+			renderPassInfo.clearValueCount = 1;
+			renderPassInfo.renderArea.offset = { 0, 0 };
+			renderPassInfo.renderArea.extent = swapChain->GetExtent();
+
+			for (size_t i = 0; i < drawCommands.size(); ++i)
+			{
+				renderPassInfo.framebuffer = framebuffers[i].GetVkFramebuffer();
+
+				drawCommands[i].Reset();
+
+				drawCommands[i].BeginRecording(0);
+
+				VkClearValue clearColor = { {{0.0f, 0.0f, 0.0f, 1.0f}} };
+				renderPassInfo.clearValueCount = 1;
+				renderPassInfo.pClearValues = &clearColor;
+
+				vkCmdBeginRenderPass(drawCommands[i].GetVkCommandBuffer(), &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+				vkCmdBindPipeline(drawCommands[i].GetVkCommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, forwardPipeline->GetVkGraphicsPipeline());
+
+				VkViewport viewport{};
+				viewport.x = 0.0f;
+				viewport.y = 0.0f;
+				viewport.width = static_cast<float>(swapChain->GetExtent().width);
+				viewport.height = static_cast<float>(swapChain->GetExtent().height);
+				viewport.minDepth = 0.0f;
+				viewport.maxDepth = 1.0f;
+				vkCmdSetViewport(drawCommands[i].GetVkCommandBuffer(), 0, 1, &viewport);
+
+				VkRect2D scissor{};
+				scissor.offset = { 0, 0 };
+				scissor.extent = swapChain->GetExtent();
+				vkCmdSetScissor(drawCommands[i].GetVkCommandBuffer(), 0, 1, &scissor);
+
+				vkCmdDraw(drawCommands[i].GetVkCommandBuffer(), 3, 1, 0, 0);
+
+				vkCmdEndRenderPass(drawCommands[i].GetVkCommandBuffer());
+
+				drawCommands[i].EndRecording();
+			}
 		}
 	}
 }

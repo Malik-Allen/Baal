@@ -25,6 +25,8 @@ namespace Baal
 			Framebuffer& operator=(const Framebuffer&) = delete;
 			Framebuffer& operator = (Framebuffer&&) = delete;
 
+			VkFramebuffer& GetVkFramebuffer() { return vkFramebuffer; }
+
 		private:
 			VkFramebuffer vkFramebuffer{ VK_NULL_HANDLE };
 			LogicalDevice& device;

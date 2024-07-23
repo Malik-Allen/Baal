@@ -12,13 +12,14 @@ namespace Baal
 	namespace VK
 	{
 		class PhysicalDevice;
+		class Surface;
 
 		// The interface that is used to interact with the vkPhysicalDevice
 		
 		class LogicalDevice
 		{
 		public:
-			explicit LogicalDevice(const PhysicalDevice& _physicalDevice, const std::vector<const char*>& requiredExtensions = {});
+			explicit LogicalDevice(const PhysicalDevice& _physicalDevice, Surface& surface, const std::vector<const char*>& requiredExtensions = {});
 			LogicalDevice(const LogicalDevice&) = delete;
 			LogicalDevice(LogicalDevice&&) = delete;
 
@@ -29,11 +30,13 @@ namespace Baal
 
 			VkDevice& GetVkDevice() { return device; }
 			VkQueue& GetGraphicsQueue() { return graphicsQueue; };
+			VkQueue& GetPresentQueue() { return presentQueue; };
 
 		private:
 			const PhysicalDevice& physicalDevice;
 			VkDevice device{ VK_NULL_HANDLE };
 			VkQueue graphicsQueue{ VK_NULL_HANDLE };
+			VkQueue presentQueue{ VK_NULL_HANDLE };
 			std::vector<const char*> enabledExtensions;
 
 			void QueryAvailableExtensions(std::vector<VkExtensionProperties>& outExtensions) const;

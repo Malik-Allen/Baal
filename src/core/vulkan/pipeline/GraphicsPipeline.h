@@ -29,6 +29,8 @@ namespace Baal
 			GraphicsPipeline& operator=(const GraphicsPipeline&) = delete;
 			GraphicsPipeline& operator = (GraphicsPipeline&&) = delete;
 
+			VkPipeline& GetVkGraphicsPipeline() { return pipeline; }
+
 		private:
 			VkPipeline pipeline{VK_NULL_HANDLE};
 			VkPipelineLayout layout{ VK_NULL_HANDLE };
