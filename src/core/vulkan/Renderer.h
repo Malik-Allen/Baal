@@ -23,6 +23,7 @@ namespace Baal
 		class CommandBuffer;
 		class GraphicsPipeline;
 		class RenderPass;
+		class Framebuffer;
 
 		class Renderer
 		{
@@ -50,6 +51,9 @@ namespace Baal
 
 			void CreateForwardPipeline();
 
+			void CreateFramebuffers();
+			void DestroyFramebuffers();
+
 			std::unique_ptr<Instance> instance;
 			std::unique_ptr<LogicalDevice> device;
 
@@ -62,6 +66,7 @@ namespace Baal
 
 			std::unique_ptr<RenderPass> renderPass;
 			std::unique_ptr<GraphicsPipeline> forwardPipeline;
+			std::vector<Framebuffer> framebuffers;
 
 		public:
 			void Init();

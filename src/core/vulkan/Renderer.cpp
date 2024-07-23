@@ -13,6 +13,7 @@
 #include "../src/core/vulkan/pipeline/ShaderModule.h"
 #include "../src/core/vulkan/pipeline/GraphicsPipeline.h"
 #include "../src/core/vulkan/pipeline/RenderPass.h"
+#include "../src/core/vulkan/pipeline/Framebuffer.h"
 
 #include <vulkan/vulkan_core.h>
 #include <stdexcept>
@@ -48,6 +49,8 @@ namespace Baal
 
 			commandPool.reset();
 
+			DestroyFramebuffers();
+
 			DestroyPipelines();
 
 			DestroySwapChainImageViews();
@@ -70,6 +73,8 @@ namespace Baal
 			VK_CHECK(commandPool->CreateCommandBuffers(3, VK_COMMAND_BUFFER_LEVEL_PRIMARY, drawCommands), "creating draw commands");
 
 			CreatePipelines();
+
+			CreateFramebuffers();
 		}
 
 		void Renderer::RenderFrame()
@@ -207,6 +212,22 @@ namespace Baal
 			shaderInfo.push_back(ShaderInfo(VK_SHADER_STAGE_FRAGMENT_BIT, BAAL_SHADERS_DIR, "Triangle.frag"));
 			
 			forwardPipeline = std::make_unique<GraphicsPipeline>(*device.get(), shaderInfo, *renderPass.get(), swapChain->GetExtent().width, swapChain->GetExtent().height);
+		}
+
+		void Renderer::CreateFramebuffers()
+		{
+			std::vector<VkImageView> attachments(1);
+
+			for (size_t i = 0; i < swapChainImageViews.size(); ++i) 
+			{
+				attachments[0] = swapChainImageViews[i];
+				framebuffers.push_back(Framebuffer(*device.get(), *renderPass.get(), attachments, swapChain->GetExtent().width, swapChain->GetExtent().height));
+			}
+		}
+
+		void Renderer::DestroyFramebuffers()
+		{
+			framebuffers.clear();
 		}
 	}
 }
