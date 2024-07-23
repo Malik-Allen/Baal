@@ -236,11 +236,10 @@ The following is a list of common use-cases for Graphics Pipelines:
 	- More computationally intensive but provides higher visual fidelity.
 
 # Next Up
-- Draw Triangle
-	- Pipeline + Render Passes
-		- https://registry.khronos.org/vulkan/specs/1.3/html/chap10.html
-		- https://registry.khronos.org/vulkan/specs/1.3/html/chap10.html
-
+- Semaphores and Fences
+- Swap chain recreation and command buffer recreation 
+	- Linking that through glfw window resizing
+- Review entire pipeline up until the Draw Triangle
 
 # Resources
 https://registry.khronos.org/vulkan/specs/1.3/html/
