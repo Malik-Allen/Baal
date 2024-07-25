@@ -59,6 +59,9 @@ namespace Baal
 
 			void BuildCommandBuffers();
 
+			void CreateSyncObjects();
+			void DestroySyncObjects();
+
 			std::unique_ptr<Instance> instance;
 			std::unique_ptr<LogicalDevice> device;
 
@@ -73,7 +76,11 @@ namespace Baal
 			std::unique_ptr<GraphicsPipeline> forwardPipeline;
 			std::vector<Framebuffer> framebuffers;
 
-			uint32_t currentFrame = 0;
+			VkSemaphore acquiredImageReady;
+			VkSemaphore renderComplete;
+			VkFence waitFence;
+
+			uint32_t currentBuffer = 0;
 
 		public:
 			void Init();

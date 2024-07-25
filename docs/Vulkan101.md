@@ -235,6 +235,29 @@ The following is a list of common use-cases for Graphics Pipelines:
 	-  Uses ray tracing techniques for realistic lighting, shadows, and reflections. 
 	- More computationally intensive but provides higher visual fidelity.
 
+## Synchronization
+Explicitly defining the expected order of operation on the GPU and CPU. We are able to define and wait for execution order using `Fences`, for the CPU and `Semaphores`, for the GPU.
+
+### Fences
+Fences can be used to determine when some operation has completed execution on the GPU and controlling access to resources on the GPU and CPU.
+
+To control operation order, a Fence, inserts dependencies from a Queue to the GPU. Fences have two states - Signaled or Unsignaled.
+
+> **Note:** Data can be accessed by a Fence, the data associated with the signaled and unsignaled operation on that fence object, is called the `Fence Payload`. 
+This allows sharing of resources between other Sempahore objects and other synchronization primitives, functioning similar to a mutex.
+
+### Semaphores
+Semaphores can control the operation order of work submitted to different Queues and controlling access to resources on the GPU.
+
+To control operation order, a Semaphore, inserts dependancies between Queue operations or between Queue operations and the GPU.
+
+> **Note:** There are two types of Semaphore. `Binary Semaphore` - has two states either Signaled or Unsignaled. `Timeline Semaphore` - has 64-bit unsigned integer with a strictly increasing value, and are signaled with respect to a specified reference value.
+
+> **Note:** Data can be accessed by a Semaphore, the data that is associated with the unsignaled or signaled operations performed on that semaphore object, refered to as a `Semaphore Payload`.
+This allows sharing of resources between other Semaphore objects and other synchronization primitives, functioning similar to a mutex.
+
+
+
 # Next Up
 - Semaphores and Fences
 - Swap chain recreation and command buffer recreation 

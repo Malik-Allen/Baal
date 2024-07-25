@@ -45,9 +45,9 @@ namespace Baal
 
 		Renderer::~Renderer() 
 		{
-			DestroyDrawCommandBuffers();
+			vkDeviceWaitIdle(device->GetVkDevice());
 
-			commandPool.reset();
+			DestroyDrawCommandBuffers();
 
 			DestroyFramebuffers();
 
@@ -56,6 +56,10 @@ namespace Baal
 			DestroySwapChainImageViews();
 
 			swapChain.reset();
+
+			commandPool.reset();
+
+			DestroySyncObjects();
 
 			device.reset();
 
@@ -73,25 +77,43 @@ namespace Baal
 			CreateFramebuffers();
 
 			CreateDrawCommandBuffers();
+
+			CreateSyncObjects();
 		}
 
 		void Renderer::RenderFrame()
 		{
+			vkWaitForFences(device->GetVkDevice(), 1, &waitFence, VK_TRUE, UINT64_MAX);
+			vkResetFences(device->GetVkDevice(), 1, &waitFence);
+
+			vkAcquireNextImageKHR(device->GetVkDevice(), swapChain->GetVkSwapChain(), UINT64_MAX, acquiredImageReady, VK_NULL_HANDLE, &currentBuffer);
+
 			BuildCommandBuffers();
 
 			VkSubmitInfo submitInfo = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
 			submitInfo.commandBufferCount = 1;
-			submitInfo.pCommandBuffers = &drawCommands[currentFrame].GetVkCommandBuffer();
+			submitInfo.pCommandBuffers = &drawCommands[currentBuffer].GetVkCommandBuffer();
 
-			VK_CHECK(vkQueueSubmit(device->GetGraphicsQueue(), 1, &submitInfo, nullptr), "submitting graphics queue");
-			VK_CHECK(vkQueueWaitIdle(device->GetGraphicsQueue()), "waiting idle graphics queue");
+			std::vector<VkSemaphore> waitSemaphores = { acquiredImageReady };
+			std::vector<VkPipelineStageFlags> waitStages = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+			submitInfo.waitSemaphoreCount = waitSemaphores.size();
+			submitInfo.pWaitSemaphores = waitSemaphores.data();
+			submitInfo.pWaitDstStageMask = waitStages.data();
+
+			std::vector<VkSemaphore> signalSemaphores = { renderComplete };
+			submitInfo.signalSemaphoreCount = signalSemaphores.size();
+			submitInfo.pSignalSemaphores = signalSemaphores.data();
+
+			VK_CHECK(vkQueueSubmit(device->GetGraphicsQueue(), 1, &submitInfo, waitFence), "submitting graphics queue");
 
 			VkPresentInfoKHR presentInfo = { VK_STRUCTURE_TYPE_PRESENT_INFO_KHR };
 			presentInfo.swapchainCount = 1;
 			presentInfo.pSwapchains = &swapChain->GetVkSwapChain();
-			presentInfo.pImageIndices = &currentFrame;
+			presentInfo.waitSemaphoreCount = signalSemaphores.size();
+			presentInfo.pWaitSemaphores = signalSemaphores.data();
+			presentInfo.pImageIndices = &currentBuffer;
 
-			vkQueuePresentKHR(device->GetPresentQueue(), &presentInfo);
+			VK_CHECK(vkQueuePresentKHR(device->GetPresentQueue(), &presentInfo), "presenting to present queue");
 		}
 
 		void Renderer::Shutdown()
@@ -230,7 +252,7 @@ namespace Baal
 			drawCommands.reserve(framebufferCount);
 			VK_CHECK(commandPool->CreateCommandBuffers(framebufferCount, VK_COMMAND_BUFFER_LEVEL_PRIMARY, drawCommands), "creating draw commands");
 
-			currentFrame = 0;
+			currentBuffer = 0;
 		}
 
 		void Renderer::DestroyDrawCommandBuffers()
@@ -282,6 +304,25 @@ namespace Baal
 
 				drawCommands[i].EndRecording();
 			}
+		}
+
+		void Renderer::CreateSyncObjects()
+		{
+			VkSemaphoreCreateInfo semaphoreInfo = { VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
+			semaphoreInfo.flags = 0;
+			VK_CHECK(vkCreateSemaphore(device->GetVkDevice(), &semaphoreInfo, nullptr, &acquiredImageReady), "creating semaphore for acquired image ready");
+			VK_CHECK(vkCreateSemaphore(device->GetVkDevice(), &semaphoreInfo, nullptr, &renderComplete), "creating semaphore for render complete");
+
+			VkFenceCreateInfo fenceInfo = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO };
+			fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+			VK_CHECK(vkCreateFence(device->GetVkDevice(), &fenceInfo, nullptr, &waitFence), "creating wait fence");
+		}
+
+		void Renderer::DestroySyncObjects()
+		{
+			vkDestroySemaphore(device->GetVkDevice(), acquiredImageReady, nullptr);
+			vkDestroySemaphore(device->GetVkDevice(), renderComplete, nullptr);
+			vkDestroyFence(device->GetVkDevice(), waitFence, nullptr);
 		}
 	}
 }
