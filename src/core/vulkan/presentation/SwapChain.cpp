@@ -61,7 +61,10 @@ namespace Baal
 
 		SwapChain::~SwapChain()
 		{
-			vkDestroySwapchainKHR(device.GetVkDevice(), vkSwapChain, nullptr);
+			if (vkSwapChain != VK_NULL_HANDLE) 
+			{
+				vkDestroySwapchainKHR(device.GetVkDevice(), vkSwapChain, nullptr);
+			}
 		}
 
 		void SwapChain::QuerySurfaceCapabilities(VkSurfaceCapabilitiesKHR& outCapabilities)

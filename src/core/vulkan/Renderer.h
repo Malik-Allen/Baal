@@ -28,7 +28,7 @@ namespace Baal
 		class Renderer
 		{
 		public:
-			explicit Renderer(const std::string& appName, GLFWwindow* window);
+			explicit Renderer(const std::string& appName, GLFWwindow* _window);
 			Renderer(const Renderer&) = delete;
 			Renderer(Renderer&&) = delete;
 
@@ -62,9 +62,14 @@ namespace Baal
 			void CreateSyncObjects();
 			void DestroySyncObjects();
 
+			void RecreateSwapChain();
+			void CreateSwapChain();
+			void DestroySwapChain();
+
 			std::unique_ptr<Instance> instance;
 			std::unique_ptr<LogicalDevice> device;
 
+			GLFWwindow* window;
 			std::unique_ptr<Surface> surface;
 			std::unique_ptr<SwapChain> swapChain;
 			std::vector<VkImageView> swapChainImageViews;

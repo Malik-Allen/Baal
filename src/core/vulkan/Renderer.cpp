@@ -23,8 +23,10 @@ namespace Baal
 {
 	namespace VK
 	{
-		Renderer::Renderer(const std::string& appName, GLFWwindow* window)
+		Renderer::Renderer(const std::string& appName, GLFWwindow* _window)
 		{
+			window = _window;
+
 			const std::vector<const char*> instanceExtensions = GetRequiredInstanceExtenstions();
 			const std::vector<const char*> deviceExtensions = GetRequiredDeviceExtenstions();
 
@@ -34,11 +36,7 @@ namespace Baal
 
 			device = std::make_unique<LogicalDevice>(instance->GetGPU(), *surface.get(), deviceExtensions);
 
-			int width = 0;
-			int height = 0;
-			glfwGetFramebufferSize(window, &width, &height);
-
-			swapChain = std::make_unique<SwapChain>(instance->GetGPU(), *device.get(), *surface.get(), static_cast<uint32_t>(width), static_cast<uint32_t>(height));
+			CreateSwapChain();
 
 			commandPool = std::make_unique<CommandPool>(*device.get(), instance->GetGPU().GetQueueFamilyIndex(VK_QUEUE_GRAPHICS_BIT));
 		}
@@ -55,7 +53,7 @@ namespace Baal
 
 			DestroySwapChainImageViews();
 
-			swapChain.reset();
+			DestroySwapChain();
 
 			commandPool.reset();
 
@@ -84,9 +82,22 @@ namespace Baal
 		void Renderer::RenderFrame()
 		{
 			vkWaitForFences(device->GetVkDevice(), 1, &waitFence, VK_TRUE, UINT64_MAX);
+
+			VkResult result = vkAcquireNextImageKHR(device->GetVkDevice(), swapChain->GetVkSwapChain(), UINT64_MAX, acquiredImageReady, VK_NULL_HANDLE, &currentBuffer);
+			if (result == VK_ERROR_OUT_OF_DATE_KHR)
+			{
+				RecreateSwapChain();
+				return;
+			}
+
 			vkResetFences(device->GetVkDevice(), 1, &waitFence);
 
-			vkAcquireNextImageKHR(device->GetVkDevice(), swapChain->GetVkSwapChain(), UINT64_MAX, acquiredImageReady, VK_NULL_HANDLE, &currentBuffer);
+			if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
+			{
+				std::string output = std::string(string_VkResult(result));
+				DEBUG_LOG(LOG::ERRORLOG, "Failed to acquire next image to present! Error: {}", output);
+				assert(false);
+			}
 
 			BuildCommandBuffers();
 
@@ -113,7 +124,19 @@ namespace Baal
 			presentInfo.pWaitSemaphores = signalSemaphores.data();
 			presentInfo.pImageIndices = &currentBuffer;
 
-			VK_CHECK(vkQueuePresentKHR(device->GetPresentQueue(), &presentInfo), "presenting to present queue");
+			result = vkQueuePresentKHR(device->GetPresentQueue(), &presentInfo);
+			if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
+			{
+				RecreateSwapChain();
+				return;
+			}
+
+			if (result != VK_SUCCESS)
+			{
+				std::string output = std::string(string_VkResult(result));
+				DEBUG_LOG(LOG::ERRORLOG, "Failed to present to present queue! Error: {}", output);
+				assert(false);
+			}
 		}
 
 		void Renderer::Shutdown()
@@ -323,6 +346,48 @@ namespace Baal
 			vkDestroySemaphore(device->GetVkDevice(), acquiredImageReady, nullptr);
 			vkDestroySemaphore(device->GetVkDevice(), renderComplete, nullptr);
 			vkDestroyFence(device->GetVkDevice(), waitFence, nullptr);
+		}
+
+		void Renderer::RecreateSwapChain()
+		{
+			vkDeviceWaitIdle(device->GetVkDevice());
+
+			DestroyFramebuffers();
+			DestroySwapChainImageViews();
+			DestroySwapChain();
+
+			CreateSwapChain();
+			CreateSwapChainImageViews();
+			CreateFramebuffers();
+		}
+
+		void Renderer::CreateSwapChain()
+		{
+			if (window == nullptr)
+			{
+				DEBUG_LOG(LOG::ERRORLOG, "Failed to create SwapChain! GLFWwindow is nullptr!");
+				throw std::runtime_error("Failed to create SwapChain! GLFWwindow is nullptr!");
+			}
+
+			int width = 0;
+			int height = 0;
+			glfwGetFramebufferSize(window, &width, &height);
+
+			// When the window is minimized, wait until it is maximized
+			while (width == 0 || height == 0)
+			{
+				glfwGetFramebufferSize(window, &width, &height);
+				glfwWaitEvents();
+			}
+
+			vkDeviceWaitIdle(device->GetVkDevice());
+
+			swapChain = std::make_unique<SwapChain>(instance->GetGPU(), *device.get(), *surface.get(), static_cast<uint32_t>(width), static_cast<uint32_t>(height));
+		}
+
+		void Renderer::DestroySwapChain()
+		{
+			swapChain.reset();
 		}
 	}
 }

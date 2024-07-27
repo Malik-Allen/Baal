@@ -259,7 +259,7 @@ This allows sharing of resources between other Semaphore objects and other synch
 
 
 # Next Up
-- Semaphores and Fences
+- Semaphores and Fences pools
 - Swap chain recreation and command buffer recreation 
 	- Linking that through glfw window resizing
 - Review entire pipeline up until the Draw Triangle
