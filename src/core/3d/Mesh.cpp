@@ -14,7 +14,7 @@ namespace Baal
 {
 	namespace VK
 	{
-		Mesh::Mesh(const char* parentDirectory, const char* meshFileName)
+		Mesh::Mesh(LogicalDevice& device, const char* parentDirectory, const char* meshFileName)
 		{
 			std::string meshFilePath = std::string(parentDirectory) + std::string(meshFileName);
 
@@ -58,7 +58,13 @@ namespace Baal
 
 						indices.push_back(indices.size());
 					}
-					subMeshes.push_back(std::make_unique<SubMesh>(vertices, indices));
+
+					subMeshes.push_back(std::make_unique<SubMesh>(
+						vertices, 
+						indices, 
+						std::make_unique<Buffer>(device, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, sizeof(vertices[0]) *vertices.size(), vertices.data()),
+						std::make_unique<Buffer>(device, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, sizeof(indices[0]) * indices.size(), indices.data())
+					));
 				}
 
 				if (!warn.empty())
@@ -74,18 +80,7 @@ namespace Baal
 
 		Mesh::~Mesh()
 		{
-			vertexBuffers.clear();
-			indexBuffers.clear();
 			subMeshes.clear();
-		}
-
-		void Mesh::CreateBuffers(LogicalDevice& device)
-		{
-			for (size_t i = 0; i < subMeshes.size(); ++i)
-			{
-				vertexBuffers.push_back(std::make_unique<Buffer>(device, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, sizeof(subMeshes[i]->vertices[0]) * subMeshes[i]->vertices.size()));
-				indexBuffers.push_back(std::make_unique<Buffer>(device, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, sizeof(subMeshes[i]->indices[0]) * subMeshes[i]->indices.size()));
-			}
 		}
 	}
 }

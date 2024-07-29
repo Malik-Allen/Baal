@@ -14,6 +14,8 @@
 #include "../src/core/vulkan/pipeline/GraphicsPipeline.h"
 #include "../src/core/vulkan/pipeline/RenderPass.h"
 #include "../src/core/vulkan/pipeline/Framebuffer.h"
+#include "../src/core/vulkan/resource/Buffer.h"
+#include "../src/core/3d/Mesh.h"
 
 #include <vulkan/vulkan_core.h>
 #include <stdexcept>
@@ -50,6 +52,8 @@ namespace Baal
 			DestroyFramebuffers();
 
 			DestroyPipelines();
+
+			loadedMeshes.clear();
 
 			DestroySwapChainImageViews();
 
@@ -99,7 +103,7 @@ namespace Baal
 				assert(false);
 			}
 
-			BuildCommandBuffers();
+			RecordDrawCommandBuffer(drawCommands[currentBuffer]);
 
 			VkSubmitInfo submitInfo = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
 			submitInfo.commandBufferCount = 1;
@@ -141,6 +145,12 @@ namespace Baal
 
 		void Renderer::Shutdown()
 		{
+		}
+
+		void Renderer::LoadMesh(const char* parentDirectory, const char* meshFileName)
+		{
+			uint32_t modelCount = loadedMeshes.size();
+			loadedMeshes.push_back(std::make_unique<Mesh>(*device.get(), parentDirectory, meshFileName));
 		}
 
 		std::vector<const char*> Renderer::GetRequiredInstanceExtenstions() const
@@ -283,7 +293,7 @@ namespace Baal
 			drawCommands.clear();
 		}
 
-		void Renderer::BuildCommandBuffers()
+		void Renderer::RecordDrawCommandBuffer(CommandBuffer& commandBuffer)
 		{
 			VkRenderPassBeginInfo renderPassInfo = { VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO };
 			renderPassInfo.renderPass = renderPass->GetVkRenderPass();
@@ -291,42 +301,48 @@ namespace Baal
 			renderPassInfo.renderArea.offset = { 0, 0 };
 			renderPassInfo.renderArea.extent = swapChain->GetExtent();
 
-			for (size_t i = 0; i < drawCommands.size(); ++i)
+			renderPassInfo.framebuffer = framebuffers[currentBuffer].GetVkFramebuffer();
+
+			commandBuffer.Reset();
+
+			commandBuffer.BeginRecording(0);
+
+			VkClearValue clearColor = { {{0.0f, 0.0f, 0.0f, 1.0f}} };
+			renderPassInfo.clearValueCount = 1;
+			renderPassInfo.pClearValues = &clearColor;
+
+			vkCmdBeginRenderPass(commandBuffer.GetVkCommandBuffer(), &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+			vkCmdBindPipeline(commandBuffer.GetVkCommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, forwardPipeline->GetVkGraphicsPipeline());
+
+			VkViewport viewport{};
+			viewport.x = 0.0f;
+			viewport.y = 0.0f;
+			viewport.width = static_cast<float>(swapChain->GetExtent().width);
+			viewport.height = static_cast<float>(swapChain->GetExtent().height);
+			viewport.minDepth = 0.0f;
+			viewport.maxDepth = 1.0f;
+			vkCmdSetViewport(commandBuffer.GetVkCommandBuffer(), 0, 1, &viewport);
+
+			VkRect2D scissor{};
+			scissor.offset = { 0, 0 };
+			scissor.extent = swapChain->GetExtent();
+			vkCmdSetScissor(commandBuffer.GetVkCommandBuffer(), 0, 1, &scissor);
+
+			VkDeviceSize offsets[] = { 0 };
+
+			for (size_t n = 0; n < loadedMeshes.size(); ++n)
 			{
-				renderPassInfo.framebuffer = framebuffers[i].GetVkFramebuffer();
-
-				drawCommands[i].Reset();
-
-				drawCommands[i].BeginRecording(0);
-
-				VkClearValue clearColor = { {{0.0f, 0.0f, 0.0f, 1.0f}} };
-				renderPassInfo.clearValueCount = 1;
-				renderPassInfo.pClearValues = &clearColor;
-
-				vkCmdBeginRenderPass(drawCommands[i].GetVkCommandBuffer(), &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-				vkCmdBindPipeline(drawCommands[i].GetVkCommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, forwardPipeline->GetVkGraphicsPipeline());
-
-				VkViewport viewport{};
-				viewport.x = 0.0f;
-				viewport.y = 0.0f;
-				viewport.width = static_cast<float>(swapChain->GetExtent().width);
-				viewport.height = static_cast<float>(swapChain->GetExtent().height);
-				viewport.minDepth = 0.0f;
-				viewport.maxDepth = 1.0f;
-				vkCmdSetViewport(drawCommands[i].GetVkCommandBuffer(), 0, 1, &viewport);
-
-				VkRect2D scissor{};
-				scissor.offset = { 0, 0 };
-				scissor.extent = swapChain->GetExtent();
-				vkCmdSetScissor(drawCommands[i].GetVkCommandBuffer(), 0, 1, &scissor);
-
-				vkCmdDraw(drawCommands[i].GetVkCommandBuffer(), 3, 1, 0, 0);
-
-				vkCmdEndRenderPass(drawCommands[i].GetVkCommandBuffer());
-
-				drawCommands[i].EndRecording();
+				for (size_t k = 0; k < loadedMeshes[n]->GetSubMeshes().size(); ++k)
+				{
+					vkCmdBindVertexBuffers(commandBuffer.GetVkCommandBuffer(), 0, 1, &loadedMeshes[n]->GetSubMeshes()[k]->vertexBuffer->GetVkBuffer(), offsets);
+					vkCmdDraw(commandBuffer.GetVkCommandBuffer(), static_cast<uint32_t>(loadedMeshes[n]->GetSubMeshes()[k]->vertices.size()), 1, 0, 0);
+				}
 			}
+
+			vkCmdEndRenderPass(commandBuffer.GetVkCommandBuffer());
+
+			commandBuffer.EndRecording();
 		}
 
 		void Renderer::CreateSyncObjects()

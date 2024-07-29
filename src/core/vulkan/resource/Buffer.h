@@ -15,7 +15,7 @@ namespace Baal
 		class Buffer
 		{
 		public:
-			explicit Buffer(LogicalDevice& _device, VkBufferUsageFlags usage, VkDeviceSize size, std::vector<uint32_t> queueFamilyIndicies = {});
+			explicit Buffer(LogicalDevice& _device, VkBufferUsageFlags usage, VkDeviceSize size, void* data, std::vector<uint32_t> queueFamilyIndicies = {});
 			Buffer(const Buffer&) = delete;
 			Buffer(Buffer&& other) noexcept;
 
@@ -27,6 +27,7 @@ namespace Baal
 			VkBuffer& GetVkBuffer() { return vkBuffer; }
 		private:
 			VkBuffer vkBuffer{ VK_NULL_HANDLE };
+			VkDeviceMemory vkBufferMemory{ VK_NULL_HANDLE };
 			LogicalDevice& device;
 		};
 	}

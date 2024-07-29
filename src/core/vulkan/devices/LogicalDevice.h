@@ -32,6 +32,8 @@ namespace Baal
 			VkQueue& GetGraphicsQueue() { return graphicsQueue; };
 			VkQueue& GetPresentQueue() { return presentQueue; };
 
+			uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
+
 		private:
 			const PhysicalDevice& physicalDevice;
 			VkDevice device{ VK_NULL_HANDLE };

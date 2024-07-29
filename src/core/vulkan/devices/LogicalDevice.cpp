@@ -83,6 +83,21 @@ namespace Baal
 			vkDestroyDevice(device, nullptr);
 		}
 
+		uint32_t LogicalDevice::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const
+		{
+			VkPhysicalDeviceMemoryProperties memProperties;
+			vkGetPhysicalDeviceMemoryProperties(physicalDevice.GetVkPhysicalDevice(), &memProperties);
+
+			for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
+				if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
+					return i;
+				}
+			}
+
+			DEBUG_LOG(LOG::ERRORLOG, "Failed to find memory type!");
+			throw std::runtime_error("Failed to find memory type");
+		}
+
 		void LogicalDevice::QueryAvailableExtensions(std::vector<VkExtensionProperties>& outExtensions) const
 		{
 			uint32_t extCount;

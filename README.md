@@ -11,6 +11,12 @@ These are the outcomes that I want from this renderer:
 - Simple UI
 - Simple Camera
 
+# Improvements
+- Multi-sampling
+- Seperate Pipeline creation (Skybox, static meshes, dynamic meshes)
+- Semaphore and Fence pool
+- Multiple Frame in flight/being processed while another frame is presented
+
 # Dependancies
 ## External Libraries
 - https://vulkan.lunarg.com/

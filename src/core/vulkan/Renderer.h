@@ -6,6 +6,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 #include <vulkan/vulkan_core.h>
 
@@ -24,6 +25,7 @@ namespace Baal
 		class GraphicsPipeline;
 		class RenderPass;
 		class Framebuffer;
+		class Mesh;
 
 		class Renderer
 		{
@@ -57,7 +59,7 @@ namespace Baal
 			void CreateDrawCommandBuffers();
 			void DestroyDrawCommandBuffers();
 
-			void BuildCommandBuffers();
+			void RecordDrawCommandBuffer(CommandBuffer& commandBuffer);
 
 			void CreateSyncObjects();
 			void DestroySyncObjects();
@@ -87,10 +89,14 @@ namespace Baal
 
 			uint32_t currentBuffer = 0;
 
+			std::vector<std::unique_ptr<Mesh>> loadedMeshes;
+
 		public:
 			void Init();
 			void RenderFrame();
 			void Shutdown();
+
+			void LoadMesh(const char* parentDirectory, const char* meshFileName);
 		};
 	}
 }

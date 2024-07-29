@@ -26,6 +26,8 @@ namespace Baal
 		{
 			std::vector<Vertex> vertices;
 			std::vector<int> indices;
+			std::unique_ptr<Buffer> vertexBuffer;
+			std::unique_ptr<Buffer> indexBuffer;
 		};
 
 		// Mesh is made up of multiple Sub Meshes / Shapes
@@ -33,11 +35,8 @@ namespace Baal
 		class Mesh
 		{
 			std::vector<std::unique_ptr<SubMesh>> subMeshes;
-			std::vector<std::unique_ptr<Buffer>> vertexBuffers;
-			std::vector<std::unique_ptr<Buffer>> indexBuffers;
-
 		public:
-			explicit Mesh(const char* parentDirectory, const char* meshFileName);
+			explicit Mesh(LogicalDevice& device, const char* parentDirectory, const char* meshFileName);
 			Mesh(const Mesh&) = delete;
 			Mesh(Mesh&&) = delete;
 
@@ -46,7 +45,7 @@ namespace Baal
 			Mesh& operator=(const Mesh&) = delete;
 			Mesh& operator = (Mesh&&) = delete;
 
-			void CreateBuffers(LogicalDevice& device);
+			std::vector<std::unique_ptr<SubMesh>>& GetSubMeshes() { return subMeshes; }
 		};
 	}	
 }

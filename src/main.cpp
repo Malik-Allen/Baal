@@ -7,6 +7,7 @@ using namespace Baal;
 int main()
 {
 	DEBUG_INIT();
+
 	GLFWwindow* window;
 	
 	glfwInit();
@@ -19,20 +20,25 @@ int main()
 
 	renderer.Init();
 
-	int i = 0;
-	while (i < 1000) 
+	renderer.LoadMesh(BAAL_MODELS_DIR, "spoon.obj");
+	renderer.LoadMesh(BAAL_MODELS_DIR, "teapot.obj");
+
+
+	for (int i = 0; i < 1000; ++i)
 	{
 		glfwPollEvents();
 		renderer.RenderFrame();
-		++i;
+
+		if (i % 60 == 0)
+		{
+			DEBUG_LOG(LOG::INFO, "Hello FPS");
+		}
 	}
 	
 	renderer.Shutdown();
 
 	glfwDestroyWindow(window);
 	glfwTerminate();
-
-	Mesh m = Mesh(BAAL_MODELS_DIR, "teapot.obj");
 
 
 	return 0;
