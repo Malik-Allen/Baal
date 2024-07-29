@@ -5,6 +5,7 @@
 #include "../src/core/vulkan/devices/LogicalDevice.h"
 #include "../src/core/vulkan/pipeline/ShaderModule.h"
 #include "../src/core/vulkan/pipeline/RenderPass.h"
+#include "../src/core/3d/Mesh.h"
 #include "../src/core/vulkan/debugging/Error.h"
 
 namespace Baal
@@ -40,12 +41,19 @@ namespace Baal
 			VkPipelineDynamicStateCreateInfo dynamicState = { VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO };
 			dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
 			dynamicState.pDynamicStates = dynamicStates.data();
+			
+			VkVertexInputBindingDescription bindingDescription;
+			bindingDescription.binding = 0;
+			bindingDescription.stride = sizeof(Vertex);
+			bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+			std::vector<VkVertexInputAttributeDescription> attributeDescriptions = GetVertexAttributes();
 
 			VkPipelineVertexInputStateCreateInfo vertexInput = { VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO };
-			vertexInput.vertexBindingDescriptionCount = 0;
-			vertexInput.pVertexBindingDescriptions = nullptr; // Optional
-			vertexInput.vertexAttributeDescriptionCount = 0;
-			vertexInput.pVertexAttributeDescriptions = nullptr; // Optional
+			vertexInput.vertexBindingDescriptionCount = 1;
+			vertexInput.pVertexBindingDescriptions = &bindingDescription; 
+			vertexInput.vertexAttributeDescriptionCount = attributeDescriptions.size();
+			vertexInput.pVertexAttributeDescriptions = attributeDescriptions.data();
 
 			VkPipelineInputAssemblyStateCreateInfo inputAssembly = { VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO };
 			inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
@@ -135,6 +143,16 @@ namespace Baal
 			vkDestroyPipeline(device.GetVkDevice(), pipeline, nullptr);
 			vkDestroyPipelineLayout(device.GetVkDevice(), layout, nullptr);
 			shaderStages.clear();
+		}
+
+		std::vector<VkVertexInputAttributeDescription> GraphicsPipeline::GetVertexAttributes() const
+		{
+			std::vector<VkVertexInputAttributeDescription> vertexAttributes;
+			vertexAttributes.push_back(VkVertexInputAttributeDescription(0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, pos)));
+			vertexAttributes.push_back(VkVertexInputAttributeDescription(1, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, norm)));
+			vertexAttributes.push_back(VkVertexInputAttributeDescription(2, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, texCoords)));
+			vertexAttributes.push_back(VkVertexInputAttributeDescription(3, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, color)));
+			return vertexAttributes;
 		}
 	}
 }

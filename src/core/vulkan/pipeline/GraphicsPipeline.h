@@ -36,6 +36,8 @@ namespace Baal
 			VkPipelineLayout layout{ VK_NULL_HANDLE };
 			LogicalDevice& device;
 			std::vector<ShaderModule> shaderStages;
+
+			std::vector<VkVertexInputAttributeDescription> GetVertexAttributes() const;
 		};
 	}
 }
