@@ -25,6 +25,7 @@ namespace Baal
 		class GraphicsPipeline;
 		class RenderPass;
 		class Framebuffer;
+		class Allocator;
 		class Mesh;
 
 		class Renderer
@@ -88,6 +89,8 @@ namespace Baal
 			VkFence waitFence;
 
 			uint32_t currentBuffer = 0;
+
+			std::unique_ptr <Allocator> allocator;
 
 			std::vector<std::unique_ptr<Mesh>> loadedMeshes;
 

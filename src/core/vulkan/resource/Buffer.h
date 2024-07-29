@@ -4,6 +4,7 @@
 #define BAAL_VK_BUFFER_H
 
 #include <vulkan/vulkan_core.h>
+#include <vk_mem_alloc.h>
 #include <vector>
 
 namespace Baal
@@ -11,11 +12,12 @@ namespace Baal
 	namespace VK
 	{
 		class LogicalDevice;
+		class Allocator;
 
 		class Buffer
 		{
 		public:
-			explicit Buffer(LogicalDevice& _device, VkBufferUsageFlags usage, VkDeviceSize size, void* data, std::vector<uint32_t> queueFamilyIndicies = {});
+			explicit Buffer(Allocator& _allocator, VkBufferUsageFlags usage, VkDeviceSize size, void* data, std::vector<uint32_t> queueFamilyIndicies = {});
 			Buffer(const Buffer&) = delete;
 			Buffer(Buffer&& other) noexcept;
 
@@ -25,10 +27,11 @@ namespace Baal
 			Buffer& operator = (Buffer&&) = delete;
 
 			VkBuffer& GetVkBuffer() { return vkBuffer; }
+
 		private:
 			VkBuffer vkBuffer{ VK_NULL_HANDLE };
-			VkDeviceMemory vkBufferMemory{ VK_NULL_HANDLE };
-			LogicalDevice& device;
+			VmaAllocation vmaAllocation{ VK_NULL_HANDLE };
+			Allocator& allocator;
 		};
 	}
 }

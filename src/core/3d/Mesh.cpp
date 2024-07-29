@@ -3,7 +3,7 @@
 #include "Mesh.h"
 
 #include "../src/utility/DebugLog.h"
-#include "../src/core/vulkan/devices/LogicalDevice.h"
+#include "../src/core/vulkan/resource/Allocator.h"
 #include "../src/core/vulkan/resource/Buffer.h"
 
 #include <string>
@@ -14,7 +14,7 @@ namespace Baal
 {
 	namespace VK
 	{
-		Mesh::Mesh(LogicalDevice& device, const char* parentDirectory, const char* meshFileName)
+		Mesh::Mesh(Allocator& allocator, const char* parentDirectory, const char* meshFileName)
 		{
 			std::string meshFilePath = std::string(parentDirectory) + std::string(meshFileName);
 
@@ -62,8 +62,8 @@ namespace Baal
 					subMeshes.push_back(std::make_unique<SubMesh>(
 						vertices, 
 						indices, 
-						std::make_unique<Buffer>(device, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, sizeof(vertices[0]) *vertices.size(), vertices.data()),
-						std::make_unique<Buffer>(device, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, sizeof(indices[0]) * indices.size(), indices.data())
+						std::make_unique<Buffer>(allocator, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, sizeof(vertices[0]) *vertices.size(), vertices.data()),
+						std::make_unique<Buffer>(allocator, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, sizeof(indices[0]) * indices.size(), indices.data())
 					));
 				}
 

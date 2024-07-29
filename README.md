@@ -23,5 +23,6 @@ These are the outcomes that I want from this renderer:
 - https://github.com/glfw/glfw
 - https://github.com/KhronosGroup/glslang
 - https://github.com/tinyobjloader/tinyobjloader
+- https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator
 ## My Libraries
 - https://github.com/Malik-Allen/Mjolnir

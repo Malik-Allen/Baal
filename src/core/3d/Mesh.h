@@ -11,8 +11,8 @@ namespace Baal
 {
 	namespace VK
 	{
+		class Allocator;
 		class Buffer;
-		class LogicalDevice;
 
 		struct Vertex
 		{
@@ -36,7 +36,7 @@ namespace Baal
 		{
 			std::vector<std::unique_ptr<SubMesh>> subMeshes;
 		public:
-			explicit Mesh(LogicalDevice& device, const char* parentDirectory, const char* meshFileName);
+			explicit Mesh(Allocator& allocator, const char* parentDirectory, const char* meshFileName);
 			Mesh(const Mesh&) = delete;
 			Mesh(Mesh&&) = delete;
 

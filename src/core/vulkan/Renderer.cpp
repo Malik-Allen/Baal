@@ -15,6 +15,7 @@
 #include "../src/core/vulkan/pipeline/RenderPass.h"
 #include "../src/core/vulkan/pipeline/Framebuffer.h"
 #include "../src/core/vulkan/resource/Buffer.h"
+#include "../src/core/vulkan/resource/Allocator.h"
 #include "../src/core/3d/Mesh.h"
 
 #include <vulkan/vulkan_core.h>
@@ -37,6 +38,8 @@ namespace Baal
 			surface = std::make_unique<Surface>(*instance.get(), window);
 
 			device = std::make_unique<LogicalDevice>(instance->GetGPU(), *surface.get(), deviceExtensions);
+
+			allocator = std::make_unique<Allocator>(*instance.get(), *device.get());
 
 			CreateSwapChain();
 
@@ -62,6 +65,8 @@ namespace Baal
 			commandPool.reset();
 
 			DestroySyncObjects();
+
+			allocator.reset();
 
 			device.reset();
 
@@ -150,7 +155,7 @@ namespace Baal
 		void Renderer::LoadMesh(const char* parentDirectory, const char* meshFileName)
 		{
 			uint32_t modelCount = loadedMeshes.size();
-			loadedMeshes.push_back(std::make_unique<Mesh>(*device.get(), parentDirectory, meshFileName));
+			loadedMeshes.push_back(std::make_unique<Mesh>(*allocator.get(), parentDirectory, meshFileName));
 		}
 
 		std::vector<const char*> Renderer::GetRequiredInstanceExtenstions() const
