@@ -341,7 +341,8 @@ namespace Baal
 				for (size_t k = 0; k < loadedMeshes[n]->GetSubMeshes().size(); ++k)
 				{
 					vkCmdBindVertexBuffers(commandBuffer.GetVkCommandBuffer(), 0, 1, &loadedMeshes[n]->GetSubMeshes()[k]->vertexBuffer->GetVkBuffer(), offsets);
-					vkCmdDraw(commandBuffer.GetVkCommandBuffer(), static_cast<uint32_t>(loadedMeshes[n]->GetSubMeshes()[k]->vertices.size()), 1, 0, 0);
+					vkCmdBindIndexBuffer(commandBuffer.GetVkCommandBuffer(), loadedMeshes[n]->GetSubMeshes()[k]->indexBuffer->GetVkBuffer(), 0, VK_INDEX_TYPE_UINT16);
+					vkCmdDrawIndexed(commandBuffer.GetVkCommandBuffer(), static_cast<uint32_t>(loadedMeshes[n]->GetSubMeshes()[k]->indices.size()), 1, 0, 0, 0);
 				}
 			}
 
