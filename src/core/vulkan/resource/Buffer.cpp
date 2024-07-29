@@ -9,34 +9,37 @@ namespace Baal
 {
 	namespace VK
 	{
-		//Buffer::Buffer(Allocator& _allocator, VkBufferUsageFlags usage, VkDeviceSize size, void* data, std::vector<uint32_t> queueFamilyIndicies /*= {}*/):
-		//	allocator(_allocator)
-		//{
-		//	VkBufferCreateInfo bufferInfo = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
-		//	bufferInfo.usage = usage;
-		//	bufferInfo.size = size;
-
-		//	if (queueFamilyIndicies.size() > 1)
-		//	{
-		//		bufferInfo.sharingMode = VK_SHARING_MODE_CONCURRENT;
-		//	}
-		//	else 
-		//	{
-		//		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-		//	}
-
-		//	bufferInfo.queueFamilyIndexCount = queueFamilyIndicies.size();
-		//	bufferInfo.pQueueFamilyIndices = queueFamilyIndicies.data();
-
-		//	VmaAllocationCreateInfo allocInfo = {};
-		//	allocInfo.usage = VMA_MEMORY_USAGE_AUTO;
-
-		//	VK_CHECK(vmaCreateBuffer(allocator.GetVmaAllocator(), &bufferInfo, &allocInfo, &vkBuffer, &vmaAllocation, nullptr), "allocationg buffer memory");
-		//}
-
-		Buffer::Buffer(Allocator& _allocator, VkBufferUsageFlags usage, VkDeviceSize size, void* data, std::vector<uint32_t> queueFamilyIndicies):
+		Buffer::Buffer(Allocator& _allocator, VkBufferUsageFlags usage, VkDeviceSize size, void* data, std::vector<uint32_t> queueFamilyIndicies /*= {}*/):
 			allocator(_allocator)
 		{
+			VkBufferCreateInfo bufferInfo = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
+			bufferInfo.usage = usage;
+			bufferInfo.size = size;
+
+			if (queueFamilyIndicies.size() > 1)
+			{
+				bufferInfo.sharingMode = VK_SHARING_MODE_CONCURRENT;
+			}
+			else 
+			{
+				bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+			}
+
+			bufferInfo.queueFamilyIndexCount = queueFamilyIndicies.size();
+			bufferInfo.pQueueFamilyIndices = queueFamilyIndicies.data();
+
+			VmaAllocationCreateInfo allocInfo = {};
+			allocInfo.usage = VMA_MEMORY_USAGE_AUTO;
+			allocInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
+
+			VK_CHECK(vmaCreateBuffer(allocator.GetVmaAllocator(), &bufferInfo, &allocInfo, &vkBuffer, &vmaAllocation, nullptr), "allocationg buffer memory");
+
+			VK_CHECK(vmaBindBufferMemory(allocator.GetVmaAllocator(), vmaAllocation, vkBuffer), "binding buffer memory");
+
+			void* mappedData;
+			VK_CHECK(vmaMapMemory(allocator.GetVmaAllocator(), vmaAllocation, &mappedData), "vma mapping memory");
+			memcpy(mappedData, data, (size_t)bufferInfo.size);
+			vmaUnmapMemory(allocator.GetVmaAllocator(), vmaAllocation);
 		}
 
 		Buffer::Buffer(Buffer&& other) noexcept :
@@ -53,7 +56,7 @@ namespace Baal
 		{
 			if (vkBuffer != VK_NULL_HANDLE)
 			{
-				// vmaDestroyBuffer(allocator.GetVmaAllocator(), vkBuffer, vmaAllocation);
+				vmaDestroyBuffer(allocator.GetVmaAllocator(), vkBuffer, vmaAllocation);
 			}
 		}
 	}

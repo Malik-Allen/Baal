@@ -69,7 +69,7 @@ target_link_libraries(Baal PRIVATE glslang SPIRV glslang-default-resource-limits
 # Path to the VMA repository
 set(VMA_PATH ${PROJECT_SOURCE_DIR}/../VulkanMemoryAllocator)
 add_subdirectory(${VMA_PATH} ${CMAKE_BINARY_DIR}/VulkanMemoryAllocator)
-target_link_libraries(Baal PRIVATE GPUOpen::VulkanMemoryAllocator)
+target_link_libraries(Baal PRIVATE GPUOpen::VulkanMemoryAllocator )
 
 # Print a final message
 message(STATUS "CMake configuration for Baal project is complete.")

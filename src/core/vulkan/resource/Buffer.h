@@ -4,8 +4,8 @@
 #define BAAL_VK_BUFFER_H
 
 #include <vulkan/vulkan_core.h>
-#include <vk_mem_alloc.h>
 #include <vector>
+#include <vk_mem_alloc.h>
 
 namespace Baal
 {
