@@ -34,8 +34,6 @@ namespace Baal
 
 			VK_CHECK(vmaCreateBuffer(allocator.GetVmaAllocator(), &bufferInfo, &allocInfo, &vkBuffer, &vmaAllocation, nullptr), "allocationg buffer memory");
 
-			VK_CHECK(vmaBindBufferMemory(allocator.GetVmaAllocator(), vmaAllocation, vkBuffer), "binding buffer memory");
-
 			void* mappedData;
 			VK_CHECK(vmaMapMemory(allocator.GetVmaAllocator(), vmaAllocation, &mappedData), "vma mapping memory");
 			memcpy(mappedData, data, (size_t)bufferInfo.size);
