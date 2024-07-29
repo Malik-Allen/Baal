@@ -44,6 +44,10 @@ namespace Baal
 
 					v.texCoords.x = attrib.texcoords[2 * index.texcoord_index + 0];
 					v.texCoords.y = attrib.texcoords[2 * index.texcoord_index + 1];
+					
+					v.color.x = attrib.colors[3 * index.vertex_index + 0];
+					v.color.y = attrib.colors[3 * index.vertex_index + 1];
+					v.color.z = attrib.colors[3 * index.vertex_index + 2];
 
 					subMesh.vertices.push_back(v);
 

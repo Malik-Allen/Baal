@@ -14,6 +14,7 @@ namespace Baal
 		Vector3f pos;
 		Vector3f norm;
 		Vector2f texCoords;
+		Vector3f color;
 	};
 
 	struct SubMesh
