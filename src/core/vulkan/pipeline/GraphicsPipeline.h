@@ -14,11 +14,13 @@ namespace Baal
 		struct ShaderInfo;
 		class ShaderModule;
 		class RenderPass;
+		class DescriptorPool;
 
 		struct DescriptorSetBinding
 		{
-			uint32_t binding;
 			VkDescriptorType type;
+			VkShaderStageFlags stage;
+			uint32_t binding;
 			uint32_t count;
 		};
 
@@ -31,9 +33,10 @@ namespace Baal
 				LogicalDevice& _device, 
 				std::vector<ShaderInfo>& shaderInfo, 
 				RenderPass& renderPass, 
+				DescriptorPool& descriptorPool,
+				const std::vector<DescriptorSetBinding>& descriptorSetBindings,
 				const uint32_t width, 
-				const uint32_t height, 
-				const std::vector<DescriptorSetBinding>& descriptorSetBinding);
+				const uint32_t height);
 
 			GraphicsPipeline(const GraphicsPipeline&) = delete;
 			GraphicsPipeline(GraphicsPipeline&&) = delete;
@@ -44,11 +47,13 @@ namespace Baal
 			GraphicsPipeline& operator = (GraphicsPipeline&&) = delete;
 
 			VkPipeline& GetVkGraphicsPipeline() { return pipeline; }
+			VkDescriptorSet& GetVkDescriptorSet() { return descriptorSet; }
 
 		private:
 			VkPipeline pipeline{VK_NULL_HANDLE};
 			VkPipelineLayout layout{ VK_NULL_HANDLE };
 			VkDescriptorSetLayout  descriptorSetLayout{ VK_NULL_HANDLE };
+			VkDescriptorSet descriptorSet{ VK_NULL_HANDLE };
 			LogicalDevice& device;
 			std::vector<ShaderModule> shaderStages;
 

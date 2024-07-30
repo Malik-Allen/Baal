@@ -5,6 +5,7 @@
 #include "../src/core/vulkan/devices/LogicalDevice.h"
 #include "../src/core/vulkan/pipeline/ShaderModule.h"
 #include "../src/core/vulkan/pipeline/RenderPass.h"
+#include "../src/core/vulkan/resource/DescriptorPool.h"
 #include "../src/core/3d/Mesh.h"
 #include "../src/core/vulkan/debugging/Error.h"
 
@@ -12,12 +13,14 @@ namespace Baal
 {
 	namespace VK
 	{
-		GraphicsPipeline::GraphicsPipeline(LogicalDevice& _device, 
+		GraphicsPipeline::GraphicsPipeline(
+			LogicalDevice& _device, 
 			std::vector<ShaderInfo>& shaderInfo, 
 			RenderPass& renderPass, 
+			DescriptorPool& descriptorPool,
+			const std::vector<DescriptorSetBinding>& descriptorSetBindings,
 			const uint32_t width, 
-			const uint32_t height, 
-			const std::vector<DescriptorSetBinding>& descriptorSetBindings)
+			const uint32_t height)
 			: device(_device)
 		{
 			for (size_t i = 0; i < shaderInfo.size(); ++i)
@@ -151,6 +154,13 @@ namespace Baal
 			pipelineInfo.subpass = 0;
 			
 			VK_CHECK(vkCreateGraphicsPipelines(device.GetVkDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline), "creating graphics pipeline");
+
+			VkDescriptorSetAllocateInfo allocInfo = {VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO};
+			allocInfo.descriptorPool = descriptorPool.GetVkDescriptorPool();
+			allocInfo.descriptorSetCount = 1;
+			allocInfo.pSetLayouts = &descriptorSetLayout;
+
+			VK_CHECK(vkAllocateDescriptorSets(device.GetVkDevice(), &allocInfo, &descriptorSet), "allocating descriptor sets");
 		}
 
 		GraphicsPipeline::~GraphicsPipeline()
@@ -181,6 +191,7 @@ namespace Baal
 				layoutBinding.binding = descriptorSetBindings[i].binding;
 				layoutBinding.descriptorType = descriptorSetBindings[i].type;
 				layoutBinding.descriptorCount = descriptorSetBindings[i].count;
+				layoutBinding.stageFlags = descriptorSetBindings[i].stage;
 
 				if(layoutBinding.descriptorType == VK_DESCRIPTOR_TYPE_SAMPLER)
 				{

@@ -30,6 +30,17 @@ namespace Baal
 			std::unique_ptr<Buffer> indexBuffer;
 		};
 
+		struct CameraUBO
+		{
+			Matrix4f view;
+			Matrix4f proj;
+		};
+
+		struct ModelUBO
+		{
+			Matrix4f model;
+		};
+
 		// Mesh is made up of multiple Sub Meshes / Shapes
 		// SubMeshes can be used to assign different materiels, animations, textures, etc.
 		class Mesh

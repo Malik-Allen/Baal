@@ -16,6 +16,7 @@
 #include "../src/core/vulkan/pipeline/Framebuffer.h"
 #include "../src/core/vulkan/resource/Buffer.h"
 #include "../src/core/vulkan/resource/Allocator.h"
+#include "../src/core/vulkan/resource/DescriptorPool.h"
 #include "../src/core/3d/Mesh.h"
 
 #include <vulkan/vulkan_core.h>
@@ -58,6 +59,8 @@ namespace Baal
 
 			loadedMeshes.clear();
 
+			DestroyDescriptorPool();
+
 			DestroySwapChainImageViews();
 
 			DestroySwapChain();
@@ -78,6 +81,8 @@ namespace Baal
 		void Renderer::Init()
 		{
 			CreateSwapChainImageViews();
+
+			CreateDescriptorPool();
 
 			CreatePipelines();
 
@@ -266,8 +271,9 @@ namespace Baal
 			shaderInfo.push_back(ShaderInfo(VK_SHADER_STAGE_FRAGMENT_BIT, BAAL_SHADERS_DIR, "Triangle.frag"));
 
 			std::vector<DescriptorSetBinding> descriptorSetBindings;
+			descriptorSetBindings.push_back(DescriptorSetBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, 0, 1));
 
-			forwardPipeline = std::make_unique<GraphicsPipeline>(*device.get(), shaderInfo, *renderPass.get(), swapChain->GetExtent().width, swapChain->GetExtent().height, descriptorSetBindings);
+			forwardPipeline = std::make_unique<GraphicsPipeline>(*device.get(), shaderInfo, *renderPass.get(), *descriptorPool.get(), descriptorSetBindings, swapChain->GetExtent().width, swapChain->GetExtent().height);
 		}
 
 		void Renderer::CreateFramebuffers()
@@ -412,6 +418,19 @@ namespace Baal
 		void Renderer::DestroySwapChain()
 		{
 			swapChain.reset();
+		}
+
+		void Renderer::CreateDescriptorPool()
+		{
+			std::vector<DescriptorPoolSize> poolSizes;
+			poolSizes.push_back(DescriptorPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1));
+
+			descriptorPool = std::make_unique<DescriptorPool>(*device.get(),poolSizes);
+		}
+
+		void Renderer::DestroyDescriptorPool()
+		{
+			descriptorPool.reset();
 		}
 	}
 }

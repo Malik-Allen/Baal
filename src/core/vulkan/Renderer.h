@@ -26,6 +26,7 @@ namespace Baal
 		class RenderPass;
 		class Framebuffer;
 		class Allocator;
+		class DescriptorPool;
 		class Mesh;
 
 		class Renderer
@@ -69,6 +70,9 @@ namespace Baal
 			void CreateSwapChain();
 			void DestroySwapChain();
 
+			void CreateDescriptorPool();
+			void DestroyDescriptorPool();
+
 			std::unique_ptr<Instance> instance;
 			std::unique_ptr<LogicalDevice> device;
 
@@ -90,7 +94,8 @@ namespace Baal
 
 			uint32_t currentBuffer = 0;
 
-			std::unique_ptr <Allocator> allocator;
+			std::unique_ptr<Allocator> allocator;
+			std::unique_ptr<DescriptorPool> descriptorPool;
 
 			std::vector<std::unique_ptr<Mesh>> loadedMeshes;
 
