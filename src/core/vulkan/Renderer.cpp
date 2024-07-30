@@ -109,6 +109,7 @@ namespace Baal
 
 		void Renderer::RenderFrame()
 		{
+			loadedMeshes[0]->GetMatricies().model = loadedMeshes[0]->GetMatricies().model.Translate(Vector3f(1.0f, 1.0f, 1.0f));
 			cameraUniformBuffer->Update(&camera->GetMatricies(), sizeof(CameraMatrices));
 			meshUniformBuffer->Update(&loadedMeshes[0]->GetMatricies(), sizeof(MeshMatrices));
 
@@ -367,7 +368,7 @@ namespace Baal
 				for (size_t k = 0; k < loadedMeshes[n]->GetSubMeshes().size(); ++k)
 				{
 					vkCmdBindVertexBuffers(commandBuffer.GetVkCommandBuffer(), 0, 1, &loadedMeshes[n]->GetSubMeshes()[k]->vertexBuffer->GetVkBuffer(), offsets);
-					vkCmdBindIndexBuffer(commandBuffer.GetVkCommandBuffer(), loadedMeshes[n]->GetSubMeshes()[k]->indexBuffer->GetVkBuffer(), 0, VK_INDEX_TYPE_UINT16);
+					vkCmdBindIndexBuffer(commandBuffer.GetVkCommandBuffer(), loadedMeshes[n]->GetSubMeshes()[k]->indexBuffer->GetVkBuffer(), 0, VK_INDEX_TYPE_UINT32);
 
 					vkCmdBindDescriptorSets(commandBuffer.GetVkCommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, forwardPipeline->GetVkGraphicsPipelineLayout(), 0, 1, &forwardPipeline->GetVkDescriptorSet(), 0, nullptr);
 

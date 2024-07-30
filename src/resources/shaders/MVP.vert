@@ -18,5 +18,5 @@ layout(location = 0) out vec3 fragColor;
 
 void main() {
     gl_Position = camera.proj * camera.view * mesh.model * vec4(inPos, 1.0);
-    fragColor = inColor;
+    fragColor = vec3(1.0, 1.0, 1.0);
 }
