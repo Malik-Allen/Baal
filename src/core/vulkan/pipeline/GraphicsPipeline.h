@@ -47,6 +47,7 @@ namespace Baal
 			GraphicsPipeline& operator = (GraphicsPipeline&&) = delete;
 
 			VkPipeline& GetVkGraphicsPipeline() { return pipeline; }
+			VkPipelineLayout& GetVkGraphicsPipelineLayout() { return layout; }
 			VkDescriptorSet& GetVkDescriptorSet() { return descriptorSet; }
 
 		private:

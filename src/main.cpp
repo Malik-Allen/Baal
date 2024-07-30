@@ -18,10 +18,12 @@ int main()
 
 	VK::Renderer renderer("Test Flight", window);
 
+	// renderer.LoadMesh(BAAL_MODELS_DIR, "spoon.obj");
+	renderer.LoadMesh(BAAL_MODELS_DIR, "teapot.obj");
+
 	renderer.Init();
 
-	renderer.LoadMesh(BAAL_MODELS_DIR, "spoon.obj");
-	renderer.LoadMesh(BAAL_MODELS_DIR, "teapot.obj");
+	
 
 
 	for (int i = 0; i < 1000; ++i)

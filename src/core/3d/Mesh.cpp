@@ -43,16 +43,25 @@ namespace Baal
 						v.pos.y = attrib.vertices[3 * index.vertex_index + 1];
 						v.pos.z = attrib.vertices[3 * index.vertex_index + 2];
 
-						v.norm.x = attrib.normals[3 * index.normal_index + 0];
-						v.norm.y = attrib.normals[3 * index.normal_index + 1];
-						v.norm.z = attrib.normals[3 * index.normal_index + 2];
+						if (!attrib.normals.empty())
+						{
+							v.norm.x = attrib.normals[3 * index.normal_index + 0];
+							v.norm.y = attrib.normals[3 * index.normal_index + 1];
+							v.norm.z = attrib.normals[3 * index.normal_index + 2];
+						}
 
-						v.texCoords.x = attrib.texcoords[2 * index.texcoord_index + 0];
-						v.texCoords.y = attrib.texcoords[2 * index.texcoord_index + 1];
+						if (!attrib.texcoords.empty())
+						{
+							v.texCoords.x = attrib.texcoords[2 * index.texcoord_index + 0];
+							v.texCoords.y = attrib.texcoords[2 * index.texcoord_index + 1];
+						}						
 
-						v.color.x = attrib.colors[3 * index.vertex_index + 0];
-						v.color.y = attrib.colors[3 * index.vertex_index + 1];
-						v.color.z = attrib.colors[3 * index.vertex_index + 2];
+						if (!attrib.colors.empty())
+						{
+							v.color.x = attrib.colors[3 * index.vertex_index + 0];
+							v.color.y = attrib.colors[3 * index.vertex_index + 1];
+							v.color.z = attrib.colors[3 * index.vertex_index + 2];
+						}
 
 						vertices.push_back(v);
 

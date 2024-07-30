@@ -30,13 +30,7 @@ namespace Baal
 			std::unique_ptr<Buffer> indexBuffer;
 		};
 
-		struct CameraUBO
-		{
-			Matrix4f view;
-			Matrix4f proj;
-		};
-
-		struct ModelUBO
+		struct MeshMatrices
 		{
 			Matrix4f model;
 		};
@@ -46,6 +40,7 @@ namespace Baal
 		class Mesh
 		{
 			std::vector<std::unique_ptr<SubMesh>> subMeshes;
+			MeshMatrices matricies;
 		public:
 			explicit Mesh(Allocator& allocator, const char* parentDirectory, const char* meshFileName);
 			Mesh(const Mesh&) = delete;
@@ -57,6 +52,7 @@ namespace Baal
 			Mesh& operator = (Mesh&&) = delete;
 
 			std::vector<std::unique_ptr<SubMesh>>& GetSubMeshes() { return subMeshes; }
+			MeshMatrices& GetMatricies() { return matricies; }
 		};
 	}	
 }
