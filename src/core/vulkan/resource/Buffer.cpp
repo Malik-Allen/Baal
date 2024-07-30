@@ -34,10 +34,8 @@ namespace Baal
 
 			VK_CHECK(vmaCreateBuffer(allocator.GetVmaAllocator(), &bufferInfo, &allocInfo, &vkBuffer, &vmaAllocation, nullptr), "allocationg buffer memory");
 
-			void* mappedData;
-			VK_CHECK(vmaMapMemory(allocator.GetVmaAllocator(), vmaAllocation, &mappedData), "vma mapping memory");
+			VK_CHECK(vmaMapMemory(allocator.GetVmaAllocator(), vmaAllocation, reinterpret_cast<void**>(&mappedData)), "vma mapping memory");
 			memcpy(mappedData, data, (size_t)bufferInfo.size);
-			vmaUnmapMemory(allocator.GetVmaAllocator(), vmaAllocation);
 		}
 
 		Buffer::Buffer(Buffer&& other) noexcept :
@@ -52,10 +50,16 @@ namespace Baal
 
 		Buffer::~Buffer()
 		{
-			if (vkBuffer != VK_NULL_HANDLE)
+			if (vkBuffer != VK_NULL_HANDLE && vmaAllocation != VK_NULL_HANDLE)
 			{
+				vmaUnmapMemory(allocator.GetVmaAllocator(), vmaAllocation);
 				vmaDestroyBuffer(allocator.GetVmaAllocator(), vkBuffer, vmaAllocation);
 			}
+		}
+
+		void Buffer::Update(void* data, const size_t size)
+		{
+			memcpy(mappedData, data, size);
 		}
 	}
 }

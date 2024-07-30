@@ -28,10 +28,13 @@ namespace Baal
 
 			VkBuffer& GetVkBuffer() { return vkBuffer; }
 
+			void Update(void* data, const size_t size);
+
 		private:
 			VkBuffer vkBuffer{ VK_NULL_HANDLE };
 			VmaAllocation vmaAllocation{ VK_NULL_HANDLE };
 			Allocator& allocator;
+			uint8_t* mappedData{ nullptr };
 		};
 	}
 }
