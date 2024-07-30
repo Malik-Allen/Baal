@@ -15,12 +15,26 @@ namespace Baal
 		class ShaderModule;
 		class RenderPass;
 
+		struct DescriptorSetBinding
+		{
+			uint32_t binding;
+			VkDescriptorType type;
+			uint32_t count;
+		};
+
 		// Sets up Shader Stages and Fixed-Function stages of pipeline
 
 		class GraphicsPipeline
 		{
 		public:
-			explicit GraphicsPipeline(LogicalDevice& _device, std::vector<ShaderInfo>& shaderInfo, RenderPass& renderPass, const uint32_t width, const uint32_t height);
+			explicit GraphicsPipeline(
+				LogicalDevice& _device, 
+				std::vector<ShaderInfo>& shaderInfo, 
+				RenderPass& renderPass, 
+				const uint32_t width, 
+				const uint32_t height, 
+				const std::vector<DescriptorSetBinding>& descriptorSetBinding);
+
 			GraphicsPipeline(const GraphicsPipeline&) = delete;
 			GraphicsPipeline(GraphicsPipeline&&) = delete;
 
@@ -34,10 +48,12 @@ namespace Baal
 		private:
 			VkPipeline pipeline{VK_NULL_HANDLE};
 			VkPipelineLayout layout{ VK_NULL_HANDLE };
+			VkDescriptorSetLayout  descriptorSetLayout{ VK_NULL_HANDLE };
 			LogicalDevice& device;
 			std::vector<ShaderModule> shaderStages;
 
 			std::vector<VkVertexInputAttributeDescription> GetVertexAttributes() const;
+			std::vector<VkDescriptorSetLayoutBinding> CreateDescriptorSetLayoutBindings(const std::vector<DescriptorSetBinding>& descriptorSetBinding) const;
 		};
 	}
 }

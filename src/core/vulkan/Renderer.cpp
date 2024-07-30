@@ -265,7 +265,9 @@ namespace Baal
 			shaderInfo.push_back(ShaderInfo(VK_SHADER_STAGE_VERTEX_BIT, BAAL_SHADERS_DIR, "InputTriangle.vert"));
 			shaderInfo.push_back(ShaderInfo(VK_SHADER_STAGE_FRAGMENT_BIT, BAAL_SHADERS_DIR, "Triangle.frag"));
 
-			forwardPipeline = std::make_unique<GraphicsPipeline>(*device.get(), shaderInfo, *renderPass.get(), swapChain->GetExtent().width, swapChain->GetExtent().height);
+			std::vector<DescriptorSetBinding> descriptorSetBindings;
+
+			forwardPipeline = std::make_unique<GraphicsPipeline>(*device.get(), shaderInfo, *renderPass.get(), swapChain->GetExtent().width, swapChain->GetExtent().height, descriptorSetBindings);
 		}
 
 		void Renderer::CreateFramebuffers()

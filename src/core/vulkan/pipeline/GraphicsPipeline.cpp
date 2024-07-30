@@ -12,8 +12,13 @@ namespace Baal
 {
 	namespace VK
 	{
-		GraphicsPipeline::GraphicsPipeline(LogicalDevice& _device, std::vector<ShaderInfo>& shaderInfo, RenderPass& renderPass, const uint32_t width, const uint32_t height):
-			device(_device)
+		GraphicsPipeline::GraphicsPipeline(LogicalDevice& _device, 
+			std::vector<ShaderInfo>& shaderInfo, 
+			RenderPass& renderPass, 
+			const uint32_t width, 
+			const uint32_t height, 
+			const std::vector<DescriptorSetBinding>& descriptorSetBindings)
+			: device(_device)
 		{
 			for (size_t i = 0; i < shaderInfo.size(); ++i)
 			{
@@ -117,7 +122,17 @@ namespace Baal
 			colorBlending.blendConstants[2] = 0.0f; // Optional
 			colorBlending.blendConstants[3] = 0.0f; // Optional
 
+			std::vector<VkDescriptorSetLayoutBinding> layoutBindings = CreateDescriptorSetLayoutBindings(descriptorSetBindings);
+
+			VkDescriptorSetLayoutCreateInfo descritptorSetLayoutInfo = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO };
+			descritptorSetLayoutInfo.bindingCount = layoutBindings.size();
+			descritptorSetLayoutInfo.pBindings = layoutBindings.data();
+
+			VK_CHECK(vkCreateDescriptorSetLayout(device.GetVkDevice(), &descritptorSetLayoutInfo, nullptr, &descriptorSetLayout), "creating descriptor set layout");
+
 			VkPipelineLayoutCreateInfo pipelineLayoutInfo = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
+			pipelineLayoutInfo.setLayoutCount = 1;
+			pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
 
 			VK_CHECK(vkCreatePipelineLayout(device.GetVkDevice(), &pipelineLayoutInfo, nullptr, &layout), "creating graphics pipeline layout");
 
@@ -142,6 +157,7 @@ namespace Baal
 		{
 			vkDestroyPipeline(device.GetVkDevice(), pipeline, nullptr);
 			vkDestroyPipelineLayout(device.GetVkDevice(), layout, nullptr);
+			vkDestroyDescriptorSetLayout(device.GetVkDevice(), descriptorSetLayout, nullptr);
 			shaderStages.clear();
 		}
 
@@ -153,6 +169,28 @@ namespace Baal
 			vertexAttributes.push_back(VkVertexInputAttributeDescription(2, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, texCoords)));
 			vertexAttributes.push_back(VkVertexInputAttributeDescription(3, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, color)));
 			return vertexAttributes;
+		}
+
+		std::vector<VkDescriptorSetLayoutBinding> GraphicsPipeline::CreateDescriptorSetLayoutBindings(const std::vector<DescriptorSetBinding>& descriptorSetBindings) const
+		{
+			std::vector<VkDescriptorSetLayoutBinding> outBindings;
+			VkDescriptorSetLayoutBinding layoutBinding;
+
+			for(size_t i = 0; i < descriptorSetBindings.size(); ++i)
+			{
+				layoutBinding.binding = descriptorSetBindings[i].binding;
+				layoutBinding.descriptorType = descriptorSetBindings[i].type;
+				layoutBinding.descriptorCount = descriptorSetBindings[i].count;
+
+				if(layoutBinding.descriptorType == VK_DESCRIPTOR_TYPE_SAMPLER)
+				{
+					layoutBinding.pImmutableSamplers = nullptr;
+				}
+
+				outBindings.push_back(layoutBinding);
+			}
+
+			return outBindings;
 		}
 	}
 }

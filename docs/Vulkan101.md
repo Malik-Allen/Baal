@@ -256,6 +256,11 @@ To control operation order, a Semaphore, inserts dependancies between Queue oper
 > **Note:** Data can be accessed by a Semaphore, the data that is associated with the unsignaled or signaled operations performed on that semaphore object, refered to as a `Semaphore Payload`.
 This allows sharing of resources between other Semaphore objects and other synchronization primitives, functioning similar to a mutex.
 
+## Uniform Buffers
+`Uniform Buffers` are globally defined variable shared across shaders. It allows us to define a variable across multiple shaders and efficiently update the variable without having to write to vertex data at run-time.
+
+## Descriptors
+A descriptor is structure that represents a shader resource. (Buffer, Image, Sampler, etc.) Descriptors are organized into `Descriptor Sets`.
 
 
 # Next Up
