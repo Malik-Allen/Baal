@@ -259,10 +259,10 @@ This allows sharing of resources between other Semaphore objects and other synch
 
 
 # Next Up
-- Semaphores and Fences pools
-- Swap chain recreation and command buffer recreation 
-	- Linking that through glfw window resizing
-- Review entire pipeline up until the Draw Triangle
+- Uniform Buffers
+- Descriptor Sets and Layout
+- Dynamically reading in UniformBuffers from shaders, storing the id
+- Camera to properly view the object being loaded once again
 
 # Resources
 https://registry.khronos.org/vulkan/specs/1.3/html/
