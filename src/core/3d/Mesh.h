@@ -11,8 +11,8 @@ namespace Baal
 {
 	namespace VK
 	{
-		class Allocator;
 		class Buffer;
+		class Allocator;
 
 		struct Vertex
 		{
@@ -26,23 +26,16 @@ namespace Baal
 		{
 			std::vector<Vertex> vertices;
 			std::vector<int> indices;
-			std::unique_ptr<Buffer> vertexBuffer;
-			std::unique_ptr<Buffer> indexBuffer;
-		};
-
-		struct MeshMatrices
-		{
-			Matrix4f model;
 		};
 
 		// Mesh is made up of multiple Sub Meshes / Shapes
 		// SubMeshes can be used to assign different materiels, animations, textures, etc.
 		class Mesh
 		{
-			std::vector<std::unique_ptr<SubMesh>> subMeshes;
-			MeshMatrices matricies;
+			friend class MeshInstance;
+			std::vector<SubMesh> subMeshes;
 		public:
-			explicit Mesh(Allocator& allocator, const char* parentDirectory, const char* meshFileName);
+			explicit Mesh(const char* parentDirectory, const char* meshFileName);
 			Mesh(const Mesh&) = delete;
 			Mesh(Mesh&&) = delete;
 
@@ -50,9 +43,44 @@ namespace Baal
 
 			Mesh& operator=(const Mesh&) = delete;
 			Mesh& operator = (Mesh&&) = delete;
+		};
 
-			std::vector<std::unique_ptr<SubMesh>>& GetSubMeshes() { return subMeshes; }
-			MeshMatrices& GetMatricies() { return matricies; }
+		struct SubMeshInstance
+		{
+			uint32_t id;
+			uint32_t parentId;
+			std::unique_ptr<Buffer> vertexBuffer;
+			std::unique_ptr<Buffer> indexBuffer;
+			uint32_t indexCount;
+		};
+		
+		struct MeshMatrices
+		{
+			Matrix4f model;
+		};
+
+		class MeshInstance
+		{
+			friend class MeshManager;
+			uint32_t id;
+			std::vector<std::shared_ptr<SubMeshInstance>> subMeshes;
+
+			std::unique_ptr<Buffer> uniformBuffer;
+		public:
+			MeshMatrices matrices;
+
+			explicit MeshInstance(Allocator& allocator, Mesh& resource, const uint32_t _id);
+			MeshInstance(const MeshInstance&) = delete;
+			MeshInstance(MeshInstance&&) noexcept = delete;
+
+			~MeshInstance();
+
+			MeshInstance& operator=(const MeshInstance&) = delete;
+			MeshInstance& operator = (MeshInstance&&) = delete;
+
+			void Update();
+
+			Buffer& GetUniformBuffer() { return *uniformBuffer.get(); }
 		};
 	}	
 }

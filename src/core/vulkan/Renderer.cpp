@@ -17,6 +17,7 @@
 #include "../src/core/vulkan/resource/Buffer.h"
 #include "../src/core/vulkan/resource/Allocator.h"
 #include "../src/core/vulkan/resource/DescriptorPool.h"
+#include "../src/core/3d/MeshManager.h"
 #include "../src/core/3d/Mesh.h"
 #include "../src/core/3d/Camera.h"
 
@@ -47,8 +48,9 @@ namespace Baal
 
 			commandPool = std::make_unique<CommandPool>(*device.get(), instance->GetGPU().GetQueueFamilyIndex(VK_QUEUE_GRAPHICS_BIT));
 
+			meshManager = std::make_unique<MeshManager>();
+
 			cameraUniformBuffer = nullptr;
-			meshUniformBuffer = nullptr;
 		}
 
 		Renderer::~Renderer() 
@@ -61,15 +63,13 @@ namespace Baal
 
 			DestroyPipelines();
 
-			loadedMeshes.clear();
-
 			DestroyDescriptorPool();
+
+			meshManager.reset();
 
 			camera.reset();
 
 			cameraUniformBuffer.reset();
-
-			meshUniformBuffer.reset();
 
 			DestroySwapChainImageViews();
 
@@ -109,9 +109,10 @@ namespace Baal
 
 		void Renderer::RenderFrame()
 		{
-			loadedMeshes[0]->GetMatricies().model = loadedMeshes[0]->GetMatricies().model.Translate(Vector3f(1.0f, 1.0f, 1.0f));
+			std::vector<std::shared_ptr<MeshInstance>>& meshInstances = meshManager->GetMeshInstances();
+			meshInstances[0]->matrices.model = meshInstances[0]->matrices.model.Translate(Vector3f(1.0f, 1.0f, 1.0f));
+			meshInstances[0]->Update();
 			cameraUniformBuffer->Update(&camera->GetMatricies(), sizeof(CameraMatrices));
-			meshUniformBuffer->Update(&loadedMeshes[0]->GetMatricies(), sizeof(MeshMatrices));
 
 			vkWaitForFences(device->GetVkDevice(), 1, &waitFence, VK_TRUE, UINT64_MAX);
 
@@ -175,10 +176,33 @@ namespace Baal
 		{
 		}
 
-		void Renderer::LoadMesh(const char* parentDirectory, const char* meshFileName)
+		std::shared_ptr<Mesh> Renderer::LoadMeshResource(const char* parentDirectory, const char* meshFileName)
 		{
-			uint32_t modelCount = loadedMeshes.size();
-			loadedMeshes.push_back(std::make_unique<Mesh>(*allocator.get(), parentDirectory, meshFileName));
+			return meshManager->LoadMeshResource(parentDirectory, meshFileName);
+		}
+
+		std::shared_ptr<MeshInstance> Renderer::AddMeshInstanceToScene(Mesh& resource)
+		{
+			std::shared_ptr<MeshInstance> meshInstance = meshManager->CreateMeshInstance(*allocator.get(), resource);
+
+			VkDescriptorBufferInfo meshBufferInfo{};
+			meshBufferInfo.buffer = meshInstance->GetUniformBuffer().GetVkBuffer();
+			meshBufferInfo.offset = 0;
+			meshBufferInfo.range = sizeof(MeshMatrices);
+
+			VkWriteDescriptorSet meshDescWrite = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
+			meshDescWrite.dstSet = forwardPipeline->GetVkDescriptorSet();
+			meshDescWrite.dstBinding = 1;
+			meshDescWrite.dstArrayElement = 0;
+			meshDescWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			meshDescWrite.descriptorCount = 1;
+			meshDescWrite.pBufferInfo = &meshBufferInfo;
+			meshDescWrite.pImageInfo = nullptr; // Optional
+			meshDescWrite.pTexelBufferView = nullptr; // Optional
+
+			vkUpdateDescriptorSets(device->GetVkDevice(), 1, &meshDescWrite, 0, nullptr);
+
+			return meshInstance;
 		}
 
 		std::vector<const char*> Renderer::GetRequiredInstanceExtenstions() const
@@ -363,17 +387,15 @@ namespace Baal
 
 			VkDeviceSize offsets[] = { 0 };
 
-			for (size_t n = 0; n < loadedMeshes.size(); ++n)
+			std::vector<std::shared_ptr<SubMeshInstance>>& subMeshes = meshManager->GetSubMeshInstances();
+			for (size_t i = 0; i < subMeshes.size(); ++i)
 			{
-				for (size_t k = 0; k < loadedMeshes[n]->GetSubMeshes().size(); ++k)
-				{
-					vkCmdBindVertexBuffers(commandBuffer.GetVkCommandBuffer(), 0, 1, &loadedMeshes[n]->GetSubMeshes()[k]->vertexBuffer->GetVkBuffer(), offsets);
-					vkCmdBindIndexBuffer(commandBuffer.GetVkCommandBuffer(), loadedMeshes[n]->GetSubMeshes()[k]->indexBuffer->GetVkBuffer(), 0, VK_INDEX_TYPE_UINT32);
+				vkCmdBindVertexBuffers(commandBuffer.GetVkCommandBuffer(), 0, 1, &subMeshes[i]->vertexBuffer->GetVkBuffer(), offsets);
+				vkCmdBindIndexBuffer(commandBuffer.GetVkCommandBuffer(), subMeshes[i]->indexBuffer->GetVkBuffer(), 0, VK_INDEX_TYPE_UINT32);
 
-					vkCmdBindDescriptorSets(commandBuffer.GetVkCommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, forwardPipeline->GetVkGraphicsPipelineLayout(), 0, 1, &forwardPipeline->GetVkDescriptorSet(), 0, nullptr);
+				vkCmdBindDescriptorSets(commandBuffer.GetVkCommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, forwardPipeline->GetVkGraphicsPipelineLayout(), 0, 1, &forwardPipeline->GetVkDescriptorSet(), 0, nullptr);
 
-					vkCmdDrawIndexed(commandBuffer.GetVkCommandBuffer(), static_cast<uint32_t>(loadedMeshes[n]->GetSubMeshes()[k]->indices.size()), 1, 0, 0, 0);
-				}
+				vkCmdDrawIndexed(commandBuffer.GetVkCommandBuffer(), subMeshes[i]->indexCount, 1, 0, 0, 0);
 			}
 
 			vkCmdEndRenderPass(commandBuffer.GetVkCommandBuffer());
@@ -463,17 +485,11 @@ namespace Baal
 		void Renderer::CreateDescriptorSets()
 		{
 			cameraUniformBuffer = std::make_unique<Buffer>(*allocator.get(), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, sizeof(CameraMatrices), &camera->GetMatricies());
-			meshUniformBuffer = std::make_unique<Buffer>(*allocator.get(), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, sizeof(MeshMatrices), &loadedMeshes[0]->GetMatricies());
 
 			VkDescriptorBufferInfo cameraBufferInfo{};
 			cameraBufferInfo.buffer = cameraUniformBuffer->GetVkBuffer();
 			cameraBufferInfo.offset = 0;
 			cameraBufferInfo.range = sizeof(CameraMatrices);
-
-			VkDescriptorBufferInfo meshBufferInfo{};
-			meshBufferInfo.buffer = meshUniformBuffer->GetVkBuffer();
-			meshBufferInfo.offset = 0;
-			meshBufferInfo.range = sizeof(MeshMatrices);
 
 			std::vector<VkWriteDescriptorSet> descriptorWrites;
 
@@ -489,21 +505,7 @@ namespace Baal
 
 			descriptorWrites.push_back(camDescWrite);
 
-			VkWriteDescriptorSet meshDescWrite = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
-			meshDescWrite.dstSet = forwardPipeline->GetVkDescriptorSet();
-			meshDescWrite.dstBinding = 1;
-			meshDescWrite.dstArrayElement = 0;
-			meshDescWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			meshDescWrite.descriptorCount = 1;
-			meshDescWrite.pBufferInfo = &meshBufferInfo;
-			meshDescWrite.pImageInfo = nullptr; // Optional
-			meshDescWrite.pTexelBufferView = nullptr; // Optional
-
-			descriptorWrites.push_back(meshDescWrite);
-
-			vkUpdateDescriptorSets(device->GetVkDevice(), static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
-
-			
+			vkUpdateDescriptorSets(device->GetVkDevice(), static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);			
 		}
 	}
 }

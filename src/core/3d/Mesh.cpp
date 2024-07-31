@@ -7,14 +7,13 @@
 #include "../src/core/vulkan/resource/Buffer.h"
 
 #include <string>
-
 #include <tiny_obj_loader.h>
 
 namespace Baal
 {
 	namespace VK
 	{
-		Mesh::Mesh(Allocator& allocator, const char* parentDirectory, const char* meshFileName)
+		Mesh::Mesh(const char* parentDirectory, const char* meshFileName)
 		{
 			std::string meshFilePath = std::string(parentDirectory) + std::string(meshFileName);
 
@@ -24,6 +23,8 @@ namespace Baal
 
 			std::string warn;
 			std::string err;
+
+			DEBUG_LOG(LOG::INFO, "Loading Mesh: {}...", meshFileName);
 
 			const bool bSuccess = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, meshFilePath.c_str(), parentDirectory);
 			if (!bSuccess)
@@ -68,21 +69,16 @@ namespace Baal
 						indices.push_back(indices.size());
 					}
 
-					subMeshes.push_back(std::make_unique<SubMesh>(
-						vertices, 
-						indices, 
-						std::make_unique<Buffer>(allocator, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, sizeof(vertices[0]) *vertices.size(), vertices.data()),
-						std::make_unique<Buffer>(allocator, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, sizeof(indices[0]) * indices.size(), indices.data())
-					));
+					subMeshes.push_back(SubMesh(vertices, indices));
 				}
 
 				if (!warn.empty())
 				{
-					DEBUG_LOG(LOG::WARNING, "Loaded Mesh: {}, Warning: {}", meshFileName, warn);
+					DEBUG_LOG(LOG::WARNING, "Succesfully loaded Mesh: {}, Warning: {}", meshFileName, warn);
 				}
 				else
 				{
-					DEBUG_LOG(LOG::INFO, "Loaded Mesh: {}", meshFileName);
+					DEBUG_LOG(LOG::INFO, "Succesfully loaded Mesh: {}", meshFileName);
 				}
 			}
 		}
@@ -90,6 +86,36 @@ namespace Baal
 		Mesh::~Mesh()
 		{
 			subMeshes.clear();
+		}
+
+		MeshInstance::MeshInstance(Allocator& allocator, Mesh& resource, const uint32_t _id)
+		{
+			id = _id;
+			for (size_t i = 0; i < resource.subMeshes.size(); ++i)
+			{
+				subMeshes.push_back(
+					std::make_shared<SubMeshInstance>(
+						i,
+						id,
+						std::make_unique<Buffer>(allocator, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, sizeof(resource.subMeshes[i].vertices[0]) * resource.subMeshes[i].vertices.size(), resource.subMeshes[i].vertices.data()),
+						std::make_unique<Buffer>(allocator, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, sizeof(resource.subMeshes[i].indices[0]) * resource.subMeshes[i].indices.size(), resource.subMeshes[i].indices.data()),
+						resource.subMeshes[i].indices.size()
+					)
+				);
+			}
+
+			uniformBuffer = std::make_unique<Buffer>(allocator, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, sizeof(MeshMatrices), &matrices);
+		}
+
+		MeshInstance::~MeshInstance()
+		{
+			subMeshes.clear();
+			uniformBuffer.reset();
+		}
+
+		void MeshInstance::Update()
+		{
+			uniformBuffer->Update(&matrices, sizeof(MeshMatrices));
 		}
 	}
 }
