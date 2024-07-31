@@ -5,7 +5,7 @@
 #include "../src/core/vulkan/devices/LogicalDevice.h"
 #include "../src/core/vulkan/pipeline/ShaderModule.h"
 #include "../src/core/vulkan/pipeline/RenderPass.h"
-#include "../src/core/vulkan/resource/DescriptorPool.h"
+#include "../src/core/vulkan/descriptors/DescriptorSetLayout.h"
 #include "../src/core/3d/Mesh.h"
 #include "../src/core/vulkan/debugging/Error.h"
 
@@ -14,12 +14,11 @@ namespace Baal
 	namespace VK
 	{
 		GraphicsPipeline::GraphicsPipeline(
-			LogicalDevice& _device, 
-			std::vector<ShaderInfo>& shaderInfo, 
-			RenderPass& renderPass, 
-			DescriptorPool& descriptorPool,
-			const std::vector<DescriptorSetBinding>& descriptorSetBindings,
-			const uint32_t width, 
+			LogicalDevice& _device,
+			std::vector<ShaderInfo>& shaderInfo,
+			RenderPass& renderPass,
+			DescriptorSetLayout& descriptorSetLayout,
+			const uint32_t width,
 			const uint32_t height)
 			: device(_device)
 		{
@@ -123,19 +122,19 @@ namespace Baal
 			colorBlending.blendConstants[0] = 0.0f; // Optional
 			colorBlending.blendConstants[1] = 0.0f; // Optional
 			colorBlending.blendConstants[2] = 0.0f; // Optional
-			colorBlending.blendConstants[3] = 0.0f; // Optional
-
-			std::vector<VkDescriptorSetLayoutBinding> layoutBindings = CreateDescriptorSetLayoutBindings(descriptorSetBindings);
-
-			VkDescriptorSetLayoutCreateInfo descritptorSetLayoutInfo = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO };
-			descritptorSetLayoutInfo.bindingCount = layoutBindings.size();
-			descritptorSetLayoutInfo.pBindings = layoutBindings.data();
-
-			VK_CHECK(vkCreateDescriptorSetLayout(device.GetVkDevice(), &descritptorSetLayoutInfo, nullptr, &descriptorSetLayout), "creating descriptor set layout");
+			colorBlending.blendConstants[3] = 0.0f; // Optional			
 
 			VkPipelineLayoutCreateInfo pipelineLayoutInfo = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
 			pipelineLayoutInfo.setLayoutCount = 1;
-			pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
+			pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout.GetVkDescriptorSetLayout();
+
+			VkPushConstantRange pushConstantRange = {};
+			pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+			pushConstantRange.offset = 0;
+			pushConstantRange.size = sizeof(MeshMatrices);
+
+			pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
+			pipelineLayoutInfo.pushConstantRangeCount = 1;
 
 			VK_CHECK(vkCreatePipelineLayout(device.GetVkDevice(), &pipelineLayoutInfo, nullptr, &layout), "creating graphics pipeline layout");
 
@@ -154,20 +153,12 @@ namespace Baal
 			pipelineInfo.subpass = 0;
 			
 			VK_CHECK(vkCreateGraphicsPipelines(device.GetVkDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline), "creating graphics pipeline");
-
-			VkDescriptorSetAllocateInfo allocInfo = {VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO};
-			allocInfo.descriptorPool = descriptorPool.GetVkDescriptorPool();
-			allocInfo.descriptorSetCount = 1;
-			allocInfo.pSetLayouts = &descriptorSetLayout;
-
-			VK_CHECK(vkAllocateDescriptorSets(device.GetVkDevice(), &allocInfo, &descriptorSet), "allocating descriptor sets");
 		}
 
 		GraphicsPipeline::~GraphicsPipeline()
 		{
 			vkDestroyPipeline(device.GetVkDevice(), pipeline, nullptr);
 			vkDestroyPipelineLayout(device.GetVkDevice(), layout, nullptr);
-			vkDestroyDescriptorSetLayout(device.GetVkDevice(), descriptorSetLayout, nullptr);
 			shaderStages.clear();
 		}
 
@@ -179,29 +170,6 @@ namespace Baal
 			vertexAttributes.push_back(VkVertexInputAttributeDescription(2, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, texCoords)));
 			vertexAttributes.push_back(VkVertexInputAttributeDescription(3, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, color)));
 			return vertexAttributes;
-		}
-
-		std::vector<VkDescriptorSetLayoutBinding> GraphicsPipeline::CreateDescriptorSetLayoutBindings(const std::vector<DescriptorSetBinding>& descriptorSetBindings) const
-		{
-			std::vector<VkDescriptorSetLayoutBinding> outBindings;
-			VkDescriptorSetLayoutBinding layoutBinding;
-
-			for(size_t i = 0; i < descriptorSetBindings.size(); ++i)
-			{
-				layoutBinding.binding = descriptorSetBindings[i].binding;
-				layoutBinding.descriptorType = descriptorSetBindings[i].type;
-				layoutBinding.descriptorCount = descriptorSetBindings[i].count;
-				layoutBinding.stageFlags = descriptorSetBindings[i].stage;
-
-				if(layoutBinding.descriptorType == VK_DESCRIPTOR_TYPE_SAMPLER)
-				{
-					layoutBinding.pImmutableSamplers = nullptr;
-				}
-
-				outBindings.push_back(layoutBinding);
-			}
-
-			return outBindings;
 		}
 	}
 }

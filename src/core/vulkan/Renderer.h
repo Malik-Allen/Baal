@@ -27,6 +27,8 @@ namespace Baal
 		class Framebuffer;
 		class Allocator;
 		class DescriptorPool;
+		class DescriptorSetLayout;
+		class DescriptorSet;
 		class MeshManager;
 		class Mesh;
 		class MeshInstance;
@@ -78,9 +80,12 @@ namespace Baal
 			void CreateDescriptorPool();
 			void DestroyDescriptorPool();
 
-			void CreateDefaultCamera();
+			void CreateDescriptorSetLayout();
+			void DestroyDescriptorSetLayout();
 
-			void CreateDescriptorSets();
+			void CreateDescriptorSet();
+
+			void CreateDefaultCamera();
 
 			std::unique_ptr<Instance> instance;
 			std::unique_ptr<LogicalDevice> device;
@@ -105,6 +110,8 @@ namespace Baal
 
 			std::unique_ptr<Allocator> allocator;
 			std::unique_ptr<DescriptorPool> descriptorPool;
+			std::unique_ptr<DescriptorSetLayout> descriptorSetLayout;
+			std::unique_ptr<DescriptorSet> descriptorSet;
 
 			std::unique_ptr<MeshManager> meshManager;
 

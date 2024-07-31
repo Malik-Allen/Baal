@@ -21,8 +21,9 @@ int main()
 	// renderer.LoadMesh(BAAL_MODELS_DIR, "spoon.obj");
 
 	renderer.Init();
-	renderer.AddMeshInstanceToScene(*renderer.LoadMeshResource(BAAL_MODELS_DIR, "spoon.obj").get());
+	renderer.AddMeshInstanceToScene(*renderer.LoadMeshResource(BAAL_MODELS_DIR, "teapot.obj").get());
 	renderer.AddMeshInstanceToScene(*renderer.LoadMeshResource(BAAL_MODELS_DIR, "solids.obj").get());
+	renderer.AddMeshInstanceToScene(*renderer.LoadMeshResource(BAAL_MODELS_DIR, "teapot.obj").get());
 	
 
 	for (int i = 0; i < 1000; ++i)

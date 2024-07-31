@@ -16,7 +16,9 @@
 #include "../src/core/vulkan/pipeline/Framebuffer.h"
 #include "../src/core/vulkan/resource/Buffer.h"
 #include "../src/core/vulkan/resource/Allocator.h"
-#include "../src/core/vulkan/resource/DescriptorPool.h"
+#include "../src/core/vulkan/descriptors/DescriptorPool.h"
+#include "../src/core/vulkan/descriptors/DescriptorSetLayout.h"
+#include "../src/core/vulkan/descriptors/DescriptorSet.h"
 #include "../src/core/3d/MeshManager.h"
 #include "../src/core/3d/Mesh.h"
 #include "../src/core/3d/Camera.h"
@@ -63,6 +65,8 @@ namespace Baal
 
 			DestroyPipelines();
 
+			DestroyDescriptorSetLayout();
+
 			DestroyDescriptorPool();
 
 			meshManager.reset();
@@ -96,9 +100,11 @@ namespace Baal
 
 			CreateDescriptorPool();
 
-			CreatePipelines();
+			CreateDescriptorSetLayout();
 
-			CreateDescriptorSets();
+			CreatePipelines();
+	
+			CreateDescriptorSet();
 
 			CreateFramebuffers();
 
@@ -110,9 +116,15 @@ namespace Baal
 		void Renderer::RenderFrame()
 		{
 			std::vector<std::shared_ptr<MeshInstance>>& meshInstances = meshManager->GetMeshInstances();
-			meshInstances[0]->matrices.model = meshInstances[0]->matrices.model.Translate(Vector3f(1.0f, 1.0f, 1.0f));
-			meshInstances[0]->Update();
-			cameraUniformBuffer->Update(&camera->GetMatricies(), sizeof(CameraMatrices));
+			for (size_t i = 0; i < meshInstances.size(); ++i)
+			{
+				if (i % 2 == 0)
+				{
+					meshInstances[i]->matrices.model = meshInstances[i]->matrices.model.Translate(Vector3f(1.0f, 1.0f, 1.0f) * static_cast<float>(i));
+				}
+			}	
+
+			cameraUniformBuffer->Update(&camera->GetMatrices(), sizeof(CameraMatrices));
 
 			vkWaitForFences(device->GetVkDevice(), 1, &waitFence, VK_TRUE, UINT64_MAX);
 
@@ -183,26 +195,7 @@ namespace Baal
 
 		std::shared_ptr<MeshInstance> Renderer::AddMeshInstanceToScene(Mesh& resource)
 		{
-			std::shared_ptr<MeshInstance> meshInstance = meshManager->CreateMeshInstance(*allocator.get(), resource);
-
-			VkDescriptorBufferInfo meshBufferInfo{};
-			meshBufferInfo.buffer = meshInstance->GetUniformBuffer().GetVkBuffer();
-			meshBufferInfo.offset = 0;
-			meshBufferInfo.range = sizeof(MeshMatrices);
-
-			VkWriteDescriptorSet meshDescWrite = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
-			meshDescWrite.dstSet = forwardPipeline->GetVkDescriptorSet();
-			meshDescWrite.dstBinding = 1;
-			meshDescWrite.dstArrayElement = 0;
-			meshDescWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			meshDescWrite.descriptorCount = 1;
-			meshDescWrite.pBufferInfo = &meshBufferInfo;
-			meshDescWrite.pImageInfo = nullptr; // Optional
-			meshDescWrite.pTexelBufferView = nullptr; // Optional
-
-			vkUpdateDescriptorSets(device->GetVkDevice(), 1, &meshDescWrite, 0, nullptr);
-
-			return meshInstance;
+			return meshManager->CreateMeshInstance(*allocator.get(), resource);
 		}
 
 		std::vector<const char*> Renderer::GetRequiredInstanceExtenstions() const
@@ -312,11 +305,7 @@ namespace Baal
 			shaderInfo.push_back(ShaderInfo(VK_SHADER_STAGE_VERTEX_BIT, BAAL_SHADERS_DIR, "MVP.vert"));
 			shaderInfo.push_back(ShaderInfo(VK_SHADER_STAGE_FRAGMENT_BIT, BAAL_SHADERS_DIR, "Triangle.frag"));
 
-			std::vector<DescriptorSetBinding> descriptorSetBindings;
-			descriptorSetBindings.push_back(DescriptorSetBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, 0, 1));
-			descriptorSetBindings.push_back(DescriptorSetBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, 1, 1));
-
-			forwardPipeline = std::make_unique<GraphicsPipeline>(*device.get(), shaderInfo, *renderPass.get(), *descriptorPool.get(), descriptorSetBindings, swapChain->GetExtent().width, swapChain->GetExtent().height);
+			forwardPipeline = std::make_unique<GraphicsPipeline>(*device.get(), shaderInfo, *renderPass.get(), *descriptorSetLayout.get(), swapChain->GetExtent().width, swapChain->GetExtent().height);
 		}
 
 		void Renderer::CreateFramebuffers()
@@ -387,13 +376,16 @@ namespace Baal
 
 			VkDeviceSize offsets[] = { 0 };
 
+
 			std::vector<std::shared_ptr<SubMeshInstance>>& subMeshes = meshManager->GetSubMeshInstances();
 			for (size_t i = 0; i < subMeshes.size(); ++i)
 			{
 				vkCmdBindVertexBuffers(commandBuffer.GetVkCommandBuffer(), 0, 1, &subMeshes[i]->vertexBuffer->GetVkBuffer(), offsets);
 				vkCmdBindIndexBuffer(commandBuffer.GetVkCommandBuffer(), subMeshes[i]->indexBuffer->GetVkBuffer(), 0, VK_INDEX_TYPE_UINT32);
 
-				vkCmdBindDescriptorSets(commandBuffer.GetVkCommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, forwardPipeline->GetVkGraphicsPipelineLayout(), 0, 1, &forwardPipeline->GetVkDescriptorSet(), 0, nullptr);
+				vkCmdPushConstants(commandBuffer.GetVkCommandBuffer(), forwardPipeline->GetVkGraphicsPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(MeshMatrices), &meshManager->GetMeshInstances()[subMeshes[i]->parentId]->matrices);
+
+				vkCmdBindDescriptorSets(commandBuffer.GetVkCommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, forwardPipeline->GetVkGraphicsPipelineLayout(), 0, 1, &descriptorSet->GetVkDescriptorSet(), 0, nullptr);
 
 				vkCmdDrawIndexed(commandBuffer.GetVkCommandBuffer(), subMeshes[i]->indexCount, 1, 0, 0, 0);
 			}
@@ -477,35 +469,46 @@ namespace Baal
 			descriptorPool.reset();
 		}
 
-		void Renderer::CreateDefaultCamera()
+		void Renderer::CreateDescriptorSetLayout()
 		{
-			camera = std::make_unique<Camera>();
+			std::vector<DescriptorSetBinding> bindings;
+			bindings.push_back(DescriptorSetBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, 0, 1));
+			bindings.push_back(DescriptorSetBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, 1, 1));
+
+			descriptorSetLayout = std::make_unique<DescriptorSetLayout>(*device.get(), bindings);
 		}
 
-		void Renderer::CreateDescriptorSets()
+		void Renderer::DestroyDescriptorSetLayout()
 		{
-			cameraUniformBuffer = std::make_unique<Buffer>(*allocator.get(), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, sizeof(CameraMatrices), &camera->GetMatricies());
+			descriptorSetLayout.reset();
+		}
 
-			VkDescriptorBufferInfo cameraBufferInfo{};
-			cameraBufferInfo.buffer = cameraUniformBuffer->GetVkBuffer();
-			cameraBufferInfo.offset = 0;
-			cameraBufferInfo.range = sizeof(CameraMatrices);
+		void Renderer::CreateDescriptorSet()
+		{
+			descriptorSet = std::make_unique<DescriptorSet>(*device.get(), *descriptorPool.get(), *descriptorSetLayout.get());
 
-			std::vector<VkWriteDescriptorSet> descriptorWrites;
+			VkDescriptorBufferInfo buffeInfo{};
+			buffeInfo.buffer = cameraUniformBuffer->GetVkBuffer();
+			buffeInfo.offset = 0;
+			buffeInfo.range = cameraUniformBuffer->GetSize();
 
 			VkWriteDescriptorSet camDescWrite = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
-			camDescWrite.dstSet = forwardPipeline->GetVkDescriptorSet();
+			camDescWrite.dstSet = descriptorSet->GetVkDescriptorSet();
 			camDescWrite.dstBinding = 0;
 			camDescWrite.dstArrayElement = 0;
 			camDescWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 			camDescWrite.descriptorCount = 1;
-			camDescWrite.pBufferInfo = &cameraBufferInfo;
+			camDescWrite.pBufferInfo = &buffeInfo;
 			camDescWrite.pImageInfo = nullptr; // Optional
 			camDescWrite.pTexelBufferView = nullptr; // Optional
 
-			descriptorWrites.push_back(camDescWrite);
+			vkUpdateDescriptorSets(device->GetVkDevice(), 1, &camDescWrite, 0, nullptr);
+		}
 
-			vkUpdateDescriptorSets(device->GetVkDevice(), static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);			
+		void Renderer::CreateDefaultCamera()
+		{
+			camera = std::make_unique<Camera>();
+			cameraUniformBuffer = std::make_unique<Buffer>(*allocator.get(), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, sizeof(CameraMatrices), &camera->GetMatrices());
 		}
 	}
 }

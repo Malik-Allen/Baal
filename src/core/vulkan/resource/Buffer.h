@@ -17,7 +17,7 @@ namespace Baal
 		class Buffer
 		{
 		public:
-			explicit Buffer(Allocator& _allocator, VkBufferUsageFlags usage, VkDeviceSize size, void* data, std::vector<uint32_t> queueFamilyIndicies = {});
+			explicit Buffer(Allocator& _allocator, VkBufferUsageFlags usage, VkDeviceSize _size, void* data, std::vector<uint32_t> queueFamilyIndicies = {});
 			Buffer(const Buffer&) = delete;
 			Buffer(Buffer&& other) noexcept;
 
@@ -27,14 +27,19 @@ namespace Baal
 			Buffer& operator = (Buffer&&) = delete;
 
 			VkBuffer& GetVkBuffer() { return vkBuffer; }
+			uint64_t GetSize() const { return size; }
 
-			void Update(void* data, const size_t size);
+			void Update(void* data, const size_t _size);
 
 		private:
 			VkBuffer vkBuffer{ VK_NULL_HANDLE };
 			VmaAllocation vmaAllocation{ VK_NULL_HANDLE };
 			Allocator& allocator;
 			uint8_t* mappedData{ nullptr };
+			uint64_t size;
+			bool bIsMapped = false;
+
+			void Map();
 		};
 	}
 }

@@ -5,6 +5,10 @@
 #include "../src/utility/DebugLog.h"
 #include "../src/core/vulkan/resource/Allocator.h"
 #include "../src/core/vulkan/resource/Buffer.h"
+#include "../src/core/vulkan/devices/LogicalDevice.h"
+#include "../src/core/vulkan/descriptors/DescriptorSet.h"
+#include "../src/core/vulkan/descriptors/DescriptorPool.h"
+#include "../src/core/vulkan/descriptors/DescriptorSetLayout.h"
 
 #include <string>
 #include <tiny_obj_loader.h>
@@ -88,34 +92,38 @@ namespace Baal
 			subMeshes.clear();
 		}
 
+
+		SubMeshInstance::SubMeshInstance(const uint32_t _id, const uint32_t _parentId)
+		{
+			id = _id;
+			parentId = _parentId;
+			vertexBuffer = nullptr;
+			indexBuffer = nullptr;
+			indexCount = 0;
+		}
+
+		SubMeshInstance::~SubMeshInstance()
+		{
+			vertexBuffer.reset();
+			indexBuffer.reset();
+		}
+
 		MeshInstance::MeshInstance(Allocator& allocator, Mesh& resource, const uint32_t _id)
 		{
 			id = _id;
 			for (size_t i = 0; i < resource.subMeshes.size(); ++i)
 			{
-				subMeshes.push_back(
-					std::make_shared<SubMeshInstance>(
-						i,
-						id,
-						std::make_unique<Buffer>(allocator, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, sizeof(resource.subMeshes[i].vertices[0]) * resource.subMeshes[i].vertices.size(), resource.subMeshes[i].vertices.data()),
-						std::make_unique<Buffer>(allocator, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, sizeof(resource.subMeshes[i].indices[0]) * resource.subMeshes[i].indices.size(), resource.subMeshes[i].indices.data()),
-						resource.subMeshes[i].indices.size()
-					)
-				);
+				std::shared_ptr<SubMeshInstance> subMesh = std::make_shared<SubMeshInstance>(static_cast<uint32_t>(i), id);
+				subMesh->vertexBuffer = std::make_unique<Buffer>(allocator, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, sizeof(resource.subMeshes[i].vertices[0]) * resource.subMeshes[i].vertices.size(), resource.subMeshes[i].vertices.data());
+				subMesh->indexBuffer = std::make_unique<Buffer>(allocator, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, sizeof(resource.subMeshes[i].indices[0]) * resource.subMeshes[i].indices.size(), resource.subMeshes[i].indices.data());
+				subMesh->indexCount = static_cast<const uint32_t>(resource.subMeshes[i].indices.size());
+				subMeshes.push_back(subMesh);					
 			}
-
-			uniformBuffer = std::make_unique<Buffer>(allocator, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, sizeof(MeshMatrices), &matrices);
 		}
 
 		MeshInstance::~MeshInstance()
 		{
 			subMeshes.clear();
-			uniformBuffer.reset();
-		}
-
-		void MeshInstance::Update()
-		{
-			uniformBuffer->Update(&matrices, sizeof(MeshMatrices));
 		}
 	}
 }

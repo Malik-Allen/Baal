@@ -36,7 +36,7 @@ namespace Baal
 
 			Matrix4f GetViewMatrix() const { return matrices.view; }
 			Matrix4f GetProjectionMatrix() const { return matrices.proj; }
-			CameraMatrices& GetMatricies() { return matrices; }
+			CameraMatrices& GetMatrices() { return matrices; }
 
 		private:
 			Vector3f position;

@@ -9,9 +9,12 @@ namespace Baal
 {
 	namespace VK
 	{
-		Buffer::Buffer(Allocator& _allocator, VkBufferUsageFlags usage, VkDeviceSize size, void* data, std::vector<uint32_t> queueFamilyIndicies /*= {}*/):
-			allocator(_allocator)
+		Buffer::Buffer(Allocator& _allocator, VkBufferUsageFlags usage, VkDeviceSize _size, void* data, std::vector<uint32_t> queueFamilyIndicies /*= {}*/):
+			allocator(_allocator),
+			size(_size)
 		{
+			bIsMapped = false;
+
 			VkBufferCreateInfo bufferInfo = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
 			bufferInfo.usage = usage;
 			bufferInfo.size = size;
@@ -34,12 +37,17 @@ namespace Baal
 
 			VK_CHECK(vmaCreateBuffer(allocator.GetVmaAllocator(), &bufferInfo, &allocInfo, &vkBuffer, &vmaAllocation, nullptr), "allocationg buffer memory");
 
-			VK_CHECK(vmaMapMemory(allocator.GetVmaAllocator(), vmaAllocation, reinterpret_cast<void**>(&mappedData)), "vma mapping memory");
-			memcpy(mappedData, data, (size_t)bufferInfo.size);
+			if (data != nullptr) 
+			{
+				VK_CHECK(vmaMapMemory(allocator.GetVmaAllocator(), vmaAllocation, reinterpret_cast<void**>(&mappedData)), "vma mapping memory");
+				memcpy(mappedData, data, (size_t)bufferInfo.size);
+				bIsMapped = true;
+			}
 		}
 
 		Buffer::Buffer(Buffer&& other) noexcept :
-			allocator(other.allocator)
+			allocator(other.allocator),
+			size(other.size)
 		{
 			vkBuffer = other.vkBuffer;
 			vmaAllocation = other.vmaAllocation;
@@ -54,12 +62,24 @@ namespace Baal
 			{
 				vmaUnmapMemory(allocator.GetVmaAllocator(), vmaAllocation);
 				vmaDestroyBuffer(allocator.GetVmaAllocator(), vkBuffer, vmaAllocation);
+				bIsMapped = false;
 			}
 		}
 
-		void Buffer::Update(void* data, const size_t size)
+		void Buffer::Update(void* data, const size_t _size)
 		{
+			Map();
+			size = _size;
 			memcpy(mappedData, data, size);
+		}
+
+		void Buffer::Map()
+		{
+			if (!bIsMapped)
+			{
+				VK_CHECK(vmaMapMemory(allocator.GetVmaAllocator(), vmaAllocation, reinterpret_cast<void**>(&mappedData)), "vma mapping memory");
+				bIsMapped = true;
+			}
 		}
 	}
 }

@@ -262,12 +262,13 @@ This allows sharing of resources between other Semaphore objects and other synch
 ## Descriptors
 A descriptor is structure that represents a shader resource. (Buffer, Image, Sampler, etc.) Descriptors are organized into `Descriptor Sets`.
 
+## Constants
+Constants can be used pushed to data to shader at any given stage. To pass in constant to be used within the shader.
+
+![Descriptor Set Layout](resources/DescriptorSetLayout.png)
 
 # Next Up
-- Uniform Buffers
-- Descriptor Sets and Layout
-- Dynamically reading in UniformBuffers from shaders, storing the id
-- Camera to properly view the object being loaded once again
+- Push Constant and Shader Module update to allow for dynamic creation of push constants
 
 # Resources
 https://registry.khronos.org/vulkan/specs/1.3/html/

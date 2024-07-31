@@ -13,6 +13,10 @@ namespace Baal
 	{
 		class Buffer;
 		class Allocator;
+		class DescriptorSet;
+		class LogicalDevice;
+		class DescriptorPool;
+		class DescriptorSetLayout;
 
 		struct Vertex
 		{
@@ -52,6 +56,15 @@ namespace Baal
 			std::unique_ptr<Buffer> vertexBuffer;
 			std::unique_ptr<Buffer> indexBuffer;
 			uint32_t indexCount;
+
+			explicit SubMeshInstance(const uint32_t _id, const uint32_t _parentId);
+			SubMeshInstance(const SubMeshInstance&) = delete;
+			SubMeshInstance(SubMeshInstance&&) noexcept = delete;
+
+			~SubMeshInstance();
+
+			SubMeshInstance& operator=(const SubMeshInstance&) = delete;
+			SubMeshInstance& operator = (SubMeshInstance&&) = delete;
 		};
 		
 		struct MeshMatrices
@@ -64,8 +77,6 @@ namespace Baal
 			friend class MeshManager;
 			uint32_t id;
 			std::vector<std::shared_ptr<SubMeshInstance>> subMeshes;
-
-			std::unique_ptr<Buffer> uniformBuffer;
 		public:
 			MeshMatrices matrices;
 
@@ -77,10 +88,6 @@ namespace Baal
 
 			MeshInstance& operator=(const MeshInstance&) = delete;
 			MeshInstance& operator = (MeshInstance&&) = delete;
-
-			void Update();
-
-			Buffer& GetUniformBuffer() { return *uniformBuffer.get(); }
 		};
 	}	
 }

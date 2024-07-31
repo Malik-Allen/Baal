@@ -5,7 +5,7 @@ layout(binding = 0) uniform CameraMatrices {
     mat4 proj;
 } camera;
 
-layout(binding = 1) uniform MeshMatricies {
+layout(push_constant) uniform constants {
     mat4 model;
 } mesh;
 
