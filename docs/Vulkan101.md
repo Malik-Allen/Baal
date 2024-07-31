@@ -269,6 +269,10 @@ Constants can be used pushed to data to shader at any given stage. To pass in co
 
 # Next Up
 - Push Constant and Shader Module update to allow for dynamic creation of push constants
+- Textures
+- Depth Buffering
+- The marble
+- 
 
 # Resources
 https://registry.khronos.org/vulkan/specs/1.3/html/
