@@ -271,8 +271,10 @@ Constants can be used pushed to data to shader at any given stage. To pass in co
 - Push Constant and Shader Module update to allow for dynamic creation of push constants
 - Textures
 - Depth Buffering
-- The marble
-- 
+- Cubemap
+- Lighting --> UBO
+- Phong shader
+- Marble
 
 # Resources
 https://registry.khronos.org/vulkan/specs/1.3/html/
