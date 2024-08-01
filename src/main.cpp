@@ -1,4 +1,5 @@
 #include "Baal.h"
+#include "../src/core/vulkan/tests/TestRenderer.h"
 #include "../src/utility/DebugLog.h"
 #include <GLFW/glfw3.h>
 
@@ -16,11 +17,11 @@ int main()
 	
 	window = glfwCreateWindow( 800, 600, "Vulkan", nullptr, nullptr );
 
-	VK::Renderer renderer("Test Flight", window);
+	VK::TestRenderer renderer("Test Flight", window);
 
 	// renderer.LoadMesh(BAAL_MODELS_DIR, "spoon.obj");
 
-	renderer.Init();
+	renderer.Startup();
 	renderer.AddMeshInstanceToScene(*renderer.LoadMeshResource(BAAL_MODELS_DIR, "teapot.obj").get());
 	renderer.AddMeshInstanceToScene(*renderer.LoadMeshResource(BAAL_MODELS_DIR, "solids.obj").get());
 	renderer.AddMeshInstanceToScene(*renderer.LoadMeshResource(BAAL_MODELS_DIR, "teapot.obj").get());
@@ -29,7 +30,7 @@ int main()
 	for (int i = 0; i < 1000; ++i)
 	{
 		glfwPollEvents();
-		renderer.RenderFrame();
+		renderer.Render();
 
 		if (i % 60 == 0)
 		{

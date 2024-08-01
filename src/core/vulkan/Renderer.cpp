@@ -10,18 +10,12 @@
 #include "../src/core/vulkan/presentation/SwapChain.h"
 #include "../src/core/vulkan/commands/CommandPool.h"
 #include "../src/core/vulkan/commands/CommandBuffer.h"
-#include "../src/core/vulkan/pipeline/ShaderModule.h"
-#include "../src/core/vulkan/pipeline/GraphicsPipeline.h"
 #include "../src/core/vulkan/pipeline/RenderPass.h"
 #include "../src/core/vulkan/pipeline/Framebuffer.h"
 #include "../src/core/vulkan/resource/Buffer.h"
 #include "../src/core/vulkan/resource/Allocator.h"
-#include "../src/core/vulkan/descriptors/DescriptorPool.h"
-#include "../src/core/vulkan/descriptors/DescriptorSetLayout.h"
-#include "../src/core/vulkan/descriptors/DescriptorSet.h"
 #include "../src/core/3d/MeshManager.h"
 #include "../src/core/3d/Mesh.h"
-#include "../src/core/3d/Camera.h"
 
 #include <vulkan/vulkan_core.h>
 #include <stdexcept>
@@ -51,80 +45,66 @@ namespace Baal
 			commandPool = std::make_unique<CommandPool>(*device.get(), instance->GetGPU().GetQueueFamilyIndex(VK_QUEUE_GRAPHICS_BIT));
 
 			meshManager = std::make_unique<MeshManager>();
-
-			cameraUniformBuffer = nullptr;
 		}
 
 		Renderer::~Renderer() 
 		{
-			vkDeviceWaitIdle(device->GetVkDevice());
-
-			DestroyDrawCommandBuffers();
-
-			DestroyFramebuffers();
-
-			DestroyPipelines();
-
-			DestroyDescriptorSetLayout();
-
-			DestroyDescriptorPool();
-
-			meshManager.reset();
-
-			camera.reset();
-
-			cameraUniformBuffer.reset();
-
-			DestroySwapChainImageViews();
-
-			DestroySwapChain();
-
-			commandPool.reset();
-
-			DestroySyncObjects();
-
-			allocator.reset();
-
-			device.reset();
-
-			surface.reset();
-
-			instance.reset();
+			
 		}
 
-		void Renderer::Init()
+		Instance& Renderer::GetInstance()
 		{
-			CreateDefaultCamera();
+			return *instance.get();
+		}
 
+		LogicalDevice& Renderer::GetDevice()
+		{
+			return *device.get();
+		}
+
+		Surface& Renderer::GetSurface()
+		{
+			return *surface.get();
+		}
+
+		SwapChain& Renderer::GetSwapChain()
+		{
+			return *swapChain.get();
+		}
+
+		CommandPool& Renderer::GetComandPool()
+		{
+			return *commandPool.get();
+		}
+
+		RenderPass& Renderer::GetRenderPass()
+		{
+			return *renderPass.get();
+		}
+
+		Allocator& Renderer::GetAllocator()
+		{
+			return *allocator.get();
+		}
+
+		MeshManager& Renderer::GetMeshManager()
+		{
+			return *meshManager.get();
+		}
+
+		void Renderer::Startup()
+		{
 			CreateSwapChainImageViews();
-
-			CreateDescriptorPool();
-
-			CreateDescriptorSetLayout();
-
-			CreatePipelines();
-	
-			CreateDescriptorSet();
-
+			CreateRenderPass();
 			CreateFramebuffers();
-
 			CreateDrawCommandBuffers();
-
 			CreateSyncObjects();
+			Initialize();
 		}
 
-		void Renderer::RenderFrame()
+		void Renderer::Render()
 		{
-			std::vector<std::shared_ptr<MeshInstance>>& meshInstances = meshManager->GetMeshInstances();
-			for (size_t i = 0; i < meshInstances.size(); ++i)
-			{
-				if (i % 2 == 0)
-				{
-					meshInstances[i]->matrices.model = Matrix4f::Translate(Vector3f(1.0f, 1.0f, 1.0f) * static_cast<float>(i)) * Matrix4f::Rotate(45.0f * static_cast<float>(i), Vector3f(0.0f, 1.0f, 0.0f)) * Matrix4f::Scale(Vector3f(1.0f));
-				}
-			}	
-
-			cameraUniformBuffer->Update(&camera->GetMatrices(), sizeof(CameraMatrices));
+			PreRender();
 
 			vkWaitForFences(device->GetVkDevice(), 1, &waitFence, VK_TRUE, UINT64_MAX);
 
@@ -144,7 +124,7 @@ namespace Baal
 				assert(false);
 			}
 
-			RecordDrawCommandBuffer(drawCommands[currentBuffer]);
+			RecordDrawCommandBuffer(drawCommands[currentBuffer], framebuffers[currentBuffer]);
 
 			VkSubmitInfo submitInfo = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
 			submitInfo.commandBufferCount = 1;
@@ -182,10 +162,26 @@ namespace Baal
 				DEBUG_LOG(LOG::ERRORLOG, "Failed to present to present queue! Error: {}", output);
 				assert(false);
 			}
+
+			PostRender();
 		}
 
 		void Renderer::Shutdown()
 		{
+			vkDeviceWaitIdle(device->GetVkDevice());
+			Destroy();
+			DestroyDrawCommandBuffers();
+			DestroyFramebuffers();
+			renderPass.reset();
+			meshManager.reset();
+			DestroySwapChainImageViews();
+			DestroySwapChain();
+			commandPool.reset();
+			DestroySyncObjects();
+			allocator.reset();
+			device.reset();
+			surface.reset();
+			instance.reset();
 		}
 
 		std::shared_ptr<Mesh> Renderer::LoadMeshResource(const char* parentDirectory, const char* meshFileName)
@@ -269,19 +265,7 @@ namespace Baal
 			swapChainImageViews.clear();
 		}
 
-		void Renderer::CreatePipelines()
-		{
-			CreateForwardPipeline();
-		}
-
-		void Renderer::DestroyPipelines()
-		{
-			forwardPipeline.reset();
-
-			renderPass.reset();
-		}
-
-		void Renderer::CreateForwardPipeline()
+		void Renderer::CreateRenderPass()
 		{
 			std::vector<Attachment> attachments;
 
@@ -300,12 +284,6 @@ namespace Baal
 			attachments.push_back(colorAttachment);
 
 			renderPass = std::make_unique<RenderPass>(*device.get(), attachments);
-
-			std::vector<ShaderInfo> shaderInfo;
-			shaderInfo.push_back(ShaderInfo(VK_SHADER_STAGE_VERTEX_BIT, BAAL_SHADERS_DIR, "MVP.vert"));
-			shaderInfo.push_back(ShaderInfo(VK_SHADER_STAGE_FRAGMENT_BIT, BAAL_SHADERS_DIR, "Triangle.frag"));
-
-			forwardPipeline = std::make_unique<GraphicsPipeline>(*device.get(), shaderInfo, *renderPass.get(), *descriptorSetLayout.get(), swapChain->GetExtent().width, swapChain->GetExtent().height);
 		}
 
 		void Renderer::CreateFramebuffers()
@@ -329,70 +307,12 @@ namespace Baal
 			const uint32_t framebufferCount = framebuffers.size();
 			drawCommands.reserve(framebufferCount);
 			VK_CHECK(commandPool->CreateCommandBuffers(framebufferCount, VK_COMMAND_BUFFER_LEVEL_PRIMARY, drawCommands), "creating draw commands");
-
 			currentBuffer = 0;
 		}
 
 		void Renderer::DestroyDrawCommandBuffers()
 		{
 			drawCommands.clear();
-		}
-
-		void Renderer::RecordDrawCommandBuffer(CommandBuffer& commandBuffer)
-		{
-			VkRenderPassBeginInfo renderPassInfo = { VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO };
-			renderPassInfo.renderPass = renderPass->GetVkRenderPass();
-			renderPassInfo.clearValueCount = 1;
-			renderPassInfo.renderArea.offset = { 0, 0 };
-			renderPassInfo.renderArea.extent = swapChain->GetExtent();
-
-			renderPassInfo.framebuffer = framebuffers[currentBuffer].GetVkFramebuffer();
-
-			commandBuffer.Reset();
-
-			commandBuffer.BeginRecording(0);
-
-			VkClearValue clearColor = { {{0.0f, 0.0f, 0.0f, 1.0f}} };
-			renderPassInfo.clearValueCount = 1;
-			renderPassInfo.pClearValues = &clearColor;
-
-			vkCmdBeginRenderPass(commandBuffer.GetVkCommandBuffer(), &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-			vkCmdBindPipeline(commandBuffer.GetVkCommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, forwardPipeline->GetVkGraphicsPipeline());
-
-			VkViewport viewport{};
-			viewport.x = 0.0f;
-			viewport.y = 0.0f;
-			viewport.width = static_cast<float>(swapChain->GetExtent().width);
-			viewport.height = static_cast<float>(swapChain->GetExtent().height);
-			viewport.minDepth = 0.0f;
-			viewport.maxDepth = 1.0f;
-			vkCmdSetViewport(commandBuffer.GetVkCommandBuffer(), 0, 1, &viewport);
-
-			VkRect2D scissor{};
-			scissor.offset = { 0, 0 };
-			scissor.extent = swapChain->GetExtent();
-			vkCmdSetScissor(commandBuffer.GetVkCommandBuffer(), 0, 1, &scissor);
-
-			VkDeviceSize offsets[] = { 0 };
-
-
-			std::vector<std::shared_ptr<SubMeshInstance>>& subMeshes = meshManager->GetSubMeshInstances();
-			for (size_t i = 0; i < subMeshes.size(); ++i)
-			{
-				vkCmdBindVertexBuffers(commandBuffer.GetVkCommandBuffer(), 0, 1, &subMeshes[i]->vertexBuffer->GetVkBuffer(), offsets);
-				vkCmdBindIndexBuffer(commandBuffer.GetVkCommandBuffer(), subMeshes[i]->indexBuffer->GetVkBuffer(), 0, VK_INDEX_TYPE_UINT32);
-
-				vkCmdPushConstants(commandBuffer.GetVkCommandBuffer(), forwardPipeline->GetVkGraphicsPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(MeshMatrices), &meshManager->GetMeshInstances()[subMeshes[i]->parentId]->matrices);
-
-				vkCmdBindDescriptorSets(commandBuffer.GetVkCommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, forwardPipeline->GetVkGraphicsPipelineLayout(), 0, 1, &descriptorSet->GetVkDescriptorSet(), 0, nullptr);
-
-				vkCmdDrawIndexed(commandBuffer.GetVkCommandBuffer(), subMeshes[i]->indexCount, 1, 0, 0, 0);
-			}
-
-			vkCmdEndRenderPass(commandBuffer.GetVkCommandBuffer());
-
-			commandBuffer.EndRecording();
 		}
 
 		void Renderer::CreateSyncObjects()
@@ -454,61 +374,6 @@ namespace Baal
 		void Renderer::DestroySwapChain()
 		{
 			swapChain.reset();
-		}
-
-		void Renderer::CreateDescriptorPool()
-		{
-			std::vector<DescriptorPoolSize> poolSizes;
-			poolSizes.push_back(DescriptorPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1));
-
-			descriptorPool = std::make_unique<DescriptorPool>(*device.get(),poolSizes);
-		}
-
-		void Renderer::DestroyDescriptorPool()
-		{
-			descriptorPool.reset();
-		}
-
-		void Renderer::CreateDescriptorSetLayout()
-		{
-			std::vector<DescriptorSetBinding> bindings;
-			bindings.push_back(DescriptorSetBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, 0, 1));
-			bindings.push_back(DescriptorSetBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, 1, 1));
-
-			descriptorSetLayout = std::make_unique<DescriptorSetLayout>(*device.get(), bindings);
-		}
-
-		void Renderer::DestroyDescriptorSetLayout()
-		{
-			descriptorSetLayout.reset();
-		}
-
-		void Renderer::CreateDescriptorSet()
-		{
-			descriptorSet = std::make_unique<DescriptorSet>(*device.get(), *descriptorPool.get(), *descriptorSetLayout.get());
-
-			VkDescriptorBufferInfo buffeInfo{};
-			buffeInfo.buffer = cameraUniformBuffer->GetVkBuffer();
-			buffeInfo.offset = 0;
-			buffeInfo.range = cameraUniformBuffer->GetSize();
-
-			VkWriteDescriptorSet camDescWrite = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
-			camDescWrite.dstSet = descriptorSet->GetVkDescriptorSet();
-			camDescWrite.dstBinding = 0;
-			camDescWrite.dstArrayElement = 0;
-			camDescWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			camDescWrite.descriptorCount = 1;
-			camDescWrite.pBufferInfo = &buffeInfo;
-			camDescWrite.pImageInfo = nullptr; // Optional
-			camDescWrite.pTexelBufferView = nullptr; // Optional
-
-			vkUpdateDescriptorSets(device->GetVkDevice(), 1, &camDescWrite, 0, nullptr);
-		}
-
-		void Renderer::CreateDefaultCamera()
-		{
-			camera = std::make_unique<Camera>();
-			cameraUniformBuffer = std::make_unique<Buffer>(*allocator.get(), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, sizeof(CameraMatrices), &camera->GetMatrices());
 		}
 	}
 }

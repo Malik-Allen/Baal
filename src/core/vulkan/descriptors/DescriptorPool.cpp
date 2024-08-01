@@ -25,8 +25,7 @@ namespace Baal
 
 			poolInfo.poolSizeCount = descriptorPoolSizes.size();
 			poolInfo.pPoolSizes = descriptorPoolSizes.data();
-
-			poolInfo.maxSets = 2;
+			poolInfo.maxSets = 10;
 
 			VK_CHECK(vkCreateDescriptorPool(device.GetVkDevice(), &poolInfo, nullptr, &vkDescriptorPool), "creating descriptor pool");
 		}

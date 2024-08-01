@@ -22,19 +22,12 @@ namespace Baal
 		class SwapChain;
 		class CommandPool;
 		class CommandBuffer;
-		class GraphicsPipeline;
-		class RenderPass;
 		class Framebuffer;
+		class RenderPass;
 		class Allocator;
-		class DescriptorPool;
-		class DescriptorSetLayout;
-		class DescriptorSet;
 		class MeshManager;
 		class Mesh;
 		class MeshInstance;
-
-		class Camera;
-		class Buffer;
 
 		class Renderer
 		{
@@ -43,7 +36,7 @@ namespace Baal
 			Renderer(const Renderer&) = delete;
 			Renderer(Renderer&&) = delete;
 
-			~Renderer();
+			virtual ~Renderer();
 
 			Renderer& operator=(const Renderer&) = delete;
 			Renderer& operator = (Renderer&&) = delete;
@@ -57,10 +50,7 @@ namespace Baal
 			void CreateSwapChainImageViews();
 			void DestroySwapChainImageViews();
 
-			void CreatePipelines();
-			void DestroyPipelines();
-
-			void CreateForwardPipeline();
+			void CreateRenderPass();
 
 			void CreateFramebuffers();
 			void DestroyFramebuffers();
@@ -68,24 +58,12 @@ namespace Baal
 			void CreateDrawCommandBuffers();
 			void DestroyDrawCommandBuffers();
 
-			void RecordDrawCommandBuffer(CommandBuffer& commandBuffer);
-
 			void CreateSyncObjects();
 			void DestroySyncObjects();
 
 			void RecreateSwapChain();
 			void CreateSwapChain();
 			void DestroySwapChain();
-
-			void CreateDescriptorPool();
-			void DestroyDescriptorPool();
-
-			void CreateDescriptorSetLayout();
-			void DestroyDescriptorSetLayout();
-
-			void CreateDescriptorSet();
-
-			void CreateDefaultCamera();
 
 			std::unique_ptr<Instance> instance;
 			std::unique_ptr<LogicalDevice> device;
@@ -97,30 +75,39 @@ namespace Baal
 
 			std::unique_ptr<CommandPool> commandPool;
 			std::vector<CommandBuffer> drawCommands;
-
+			
 			std::unique_ptr<RenderPass> renderPass;
-			std::unique_ptr<GraphicsPipeline> forwardPipeline;
 			std::vector<Framebuffer> framebuffers;
-
+			
+			std::unique_ptr<Allocator> allocator;
+			
 			VkSemaphore acquiredImageReady;
 			VkSemaphore renderComplete;
 			VkFence waitFence;
-
 			uint32_t currentBuffer = 0;
-
-			std::unique_ptr<Allocator> allocator;
-			std::unique_ptr<DescriptorPool> descriptorPool;
-			std::unique_ptr<DescriptorSetLayout> descriptorSetLayout;
-			std::unique_ptr<DescriptorSet> descriptorSet;
-
+			
 			std::unique_ptr<MeshManager> meshManager;
 
-			std::unique_ptr<Camera> camera;
-			std::unique_ptr<Buffer> cameraUniformBuffer;
+		protected:
+			virtual void Initialize() = 0;
+			virtual void Destroy() = 0;
+			virtual void RecordDrawCommandBuffer(CommandBuffer& drawCommand, Framebuffer& frameBuffer) = 0;
+			virtual void PreRender() = 0;
+			virtual void PostRender() = 0;
+
+			Instance& GetInstance();
+			LogicalDevice& GetDevice();
+			Surface& GetSurface();
+			SwapChain& GetSwapChain();
+			CommandPool& GetComandPool();
+			RenderPass& GetRenderPass();
+			Allocator& GetAllocator();
+
+			MeshManager& GetMeshManager();
 
 		public:
-			void Init();
-			void RenderFrame();
+			void Startup();
+			void Render();
 			void Shutdown();
 
 			std::shared_ptr<Mesh> LoadMeshResource(const char* parentDirectory, const char* meshFileName);
