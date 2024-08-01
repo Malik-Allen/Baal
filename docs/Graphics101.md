@@ -1,5 +1,4 @@
 # Intro
-
 A fundamental understanding of the basics will take you a long way. Below are the core concepts of Computer Graphics and Renderering techniques used to achieve it.
 
 ## Resources
@@ -11,7 +10,7 @@ A fundamental understanding of the basics will take you a long way. Below are th
 - https://en.wikipedia.org/wiki/Utah_teapot#
 - https://en.wikipedia.org/wiki/Level_of_detail_(computer_graphics)
 
-# Intro
+# Computer Graphics
 Realistic rendering simulates light using models from physics and computer science to create images.
 
 ## Images and Light
