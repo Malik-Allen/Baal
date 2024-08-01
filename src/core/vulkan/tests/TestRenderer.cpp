@@ -152,7 +152,6 @@ namespace Baal
 		{
 			std::vector<DescriptorSetBinding> bindings;
 			bindings.push_back(DescriptorSetBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, 0, 1));
-			bindings.push_back(DescriptorSetBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, 1, 1));
 
 			descriptorSetLayout = std::make_unique<DescriptorSetLayout>(GetDevice(), bindings);
 		}

@@ -1,18 +1,22 @@
-# Goals
-I will never write this renderer from scratch again, I want to make it simple to use! I never want to go through this again! 
+# Goal
+This document will serve as a general outline for how Vulkan works. Providing my interpretation of the API and its various uses. Mixed in with high-level graphics concepts, where applicable.
 
-...
-...
-...
+I've tried my best to keep things as simple and straight-forward as possible. (There are still a lot of concepts that overlap.)
 
-To my future self, your welcome!
+I've used the Vulkan Specs as the primary resource for all the below information. All resources can be found below:
 
-# Obseravations
+## Resources
+### Vulkan Sources:
+- https://registry.khronos.org/vulkan/specs/1.3/html/
+- https://vulkan-tutorial.com/
+- https://vkguide.dev/
 
-- Device, Instance, Physical Device are good starting points for the renderer
-- Commands, Queues, and Creating Command Buffers will be most likely the next step
-- Will continue reading the specification as go
+### Other Sources:
+- https://en.wikipedia.org/wiki/Z-buffering
+- https://en.wikipedia.org/wiki/Back-face_culling
+- https://en.wikipedia.org/wiki/Multisample_anti-aliasing
 
+# Vulkan
 ## Instance
 The Vulkan `Instance`, simply put, when a `VkInstance` is created, the Vulkan library is initialized.
 
@@ -262,26 +266,7 @@ This allows sharing of resources between other Semaphore objects and other synch
 ## Descriptors
 A descriptor is structure that represents a shader resource. (Buffer, Image, Sampler, etc.) Descriptors are organized into `Descriptor Sets`.
 
-## Constants
-Constants can be used pushed to data to shader at any given stage. To pass in constant to be used within the shader.
-
 ![Descriptor Set Layout](resources/DescriptorSetLayout.png)
 
-# Next Up
-- Push Constant and Shader Module update to allow for dynamic creation of push constants
-- Textures
-- Depth Buffering
-- Cubemap
-- Lighting --> UBO
-- Phong shader
-- Marble
-
-# Resources
-https://registry.khronos.org/vulkan/specs/1.3/html/
-https://vulkan-tutorial.com/
-https://vkguide.dev/
-
-## Graphics Pipeline
-https://en.wikipedia.org/wiki/Z-buffering
-https://en.wikipedia.org/wiki/Back-face_culling
-https://en.wikipedia.org/wiki/Multisample_anti-aliasing
+## Constants
+Constants can be used pushed to data to shader at any given stage. To pass in constant to be used within the shader.

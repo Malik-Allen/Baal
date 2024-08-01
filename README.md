@@ -1,23 +1,28 @@
 # Baal
-A vulkan renderer I will never make from scratch again
+A performant and customizable renderer built using the Vulkan API.
 
-## Outcomes
+## Goals
+- To explore graphics programming and learn about the major topics in the medium. 
+- Develop a high-performance and customizable renderer, that could be used for game and simulation engines.
+
+## Practical Outcomes
 These are the outcomes that I want from this renderer:
-- 3D objects
-- To create planes in 3D space
+- Ability to load/unload 3d models
 - Cubemaps
-- Load and unload Textures
-- Create shaders in GLSL or HLSL
-- Simple UI
-- Simple Camera
-
-# Improvements
+- Post-process effects
+- Ability to load/unload Textures
+- Create and use GLSL shaders
+- MVP for the application/use-case of the Mjolnir Math Library
 - Multi-sampling
-- Seperate Pipeline creation (Skybox, static meshes, dynamic meshes)
-- Semaphore and Fence pool
-- Multiple Frame in flight/being processed while another frame is presented
+- Double/Triple buffering
+- Exploring PBR
+- Lighting
+- Simple implementation of ImGUI
+- A go to resource for my Graphics explorations
 
 # Dependancies
+Dependancies should be present in an adjascent directory to the parent directory of this project, I don't want to use submodules for this work flow, at this time.
+
 ## External Libraries
 - https://vulkan.lunarg.com/
 - https://github.com/glfw/glfw
