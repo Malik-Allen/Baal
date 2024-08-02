@@ -39,7 +39,7 @@ namespace Baal
 
 			if (data != nullptr) 
 			{
-				VK_CHECK(vmaMapMemory(allocator.GetVmaAllocator(), vmaAllocation, reinterpret_cast<void**>(&mappedData)), "vma mapping memory");
+				VK_CHECK(vmaMapMemory(allocator.GetVmaAllocator(), vmaAllocation, reinterpret_cast<void**>(&mappedData)), "vma mapping buffer memory");
 				memcpy(mappedData, data, (size_t)bufferInfo.size);
 				bIsMapped = true;
 			}
@@ -77,7 +77,7 @@ namespace Baal
 		{
 			if (!bIsMapped)
 			{
-				VK_CHECK(vmaMapMemory(allocator.GetVmaAllocator(), vmaAllocation, reinterpret_cast<void**>(&mappedData)), "vma mapping memory");
+				VK_CHECK(vmaMapMemory(allocator.GetVmaAllocator(), vmaAllocation, reinterpret_cast<void**>(&mappedData)), "vma mapping buffer memory");
 				bIsMapped = true;
 			}
 		}

@@ -11,7 +11,6 @@ namespace Baal
 {
 	namespace VK
 	{
-		class LogicalDevice;
 		class Allocator;
 
 		class Buffer
