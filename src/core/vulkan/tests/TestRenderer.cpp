@@ -4,6 +4,7 @@
 
 #include "../src/core/vulkan/devices/LogicalDevice.h"
 #include "../src/core/vulkan/resource/Buffer.h"
+#include "../src/core/vulkan/resource/Image.h"
 #include "../src/core/vulkan/commands/CommandBuffer.h"
 #include "../src/core/vulkan/presentation/SwapChain.h"
 #include "../src/core/vulkan/pipeline/RenderPass.h"
@@ -13,9 +14,10 @@
 #include "../src/core/vulkan/descriptors/DescriptorPool.h"
 #include "../src/core/vulkan/descriptors/DescriptorSetLayout.h"
 #include "../src/core/vulkan/descriptors/DescriptorSet.h"
-#include "../src/core/3d/MeshManager.h"
+#include "../src/core/3d/MeshHandler.h"
 #include "../src/core/3d/Mesh.h"
 #include "../src/core/3d/Camera.h"
+#include "../src/core/3d/Texture2D.h"
 
 namespace Baal
 {
@@ -36,10 +38,16 @@ namespace Baal
 			CreateDescriptorSetLayout();
 			CreatePipelines();
 			CreateDescriptorSet();
+
+			image = std::make_unique<Image>(GetAllocator(), 400, 600, VK_IMAGE_TYPE_2D, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_SAMPLED_BIT, VK_SAMPLE_COUNT_1_BIT, 400 * 600 * 4, nullptr);
+
+			texture = std::make_unique<Texture2D>(BAAL_TEXTURES_DIR, "CheckerboardPattern.png");
 		}
 
 		void TestRenderer::Destroy()
 		{
+			image.reset();
+
 			DestroyPipelines();
 			descriptorSetLayout.reset();
 			descriptorPool.reset();
@@ -85,13 +93,13 @@ namespace Baal
 			VkDeviceSize offsets[] = { 0 };
 
 
-			std::vector<std::shared_ptr<SubMeshInstance>>& subMeshes = GetMeshManager().GetSubMeshInstances();
+			std::vector<std::shared_ptr<SubMeshInstance>>& subMeshes = GetMeshHandler().GetSubMeshInstances();
 			for (size_t i = 0; i < subMeshes.size(); ++i)
 			{
 				vkCmdBindVertexBuffers(commandBuffer.GetVkCommandBuffer(), 0, 1, &subMeshes[i]->vertexBuffer->GetVkBuffer(), offsets);
 				vkCmdBindIndexBuffer(commandBuffer.GetVkCommandBuffer(), subMeshes[i]->indexBuffer->GetVkBuffer(), 0, VK_INDEX_TYPE_UINT32);
 
-				vkCmdPushConstants(commandBuffer.GetVkCommandBuffer(), forwardPipeline->GetVkGraphicsPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(MeshMatrices), &GetMeshManager().GetMeshInstances()[subMeshes[i]->parentId]->matrices);
+				vkCmdPushConstants(commandBuffer.GetVkCommandBuffer(), forwardPipeline->GetVkGraphicsPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(MeshMatrices), &GetMeshHandler().GetMeshInstances()[subMeshes[i]->parentId]->matrices);
 
 				vkCmdBindDescriptorSets(commandBuffer.GetVkCommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, forwardPipeline->GetVkGraphicsPipelineLayout(), 0, 1, &descriptorSet->GetVkDescriptorSet(), 0, nullptr);
 
@@ -105,7 +113,7 @@ namespace Baal
 
 		void TestRenderer::PreRender()
 		{
-			std::vector<std::shared_ptr<MeshInstance>>& meshInstances = GetMeshManager().GetMeshInstances();
+			std::vector<std::shared_ptr<MeshInstance>>& meshInstances = GetMeshHandler().GetMeshInstances();
 			for (size_t i = 0; i < meshInstances.size(); ++i)
 			{
 				if (i % 2 == 0)

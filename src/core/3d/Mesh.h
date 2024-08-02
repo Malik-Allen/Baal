@@ -74,7 +74,7 @@ namespace Baal
 
 		class MeshInstance
 		{
-			friend class MeshManager;
+			friend class MeshHandler;
 			uint32_t id;
 			std::vector<std::shared_ptr<SubMeshInstance>> subMeshes;
 		public:

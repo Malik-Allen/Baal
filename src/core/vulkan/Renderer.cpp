@@ -14,7 +14,7 @@
 #include "../src/core/vulkan/pipeline/Framebuffer.h"
 #include "../src/core/vulkan/resource/Buffer.h"
 #include "../src/core/vulkan/resource/Allocator.h"
-#include "../src/core/3d/MeshManager.h"
+#include "../src/core/3d/MeshHandler.h"
 #include "../src/core/3d/Mesh.h"
 
 #include <vulkan/vulkan_core.h>
@@ -44,7 +44,7 @@ namespace Baal
 
 			commandPool = std::make_unique<CommandPool>(*device.get(), instance->GetGPU().GetQueueFamilyIndex(VK_QUEUE_GRAPHICS_BIT));
 
-			meshManager = std::make_unique<MeshManager>();
+			meshHandler = std::make_unique<MeshHandler>();
 		}
 
 		Renderer::~Renderer() 
@@ -87,9 +87,9 @@ namespace Baal
 			return *allocator.get();
 		}
 
-		MeshManager& Renderer::GetMeshManager()
+		MeshHandler& Renderer::GetMeshHandler()
 		{
-			return *meshManager.get();
+			return *meshHandler.get();
 		}
 
 		void Renderer::Startup()
@@ -173,7 +173,7 @@ namespace Baal
 			DestroyDrawCommandBuffers();
 			DestroyFramebuffers();
 			renderPass.reset();
-			meshManager.reset();
+			meshHandler.reset();
 			DestroySwapChainImageViews();
 			DestroySwapChain();
 			commandPool.reset();
@@ -186,12 +186,12 @@ namespace Baal
 
 		std::shared_ptr<Mesh> Renderer::LoadMeshResource(const char* parentDirectory, const char* meshFileName)
 		{
-			return meshManager->LoadMeshResource(parentDirectory, meshFileName);
+			return meshHandler->LoadMeshResource(parentDirectory, meshFileName);
 		}
 
 		std::shared_ptr<MeshInstance> Renderer::AddMeshInstanceToScene(Mesh& resource)
 		{
-			return meshManager->CreateMeshInstance(*allocator.get(), resource);
+			return meshHandler->CreateMeshInstance(*allocator.get(), resource);
 		}
 
 		std::vector<const char*> Renderer::GetRequiredInstanceExtenstions() const

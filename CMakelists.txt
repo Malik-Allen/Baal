@@ -10,6 +10,7 @@ file(GLOB_RECURSE SOURCES "${PROJECT_SOURCE_DIR}/src/*.cpp")
 # Define the root directory for resources
 set(BAAL_MODELS_DIR "${PROJECT_SOURCE_DIR}/src/resources/models/")
 set(BAAL_SHADERS_DIR "${PROJECT_SOURCE_DIR}/src/resources/shaders/")
+set(BAAL_TEXTURES_DIR "${PROJECT_SOURCE_DIR}/src/resources/textures/")
 
 if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
     # This is the main project
@@ -31,6 +32,7 @@ target_include_directories(Baal PRIVATE
 # Pass the resource directory to the compiler
 target_compile_definitions(Baal PRIVATE BAAL_MODELS_DIR="${BAAL_MODELS_DIR}")
 target_compile_definitions(Baal PRIVATE BAAL_SHADERS_DIR="${BAAL_SHADERS_DIR}")
+target_compile_definitions(Baal PRIVATE BAAL_TEXTURES_DIR="${BAAL_TEXTURES_DIR}")
 
 # Path to the Mjolnir repository
 set(MJOLNIR_PATH ${PROJECT_SOURCE_DIR}/../Mjolnir)

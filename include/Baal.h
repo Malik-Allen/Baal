@@ -19,7 +19,7 @@
 #include "../src/core/vulkan/descriptors/DescriptorPool.h"
 #include "../src/core/vulkan/descriptors/DescriptorSetLayout.h"
 #include "../src/core/vulkan/descriptors/DescriptorSet.h"
-#include "../src/core/3d/MeshManager.h"
+#include "../src/core/3d/MeshHandler.h"
 #include "../src/core/3d/Mesh.h"
 #include "../src/core/3d/Camera.h"
 

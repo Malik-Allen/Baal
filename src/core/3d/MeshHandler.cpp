@@ -1,6 +1,6 @@
 // MIT License, Copyright (c) 2024 Malik Allen
 
-#include "MeshManager.h"
+#include "MeshHandler.h"
 
 #include "../src/core/3d/Mesh.h"
 #include "../src/core/vulkan/resource/Allocator.h"
@@ -12,18 +12,18 @@ namespace Baal
 {
 	namespace VK
 	{
-		MeshManager::MeshManager()
+		MeshHandler::MeshHandler()
 		{
 		}
 
-		MeshManager::~MeshManager()
+		MeshHandler::~MeshHandler()
 		{
 			subMeshInstances.clear();
 			meshInstances.clear();
 			loadedMeshMap.clear();
 		}
 
-		std::shared_ptr<Mesh> MeshManager::LoadMeshResource(const char* parentDirectory, const char* meshFileName)
+		std::shared_ptr<Mesh> MeshHandler::LoadMeshResource(const char* parentDirectory, const char* meshFileName)
 		{
 			const std::string path = std::string(parentDirectory);
 			const std::string fileName = std::string(meshFileName);
@@ -46,7 +46,7 @@ namespace Baal
 			return mesh;
 		}
 
-		std::shared_ptr<MeshInstance> MeshManager::CreateMeshInstance(Allocator& allocator, Mesh& resource)
+		std::shared_ptr<MeshInstance> MeshHandler::CreateMeshInstance(Allocator& allocator, Mesh& resource)
 		{
 			const uint32_t id = static_cast<uint32_t>(meshInstances.size());
 			std::shared_ptr<MeshInstance> instance = std::make_shared<MeshInstance>(allocator, resource, id);

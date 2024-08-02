@@ -1,7 +1,7 @@
 // MIT License, Copyright (c) 2024 Malik Allen
 
-#ifndef BAAL_VK_MESH_MANAGER_H
-#define BAAL_VK_MESH_MANAGER_H
+#ifndef BAAL_VK_MESHHANDLER_H
+#define BAAL_VK_MESHHANDLER_H
 
 #include <unordered_map>
 #include <string>
@@ -17,21 +17,21 @@ namespace Baal
 		struct SubMeshInstance;
 		class Allocator;
 
-		class MeshManager
+		class MeshHandler
 		{
 			std::unordered_map<std::string, std::shared_ptr<Mesh>> loadedMeshMap;
 			std::vector<std::shared_ptr<MeshInstance>> meshInstances;
 			std::vector<std::shared_ptr<SubMeshInstance>> subMeshInstances;
 
 		public:
-			MeshManager();
-			MeshManager(const MeshManager&) = delete;
-			MeshManager(MeshManager&&) = delete;
+			MeshHandler();
+			MeshHandler(const MeshHandler&) = delete;
+			MeshHandler(MeshHandler&&) = delete;
 
-			~MeshManager();
+			~MeshHandler();
 
-			MeshManager& operator=(const MeshManager&) = delete;
-			MeshManager& operator = (MeshManager&&) = delete;
+			MeshHandler& operator=(const MeshHandler&) = delete;
+			MeshHandler& operator = (MeshHandler&&) = delete;
 
 			std::shared_ptr<Mesh> LoadMeshResource(const char* parentDirectory, const char* meshFileName);
 			std::shared_ptr<MeshInstance> CreateMeshInstance(Allocator& allocator, Mesh& resource);
@@ -42,4 +42,4 @@ namespace Baal
 	}
 }
 
-#endif // !BAAL_VK_MESH_MANAGER_H
+#endif // !BAAL_VK_MESHHANDLER_H

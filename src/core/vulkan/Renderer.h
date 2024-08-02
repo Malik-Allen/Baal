@@ -25,7 +25,7 @@ namespace Baal
 		class Framebuffer;
 		class RenderPass;
 		class Allocator;
-		class MeshManager;
+		class MeshHandler;
 		class Mesh;
 		class MeshInstance;
 
@@ -86,7 +86,7 @@ namespace Baal
 			VkFence waitFence;
 			uint32_t currentBuffer = 0;
 			
-			std::unique_ptr<MeshManager> meshManager;
+			std::unique_ptr<MeshHandler> meshHandler;
 
 		protected:
 			virtual void Initialize() = 0;
@@ -103,7 +103,7 @@ namespace Baal
 			RenderPass& GetRenderPass();
 			Allocator& GetAllocator();
 
-			MeshManager& GetMeshManager();
+			MeshHandler& GetMeshHandler();
 
 		public:
 			void Startup();

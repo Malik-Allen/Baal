@@ -10,6 +10,7 @@ namespace Baal
 	namespace VK
 	{
 		class Buffer;
+		class Image;
 		class CommandBuffer;
 		class GraphicsPipeline;
 		class RenderPass;
@@ -18,6 +19,7 @@ namespace Baal
 		class DescriptorSetLayout;
 		class DescriptorSet;
 		class Camera;
+		class Texture2D;
 
 		class TestRenderer : public Renderer
 		{
@@ -46,6 +48,9 @@ namespace Baal
 
 			std::unique_ptr<Camera> camera;
 			std::unique_ptr<Buffer> cameraUniformBuffer;
+
+			std::unique_ptr<Image> image;
+			std::unique_ptr<Texture2D> texture;
 
 			void CreatePipelines();
 			void DestroyPipelines();
