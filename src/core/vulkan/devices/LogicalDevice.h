@@ -41,7 +41,7 @@ namespace Baal
 
 			uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
 
-			CommandBuffer CreateCommandBuffer();
+			CommandBuffer CreateCommandBuffer(bool bBeginCommand = true);
 			void FlushCommandBuffer(CommandBuffer& commandBuffer, VkQueue queue);
 
 			void CopyBuffer(Buffer& source, Buffer& destination, VkDeviceSize size);

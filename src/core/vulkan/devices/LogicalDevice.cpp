@@ -109,9 +109,13 @@ namespace Baal
 			throw std::runtime_error("Failed to find memory type");
 		}
 
-		CommandBuffer LogicalDevice::CreateCommandBuffer()
+		CommandBuffer LogicalDevice::CreateCommandBuffer(bool bBeginCommand /*= true*/)
 		{
 			CommandBuffer outCommandBuffer(*commandPool.get(), VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+			if(bBeginCommand)
+			{
+				outCommandBuffer.BeginRecording(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+			}
 			return outCommandBuffer;
 		}
 
@@ -130,8 +134,6 @@ namespace Baal
 		void LogicalDevice::CopyBuffer(Buffer& source, Buffer& destination, VkDeviceSize size)
 		{
 			CommandBuffer commandBuffer(CreateCommandBuffer());
-			
-			commandBuffer.BeginRecording(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
 			VkBufferCopy copyRegion{};
 			copyRegion.size = size;
