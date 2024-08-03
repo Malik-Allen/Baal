@@ -1,16 +1,20 @@
 // MIT License, Copyright (c) 2024 Malik Allen
 
 #include "LogicalDevice.h"
+
+#include "../src/core/vulkan/debugging/Error.h"
+#include "../src/core/vulkan/initialization/Instance.h"
 #include "../src/core/vulkan/devices/PhysicalDevice.h"
 #include "../src/core/vulkan/presentation/Surface.h"
-#include "../src/core/vulkan/debugging/Error.h"
+#include "../src/core/vulkan/commands/CommandPool.h"
+#include "../src/core/vulkan/resource/Allocator.h"
 
 namespace Baal
 {
 	namespace VK
 	{
-		LogicalDevice::LogicalDevice(const PhysicalDevice& _physicalDevice, Surface& surface, const std::vector<const char*>& requiredExtensions):
-			physicalDevice(_physicalDevice)
+		LogicalDevice::LogicalDevice(Instance& instance, Surface& surface, const std::vector<const char*>& requiredExtensions):
+			physicalDevice(instance.GetGPU())
 		{
 			std::vector<VkDeviceQueueCreateInfo> deviceQueueInfos;
 
@@ -76,10 +80,15 @@ namespace Baal
 					break;
 				}
 			}
+
+			commandPool = std::make_unique<CommandPool>(*this, physicalDevice.GetQueueFamilyIndex(VK_QUEUE_GRAPHICS_BIT));
+			allocator = std::make_unique<Allocator>(instance, *this);
 		}
 
 		LogicalDevice::~LogicalDevice()
 		{
+			commandPool.reset();
+			allocator.reset();
 			vkDestroyDevice(device, nullptr);
 		}
 

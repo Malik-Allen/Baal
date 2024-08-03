@@ -11,15 +11,18 @@ namespace Baal
 {
 	namespace VK
 	{
+		class Instance;
 		class PhysicalDevice;
 		class Surface;
+		class CommandPool;
+		class Allocator;
 
 		// The interface that is used to interact with the vkPhysicalDevice
 		
 		class LogicalDevice
 		{
 		public:
-			explicit LogicalDevice(const PhysicalDevice& _physicalDevice, Surface& surface, const std::vector<const char*>& requiredExtensions = {});
+			explicit LogicalDevice(Instance& instance, Surface& surface, const std::vector<const char*>& requiredExtensions = {});
 			LogicalDevice(const LogicalDevice&) = delete;
 			LogicalDevice(LogicalDevice&&) = delete;
 
@@ -31,6 +34,8 @@ namespace Baal
 			VkDevice& GetVkDevice() { return device; }
 			VkQueue& GetGraphicsQueue() { return graphicsQueue; };
 			VkQueue& GetPresentQueue() { return presentQueue; };
+			CommandPool& GetCommandPool() { return *commandPool.get(); }
+			Allocator& GetAllocator() { return *allocator.get(); }
 
 			uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
 
@@ -40,6 +45,8 @@ namespace Baal
 			VkQueue graphicsQueue{ VK_NULL_HANDLE };
 			VkQueue presentQueue{ VK_NULL_HANDLE };
 			std::vector<const char*> enabledExtensions;
+			std::unique_ptr<CommandPool> commandPool;
+			std::unique_ptr<Allocator> allocator;
 
 			void QueryAvailableExtensions(std::vector<VkExtensionProperties>& outExtensions) const;
 			bool IsExtensionAvailable(const char* extensionName, const std::vector<VkExtensionProperties>& extensions) const;

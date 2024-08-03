@@ -73,13 +73,13 @@ namespace Baal
 			std::unique_ptr<SwapChain> swapChain;
 			std::vector<VkImageView> swapChainImageViews;
 
-			std::unique_ptr<CommandPool> commandPool;
+			
 			std::vector<CommandBuffer> drawCommands;
 			
 			std::unique_ptr<RenderPass> renderPass;
 			std::vector<Framebuffer> framebuffers;
 			
-			std::unique_ptr<Allocator> allocator;
+			
 			
 			VkSemaphore acquiredImageReady;
 			VkSemaphore renderComplete;
@@ -99,7 +99,7 @@ namespace Baal
 			LogicalDevice& GetDevice();
 			Surface& GetSurface();
 			SwapChain& GetSwapChain();
-			CommandPool& GetComandPool();
+			CommandPool& GetCommandPool();
 			RenderPass& GetRenderPass();
 			Allocator& GetAllocator();
 

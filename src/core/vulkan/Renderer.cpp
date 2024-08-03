@@ -36,13 +36,9 @@ namespace Baal
 
 			surface = std::make_unique<Surface>(*instance.get(), window);
 
-			device = std::make_unique<LogicalDevice>(instance->GetGPU(), *surface.get(), deviceExtensions);
-
-			allocator = std::make_unique<Allocator>(*instance.get(), *device.get());
+			device = std::make_unique<LogicalDevice>(*instance.get(), *surface.get(), deviceExtensions);
 
 			CreateSwapChain();
-
-			commandPool = std::make_unique<CommandPool>(*device.get(), instance->GetGPU().GetQueueFamilyIndex(VK_QUEUE_GRAPHICS_BIT));
 
 			meshHandler = std::make_unique<MeshHandler>();
 		}
@@ -72,9 +68,9 @@ namespace Baal
 			return *swapChain.get();
 		}
 
-		CommandPool& Renderer::GetComandPool()
+		CommandPool& Renderer::GetCommandPool()
 		{
-			return *commandPool.get();
+			return device->GetCommandPool();
 		}
 
 		RenderPass& Renderer::GetRenderPass()
@@ -84,7 +80,7 @@ namespace Baal
 
 		Allocator& Renderer::GetAllocator()
 		{
-			return *allocator.get();
+			return device->GetAllocator();
 		}
 
 		MeshHandler& Renderer::GetMeshHandler()
@@ -176,9 +172,7 @@ namespace Baal
 			meshHandler.reset();
 			DestroySwapChainImageViews();
 			DestroySwapChain();
-			commandPool.reset();
 			DestroySyncObjects();
-			allocator.reset();
 			device.reset();
 			surface.reset();
 			instance.reset();
@@ -191,7 +185,7 @@ namespace Baal
 
 		std::shared_ptr<MeshInstance> Renderer::AddMeshInstanceToScene(Mesh& resource)
 		{
-			return meshHandler->CreateMeshInstance(*allocator.get(), resource);
+			return meshHandler->CreateMeshInstance(device->GetAllocator(), resource);
 		}
 
 		std::vector<const char*> Renderer::GetRequiredInstanceExtenstions() const
@@ -306,7 +300,7 @@ namespace Baal
 		{
 			const uint32_t framebufferCount = framebuffers.size();
 			drawCommands.reserve(framebufferCount);
-			VK_CHECK(commandPool->CreateCommandBuffers(framebufferCount, VK_COMMAND_BUFFER_LEVEL_PRIMARY, drawCommands), "creating draw commands");
+			VK_CHECK(GetCommandPool().CreateCommandBuffers(framebufferCount, VK_COMMAND_BUFFER_LEVEL_PRIMARY, drawCommands), "creating draw commands");
 			currentBuffer = 0;
 		}
 
