@@ -10,7 +10,7 @@ namespace Baal
 {
 	namespace VK
 	{
-		class Allocator;
+		class LogicalDevice;
 		class Image;
 
 		struct Texture
@@ -30,7 +30,7 @@ namespace Baal
 			std::unique_ptr<Image> image;
 			uint32_t id = 0;
 		public:
-			explicit TextureInstance(Allocator& allocator, const Texture texture);
+			explicit TextureInstance(LogicalDevice& device, const Texture texture);
 			TextureInstance(const TextureInstance&) = delete;
 			TextureInstance(TextureInstance&&) noexcept = delete;
 

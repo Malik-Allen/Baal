@@ -11,12 +11,12 @@ namespace Baal
 {
 	namespace VK
 	{
-		class Allocator;
+		class LogicalDevice;
 
 		class Image
 		{
 		public:
-			explicit Image(Allocator& _allocator, const uint32_t width, const uint32_t height, VkImageType type, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkSampleCountFlagBits samples, VkDeviceSize _size, void* data);
+			explicit Image(LogicalDevice& _device, const uint32_t width, const uint32_t height, VkImageType type, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkSampleCountFlagBits samples, VkDeviceSize _size, void* data);
 			Image(const Image&) = delete;
 			Image(Image&& other) noexcept;
 
@@ -28,7 +28,7 @@ namespace Baal
 		private:
 			VkImage vkImage{ VK_NULL_HANDLE };
 			VmaAllocation vmaAllocation{ VK_NULL_HANDLE };
-			Allocator& allocator;
+			LogicalDevice& device;
 		};
 	}
 }

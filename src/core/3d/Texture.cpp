@@ -3,8 +3,8 @@
 #include "Texture.h"
 
 #include "../src/core/vulkan/debugging/Error.h"
+#include "../src/core/vulkan/devices/LogicalDevice.h"
 #include "../src/core/vulkan/resource/Image.h"
-#include "../src/core/vulkan/resource/Allocator.h"
 
 #include <string>
 
@@ -15,7 +15,7 @@ namespace Baal
 {
 	namespace VK
 	{
-		TextureInstance::TextureInstance(Allocator& allocator, const Texture texture)
+		TextureInstance::TextureInstance(LogicalDevice& device, const Texture texture)
 		{
 			std::string filePath = std::string(texture.parentDirectory) + std::string(texture.fileName);
 
@@ -37,9 +37,11 @@ namespace Baal
 			DEBUG_LOG(LOG::INFO, "Successfully loaded Texture: {} | [{}x{}] {} channel(s)", texture.fileName, width, height, channels);
 			
 
-			image = std::make_unique<Image>(allocator, static_cast<uint32_t>(width), static_cast<uint32_t>(height), texture.type, texture.format, texture.tiling, texture.usage, texture.samples, imageSize, pixels);
+			image = std::make_unique<Image>(device, static_cast<uint32_t>(width), static_cast<uint32_t>(height), texture.type, texture.format, texture.tiling, texture.usage, texture.samples, imageSize, pixels);
 
 			stbi_image_free(pixels);
+
+
 		}
 
 		TextureInstance::~TextureInstance()

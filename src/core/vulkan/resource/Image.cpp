@@ -2,15 +2,17 @@
 
 #include "Image.h"
 
-#include "../src/core/vulkan/resource/Allocator.h"
 #include "../src/core/vulkan/debugging/Error.h"
+#include "../src/core/vulkan/devices/LogicalDevice.h"
+#include "../src/core/vulkan/resource/Allocator.h"
+#include "../src/core/vulkan/commands/CommandBuffer.h"
 
 namespace Baal
 {
 	namespace VK
 	{
-		Image::Image(Allocator& _allocator, const uint32_t width, const uint32_t height, VkImageType type, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkSampleCountFlagBits samples, VkDeviceSize _size, void* data):
-			allocator(_allocator)
+		Image::Image(LogicalDevice& _device, const uint32_t width, const uint32_t height, VkImageType type, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkSampleCountFlagBits samples, VkDeviceSize _size, void* data):
+			device(_device)
 		{
 			VkImageCreateInfo imageInfo = {VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO};
 			imageInfo.extent.width = width;
@@ -44,11 +46,14 @@ namespace Baal
 				allocInfo.preferredFlags |= VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT;
 			}
 
-			VK_CHECK(vmaCreateImage(allocator.GetVmaAllocator(), &imageInfo, &allocInfo, &vkImage, &vmaAllocation, nullptr), "vma allocating image memory");
+			VK_CHECK(vmaCreateImage(device.GetAllocator().GetVmaAllocator(), &imageInfo, &allocInfo, &vkImage, &vmaAllocation, nullptr), "vma allocating image memory");
+
+			// CommandBuffer commandBuffer(device.CreateCommandBuffer());
+			
 		}
 
 		Image::Image(Image&& other) noexcept:
-			allocator(other.allocator)
+			device(other.device)
 		{
 			vkImage = other.vkImage;
 			vmaAllocation = other.vmaAllocation;
@@ -61,7 +66,7 @@ namespace Baal
 		{
 			if (vkImage != VK_NULL_HANDLE && vmaAllocation != VK_NULL_HANDLE)
 			{
-				vmaDestroyImage(allocator.GetVmaAllocator(), vkImage, vmaAllocation);
+				vmaDestroyImage(device.GetAllocator().GetVmaAllocator(), vkImage, vmaAllocation);
 			}
 		}
 	}
