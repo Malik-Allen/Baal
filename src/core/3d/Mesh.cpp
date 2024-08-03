@@ -57,8 +57,11 @@ namespace Baal
 
 						if (!attrib.texcoords.empty())
 						{
+							// The OBJ format assumes a coordinate system where a vertical coordinate of 0 means the bottom of the image.
+							// Most textures that will be used will be a top to bottom orientation where 0 means the top of the image
+							// So we flip the y-position, of the incoming text coords
 							v.texCoords.x = attrib.texcoords[2 * index.texcoord_index + 0];
-							v.texCoords.y = attrib.texcoords[2 * index.texcoord_index + 1];
+							v.texCoords.y = 1.0f - attrib.texcoords[2 * index.texcoord_index + 1];
 						}						
 
 						if (!attrib.colors.empty())

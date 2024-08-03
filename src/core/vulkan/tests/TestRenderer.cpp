@@ -2,6 +2,7 @@
 
 #include "TestRenderer.h"
 
+#include "../src/core/vulkan/initialization/Instance.h"
 #include "../src/core/vulkan/devices/LogicalDevice.h"
 #include "../src/core/vulkan/resource/Buffer.h"
 #include "../src/core/vulkan/resource/Image.h"
@@ -18,6 +19,7 @@
 #include "../src/core/3d/Mesh.h"
 #include "../src/core/3d/Camera.h"
 #include "../src/core/3d/Texture.h"
+#include "../src/core/vulkan/pipeline/Sampler.h"
 
 namespace Baal
 {
@@ -34,23 +36,28 @@ namespace Baal
 		void TestRenderer::Initialize()
 		{
 			CreateDefaultCamera();
+
+			AddMeshInstanceToScene(*LoadMeshResource(BAAL_MODELS_DIR, "viking_room.obj").get());
+			texture = std::make_unique<TextureInstance>(GetDevice(), Texture(BAAL_TEXTURES_DIR, "viking_room.png", VK_IMAGE_TYPE_2D));
+			textureSampler = std::make_unique<Sampler>(GetDevice(), GetInstance().GetGPU());
+
 			CreateDescriptorPool();
 			CreateDescriptorSetLayout();
 			CreatePipelines();
 			CreateDescriptorSet();
-
-			// image = std::make_unique<Image>(GetDevice(), 400, 600, VK_IMAGE_TYPE_2D, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_SAMPLED_BIT, VK_SAMPLE_COUNT_1_BIT, 400 * 600 * 4, nullptr);
-			texture = std::make_unique<TextureInstance>(GetDevice(), Texture(BAAL_TEXTURES_DIR, "CheckerboardPattern.png", VK_IMAGE_TYPE_2D));
 		}
 
 		void TestRenderer::Destroy()
 		{
-			image.reset();
-			texture.reset();
-
 			DestroyPipelines();
 			descriptorSetLayout.reset();
 			descriptorPool.reset();
+
+			textureSampler.reset();
+
+			image.reset();
+			texture.reset();
+
 			DestroyDefaultCamera();
 		}
 
@@ -118,7 +125,7 @@ namespace Baal
 			{
 				if (i % 2 == 0)
 				{
-					meshInstances[i]->matrices.model = Matrix4f::Translate(Vector3f(1.0f, 1.0f, 1.0f) * static_cast<float>(i)) * Matrix4f::Rotate(45.0f * static_cast<float>(i), Vector3f(0.0f, 1.0f, 0.0f)) * Matrix4f::Scale(Vector3f(1.0f));
+					meshInstances[i]->matrices.model = Matrix4f::Translate(Vector3f(1.0f, 1.0f, 1.0f) * static_cast<float>(i)) * Matrix4f::Rotate(45.0f * static_cast<float>(i), Vector3f(0.0f, 1.0f, 0.0f)) * Matrix4f::Scale(Vector3f(2.0f));
 				}
 			}
 
@@ -142,8 +149,8 @@ namespace Baal
 		void TestRenderer::CreateForwardPipeline()
 		{
 			std::vector<ShaderInfo> shaderInfo;
-			shaderInfo.push_back(ShaderInfo(VK_SHADER_STAGE_VERTEX_BIT, BAAL_SHADERS_DIR, "MVP.vert"));
-			shaderInfo.push_back(ShaderInfo(VK_SHADER_STAGE_FRAGMENT_BIT, BAAL_SHADERS_DIR, "Triangle.frag"));
+			shaderInfo.push_back(ShaderInfo(VK_SHADER_STAGE_VERTEX_BIT, BAAL_SHADERS_DIR, "Texture.vert"));
+			shaderInfo.push_back(ShaderInfo(VK_SHADER_STAGE_FRAGMENT_BIT, BAAL_SHADERS_DIR, "Texture.frag"));
 
 			forwardPipeline = std::make_unique<GraphicsPipeline>(GetDevice(), shaderInfo, GetRenderPass(), *descriptorSetLayout.get(), GetSwapChain().GetExtent().width, GetSwapChain().GetExtent().height);
 		}
@@ -152,6 +159,7 @@ namespace Baal
 		{
 			std::vector<DescriptorPoolSize> poolSizes;
 			poolSizes.push_back(DescriptorPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1));
+			poolSizes.push_back(DescriptorPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1));
 
 			descriptorPool = std::make_unique<DescriptorPool>(GetDevice(), poolSizes);
 		}
@@ -160,6 +168,7 @@ namespace Baal
 		{
 			std::vector<DescriptorSetBinding> bindings;
 			bindings.push_back(DescriptorSetBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, 0, 1));
+			bindings.push_back(DescriptorSetBinding(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1, 1));
 
 			descriptorSetLayout = std::make_unique<DescriptorSetLayout>(GetDevice(), bindings);
 		}
@@ -183,7 +192,26 @@ namespace Baal
 			camDescWrite.pImageInfo = nullptr; // Optional
 			camDescWrite.pTexelBufferView = nullptr; // Optional
 
-			vkUpdateDescriptorSets(GetDevice().GetVkDevice(), 1, &camDescWrite, 0, nullptr);
+			VkDescriptorImageInfo imageInfo{};
+			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			imageInfo.imageView = texture->GetImage().GetVkImageView();
+			imageInfo.sampler = textureSampler->GetVkSampler();
+
+			VkWriteDescriptorSet imageDescWrite = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
+			imageDescWrite.dstSet = descriptorSet->GetVkDescriptorSet();
+			imageDescWrite.dstBinding = 1;
+			imageDescWrite.dstArrayElement = 0;
+			imageDescWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			imageDescWrite.descriptorCount = 1;
+			imageDescWrite.pBufferInfo = nullptr;
+			imageDescWrite.pImageInfo = &imageInfo; // Optional
+			imageDescWrite.pTexelBufferView = nullptr; // Optional
+
+			std::vector<VkWriteDescriptorSet> descriptorWrites;
+			descriptorWrites.push_back(camDescWrite);
+			descriptorWrites.push_back(imageDescWrite);
+
+			vkUpdateDescriptorSets(GetDevice().GetVkDevice(), descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
 		}
 
 		void TestRenderer::CreateDefaultCamera()

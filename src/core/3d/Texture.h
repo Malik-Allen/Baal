@@ -34,6 +34,8 @@ namespace Baal
 
 			TextureInstance& operator=(const TextureInstance&) = delete;
 			TextureInstance& operator = (TextureInstance&&) = delete;
+
+			Image& GetImage() { return *image.get(); }
 		};
 	}
 }

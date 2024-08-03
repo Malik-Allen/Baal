@@ -19,16 +19,7 @@ int main()
 
 	VK::TestRenderer renderer("Test Flight", window);
 
-	// renderer.LoadMesh(BAAL_MODELS_DIR, "spoon.obj");
-
 	renderer.Startup();
-
-	/*for(int i = 0; i < 100; ++i)
-	{*/
-		renderer.AddMeshInstanceToScene(*renderer.LoadMeshResource(BAAL_MODELS_DIR, "teapot.obj").get());
-		renderer.AddMeshInstanceToScene(*renderer.LoadMeshResource(BAAL_MODELS_DIR, "solids.obj").get());
-		renderer.AddMeshInstanceToScene(*renderer.LoadMeshResource(BAAL_MODELS_DIR, "teapot.obj").get());
-	// }	
 
 	for (int i = 0; i < 1000; ++i)
 	{

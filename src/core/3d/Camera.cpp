@@ -8,7 +8,7 @@ namespace Baal
 	{
 		Camera::Camera()
 		{
-			position = Vector3f(0.0f, 10.0f, -9.0f);
+			position = Vector3f(0.0f, 10.0f, -5.0f);
 			orientation = Quatf(0.0f);
 
 			fieldOfView = 45.0f;

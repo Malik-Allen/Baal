@@ -21,11 +21,8 @@ namespace Baal
 				layoutBinding.descriptorType = bindings[i].type;
 				layoutBinding.descriptorCount = bindings[i].count;
 				layoutBinding.stageFlags = bindings[i].stage;
+				layoutBinding.pImmutableSamplers = nullptr;
 
-				if (layoutBinding.descriptorType == VK_DESCRIPTOR_TYPE_SAMPLER)
-				{
-					layoutBinding.pImmutableSamplers = nullptr;
-				}
 				layoutBindings.push_back(layoutBinding);
 			}
 

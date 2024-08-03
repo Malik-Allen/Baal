@@ -20,6 +20,7 @@ namespace Baal
 		class DescriptorSet;
 		class Camera;
 		class TextureInstance;
+		class Sampler;
 
 		class TestRenderer : public Renderer
 		{
@@ -51,6 +52,7 @@ namespace Baal
 
 			std::unique_ptr<Image> image;
 			std::unique_ptr<TextureInstance> texture;
+			std::unique_ptr<Sampler> textureSampler;
 
 			void CreatePipelines();
 			void DestroyPipelines();
