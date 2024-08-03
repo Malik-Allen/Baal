@@ -17,7 +17,7 @@
 #include "../src/core/3d/MeshHandler.h"
 #include "../src/core/3d/Mesh.h"
 #include "../src/core/3d/Camera.h"
-#include "../src/core/3d/Texture2D.h"
+#include "../src/core/3d/Texture.h"
 
 namespace Baal
 {
@@ -41,7 +41,9 @@ namespace Baal
 
 			image = std::make_unique<Image>(GetAllocator(), 400, 600, VK_IMAGE_TYPE_2D, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_SAMPLED_BIT, VK_SAMPLE_COUNT_1_BIT, 400 * 600 * 4, nullptr);
 
-			texture = std::make_unique<Texture2D>(BAAL_TEXTURES_DIR, "CheckerboardPattern.png");
+
+
+			texture = std::make_unique<TextureInstance>(GetAllocator(), Texture(BAAL_TEXTURES_DIR, "CheckerboardPattern.png", VK_IMAGE_TYPE_2D, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_USAGE_SAMPLED_BIT));
 		}
 
 		void TestRenderer::Destroy()

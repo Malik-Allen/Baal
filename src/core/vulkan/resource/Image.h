@@ -25,17 +25,10 @@ namespace Baal
 			Image& operator=(const Image&) = delete;
 			Image& operator = (Image&&) = delete;
 
-			void Update(void* data, const size_t _size);
-
 		private:
 			VkImage vkImage{ VK_NULL_HANDLE };
 			VmaAllocation vmaAllocation{ VK_NULL_HANDLE };
 			Allocator& allocator;
-			uint8_t* mappedData{ nullptr };
-			uint64_t size;
-			bool bIsMapped = false;
-
-			void Map();
 		};
 	}
 }
