@@ -78,9 +78,7 @@ namespace Baal
 			
 			std::unique_ptr<RenderPass> renderPass;
 			std::vector<Framebuffer> framebuffers;
-			
-			
-			
+
 			VkSemaphore acquiredImageReady;
 			VkSemaphore renderComplete;
 			VkFence waitFence;

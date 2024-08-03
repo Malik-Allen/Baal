@@ -15,7 +15,9 @@ namespace Baal
 		class PhysicalDevice;
 		class Surface;
 		class CommandPool;
+		class CommandBuffer;
 		class Allocator;
+		class Buffer;
 
 		// The interface that is used to interact with the vkPhysicalDevice
 		
@@ -38,6 +40,11 @@ namespace Baal
 			Allocator& GetAllocator() { return *allocator.get(); }
 
 			uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
+
+			CommandBuffer CreateCommandBuffer();
+			void FlushCommandBuffer(CommandBuffer& commandBuffer, VkQueue queue);
+
+			void CopyBuffer(Buffer& source, Buffer& destination, VkDeviceSize size);
 
 		private:
 			const PhysicalDevice& physicalDevice;

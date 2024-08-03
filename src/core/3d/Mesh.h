@@ -12,7 +12,6 @@ namespace Baal
 	namespace VK
 	{
 		class Buffer;
-		class Allocator;
 		class DescriptorSet;
 		class LogicalDevice;
 		class DescriptorPool;
@@ -80,7 +79,7 @@ namespace Baal
 		public:
 			MeshMatrices matrices;
 
-			explicit MeshInstance(Allocator& allocator, Mesh& resource, const uint32_t _id);
+			explicit MeshInstance(LogicalDevice& device, Mesh& resource, const uint32_t _id);
 			MeshInstance(const MeshInstance&) = delete;
 			MeshInstance(MeshInstance&&) noexcept = delete;
 

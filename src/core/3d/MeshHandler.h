@@ -15,7 +15,7 @@ namespace Baal
 		class Mesh;
 		class MeshInstance;
 		struct SubMeshInstance;
-		class Allocator;
+		class LogicalDevice;
 
 		class MeshHandler
 		{
@@ -34,7 +34,7 @@ namespace Baal
 			MeshHandler& operator = (MeshHandler&&) = delete;
 
 			std::shared_ptr<Mesh> LoadMeshResource(const char* parentDirectory, const char* meshFileName);
-			std::shared_ptr<MeshInstance> CreateMeshInstance(Allocator& allocator, Mesh& resource);
+			std::shared_ptr<MeshInstance> CreateMeshInstance(LogicalDevice& device, Mesh& resource);
 
 			std::vector<std::shared_ptr<MeshInstance>>& GetMeshInstances() { return meshInstances; }
 			std::vector<std::shared_ptr<SubMeshInstance>>& GetSubMeshInstances() { return subMeshInstances; }

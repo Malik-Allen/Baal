@@ -3,7 +3,7 @@
 #include "MeshHandler.h"
 
 #include "../src/core/3d/Mesh.h"
-#include "../src/core/vulkan/resource/Allocator.h"
+#include "../src/core/vulkan/devices/LogicalDevice.h"
 #include "../src/utility/DebugLog.h"
 #include <cassert>
 #include <algorithm>
@@ -46,10 +46,10 @@ namespace Baal
 			return mesh;
 		}
 
-		std::shared_ptr<MeshInstance> MeshHandler::CreateMeshInstance(Allocator& allocator, Mesh& resource)
+		std::shared_ptr<MeshInstance> MeshHandler::CreateMeshInstance(LogicalDevice& device, Mesh& resource)
 		{
 			const uint32_t id = static_cast<uint32_t>(meshInstances.size());
-			std::shared_ptr<MeshInstance> instance = std::make_shared<MeshInstance>(allocator, resource, id);
+			std::shared_ptr<MeshInstance> instance = std::make_shared<MeshInstance>(device, resource, id);
 			assert(instance != nullptr);
 			meshInstances.push_back(instance);
 			subMeshInstances.insert(subMeshInstances.end(), instance->subMeshes.begin(), instance->subMeshes.end());

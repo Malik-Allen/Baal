@@ -40,15 +40,13 @@ namespace Baal
 			CreateDescriptorSet();
 
 			image = std::make_unique<Image>(GetAllocator(), 400, 600, VK_IMAGE_TYPE_2D, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_SAMPLED_BIT, VK_SAMPLE_COUNT_1_BIT, 400 * 600 * 4, nullptr);
-
-
-
 			texture = std::make_unique<TextureInstance>(GetAllocator(), Texture(BAAL_TEXTURES_DIR, "CheckerboardPattern.png", VK_IMAGE_TYPE_2D, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_USAGE_SAMPLED_BIT));
 		}
 
 		void TestRenderer::Destroy()
 		{
 			image.reset();
+			texture.reset();
 
 			DestroyPipelines();
 			descriptorSetLayout.reset();
@@ -191,7 +189,7 @@ namespace Baal
 		void TestRenderer::CreateDefaultCamera()
 		{
 			camera = std::make_unique<Camera>();
-			cameraUniformBuffer = std::make_unique<Buffer>(GetAllocator(), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, sizeof(CameraMatrices), &camera->GetMatrices());
+			cameraUniformBuffer = std::make_unique<Buffer>(GetAllocator(), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, sizeof(CameraMatrices), &camera->GetMatrices());
 		}
 
 		void TestRenderer::DestroyDefaultCamera()

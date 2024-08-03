@@ -7,7 +7,9 @@
 #include "../src/core/vulkan/devices/PhysicalDevice.h"
 #include "../src/core/vulkan/presentation/Surface.h"
 #include "../src/core/vulkan/commands/CommandPool.h"
+#include "../src/core/vulkan/commands/CommandBuffer.h"
 #include "../src/core/vulkan/resource/Allocator.h"
+#include "../src/core/vulkan/resource/Buffer.h"
 
 namespace Baal
 {
@@ -105,6 +107,37 @@ namespace Baal
 
 			DEBUG_LOG(LOG::ERRORLOG, "Failed to find memory type!");
 			throw std::runtime_error("Failed to find memory type");
+		}
+
+		CommandBuffer LogicalDevice::CreateCommandBuffer()
+		{
+			CommandBuffer outCommandBuffer(*commandPool.get(), VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+			return outCommandBuffer;
+		}
+
+		void LogicalDevice::FlushCommandBuffer(CommandBuffer& commandBuffer, VkQueue queue)
+		{
+			commandBuffer.EndRecording();
+
+			VkSubmitInfo submitInfo = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
+			submitInfo.commandBufferCount = 1;
+			submitInfo.pCommandBuffers = &commandBuffer.GetVkCommandBuffer();
+
+			VK_CHECK(vkQueueSubmit(queue, 1, &submitInfo, nullptr), "flushing command buffer");
+			VK_CHECK(vkQueueWaitIdle(queue), "waiting queue idle");
+		}
+
+		void LogicalDevice::CopyBuffer(Buffer& source, Buffer& destination, VkDeviceSize size)
+		{
+			CommandBuffer commandBuffer(CreateCommandBuffer());
+			
+			commandBuffer.BeginRecording(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+
+			VkBufferCopy copyRegion{};
+			copyRegion.size = size;
+			vkCmdCopyBuffer(commandBuffer.GetVkCommandBuffer(), source.GetVkBuffer(), destination.GetVkBuffer(), 1, &copyRegion);
+
+			FlushCommandBuffer(commandBuffer, GetGraphicsQueue());
 		}
 
 		void LogicalDevice::QueryAvailableExtensions(std::vector<VkExtensionProperties>& outExtensions) const

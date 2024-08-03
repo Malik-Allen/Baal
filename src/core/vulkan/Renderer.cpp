@@ -185,7 +185,7 @@ namespace Baal
 
 		std::shared_ptr<MeshInstance> Renderer::AddMeshInstanceToScene(Mesh& resource)
 		{
-			return meshHandler->CreateMeshInstance(device->GetAllocator(), resource);
+			return meshHandler->CreateMeshInstance(GetDevice(), resource);
 		}
 
 		std::vector<const char*> Renderer::GetRequiredInstanceExtenstions() const

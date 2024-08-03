@@ -9,7 +9,7 @@ namespace Baal
 {
 	namespace VK
 	{
-		Buffer::Buffer(Allocator& _allocator, VkBufferUsageFlags usage, VkDeviceSize _size, void* data, std::vector<uint32_t> queueFamilyIndicies /*= {}*/):
+		Buffer::Buffer(Allocator& _allocator, VkBufferUsageFlags usage, VkMemoryPropertyFlags memoryProperties, VkDeviceSize _size, void* data, std::vector<uint32_t> queueFamilyIndicies /*= {}*/):
 			allocator(_allocator),
 			size(_size)
 		{
@@ -34,6 +34,7 @@ namespace Baal
 			VmaAllocationCreateInfo allocInfo = {};
 			allocInfo.usage = VMA_MEMORY_USAGE_AUTO;
 			allocInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
+			allocInfo.requiredFlags = memoryProperties;
 
 			VK_CHECK(vmaCreateBuffer(allocator.GetVmaAllocator(), &bufferInfo, &allocInfo, &vkBuffer, &vmaAllocation, nullptr), "vma allocating buffer memory");
 
@@ -60,7 +61,10 @@ namespace Baal
 		{
 			if (vkBuffer != VK_NULL_HANDLE && vmaAllocation != VK_NULL_HANDLE)
 			{
-				vmaUnmapMemory(allocator.GetVmaAllocator(), vmaAllocation);
+				if(bIsMapped)
+				{
+					vmaUnmapMemory(allocator.GetVmaAllocator(), vmaAllocation);
+				}
 				vmaDestroyBuffer(allocator.GetVmaAllocator(), vkBuffer, vmaAllocation);
 				bIsMapped = false;
 			}
@@ -73,6 +77,12 @@ namespace Baal
 			memcpy(mappedData, data, size);
 		}
 
+		Buffer Buffer::CreateStagingBuffer(Allocator& allocator, VkDeviceSize _size, void* data)
+		{
+			Buffer outBuffer(allocator, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, _size, data);
+			return outBuffer;
+		}
+
 		void Buffer::Map()
 		{
 			if (!bIsMapped)
@@ -83,3 +93,45 @@ namespace Baal
 		}
 	}
 }
+
+//    void createVertexBuffer()
+//    {
+//        VkDeviceSize bufferSize = sizeof( vertices[0] ) * vertices.size();
+//
+//        VkBuffer stagingBuffer;
+//        VkDeviceMemory stagingBufferMemory;
+//        createBuffer( bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory );
+//
+//        void* data;
+//        vkMapMemory( device, stagingBufferMemory, 0, bufferSize, 0, &data );
+//        memcpy( data, vertices.data(), ( size_t )bufferSize );
+//        vkUnmapMemory( device, stagingBufferMemory );
+//
+//        createBuffer( bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory );
+//
+//        copyBuffer( stagingBuffer, vertexBuffer, bufferSize );
+//
+//        vkDestroyBuffer( device, stagingBuffer, nullptr );
+//        vkFreeMemory( device, stagingBufferMemory, nullptr );
+//    }
+//
+//    void createIndexBuffer()
+//    {
+//        VkDeviceSize bufferSize = sizeof( indices[0] ) * indices.size();
+//
+//        VkBuffer stagingBuffer;
+//        VkDeviceMemory stagingBufferMemory;
+//        createBuffer( bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory );
+//
+//        void* data;
+//        vkMapMemory( device, stagingBufferMemory, 0, bufferSize, 0, &data );
+//        memcpy( data, indices.data(), ( size_t )bufferSize );
+//        vkUnmapMemory( device, stagingBufferMemory );
+//
+//        createBuffer( bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory );
+//
+//        copyBuffer( stagingBuffer, indexBuffer, bufferSize );
+//
+//        vkDestroyBuffer( device, stagingBuffer, nullptr );
+//        vkFreeMemory( device, stagingBufferMemory, nullptr );
+//    }

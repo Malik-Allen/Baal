@@ -108,15 +108,27 @@ namespace Baal
 			indexBuffer.reset();
 		}
 
-		MeshInstance::MeshInstance(Allocator& allocator, Mesh& resource, const uint32_t _id)
+		MeshInstance::MeshInstance(LogicalDevice& device, Mesh& resource, const uint32_t _id)
 		{
 			id = _id;
 			for (size_t i = 0; i < resource.subMeshes.size(); ++i)
 			{
 				std::shared_ptr<SubMeshInstance> subMesh = std::make_shared<SubMeshInstance>(static_cast<uint32_t>(i), id);
-				subMesh->vertexBuffer = std::make_unique<Buffer>(allocator, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, sizeof(resource.subMeshes[i].vertices[0]) * resource.subMeshes[i].vertices.size(), resource.subMeshes[i].vertices.data());
-				subMesh->indexBuffer = std::make_unique<Buffer>(allocator, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, sizeof(resource.subMeshes[i].indices[0]) * resource.subMeshes[i].indices.size(), resource.subMeshes[i].indices.data());
+
+				// Staging vertex data from CPU to GPU memory
+				const VkDeviceSize vertexBufferSize = sizeof(resource.subMeshes[i].vertices[0]) * resource.subMeshes[i].vertices.size();
+				Buffer vertexStagingBuffer = Buffer::CreateStagingBuffer(device.GetAllocator(), vertexBufferSize, resource.subMeshes[i].vertices.data());
+				subMesh->vertexBuffer = std::make_unique<Buffer>(device.GetAllocator(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBufferSize, nullptr);
+				device.CopyBuffer(vertexStagingBuffer, *subMesh->vertexBuffer.get(), vertexBufferSize);
+
+				// Staging index data from CPU to GPU memory
+				const VkDeviceSize indexBufferSize = sizeof(resource.subMeshes[i].indices[0]) * resource.subMeshes[i].indices.size();
+				Buffer indexStagingBuffer = Buffer::CreateStagingBuffer(device.GetAllocator(), indexBufferSize, resource.subMeshes[i].indices.data());
+				subMesh->indexBuffer = std::make_unique<Buffer>(device.GetAllocator(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBufferSize, nullptr);
+				device.CopyBuffer(indexStagingBuffer, *subMesh->indexBuffer.get(), indexBufferSize);
+
 				subMesh->indexCount = static_cast<const uint32_t>(resource.subMeshes[i].indices.size());
+
 				subMeshes.push_back(subMesh);					
 			}
 		}
