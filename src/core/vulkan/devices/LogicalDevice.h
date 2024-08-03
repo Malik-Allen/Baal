@@ -18,6 +18,7 @@ namespace Baal
 		class CommandBuffer;
 		class Allocator;
 		class Buffer;
+		class Image;
 
 		// The interface that is used to interact with the vkPhysicalDevice
 		
@@ -45,6 +46,7 @@ namespace Baal
 			void FlushCommandBuffer(CommandBuffer& commandBuffer, VkQueue queue);
 
 			void CopyBuffer(Buffer& source, Buffer& destination, VkDeviceSize size);
+			void CopyBufferToImage(Buffer& source, Image& destination, const uint32_t width, const uint32_t height);
 
 		private:
 			const PhysicalDevice& physicalDevice;

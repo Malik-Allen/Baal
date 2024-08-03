@@ -5,13 +5,25 @@
 #include "../src/core/vulkan/debugging/Error.h"
 #include "../src/core/vulkan/devices/LogicalDevice.h"
 #include "../src/core/vulkan/resource/Allocator.h"
+#include "../src/core/vulkan/resource/Buffer.h"
 #include "../src/core/vulkan/commands/CommandBuffer.h"
 
 namespace Baal
 {
 	namespace VK
 	{
-		Image::Image(LogicalDevice& _device, const uint32_t width, const uint32_t height, VkImageType type, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkSampleCountFlagBits samples, VkDeviceSize _size, void* data):
+		Image::Image(
+			LogicalDevice& _device, 
+			const uint32_t width, 
+			const uint32_t height, 
+			VkImageType type, 
+			VkFormat format, 
+			VkImageTiling tiling, 
+			VkImageUsageFlags usage, 
+			VkSampleCountFlagBits samples,
+			VkImageViewType viewType,
+			VkDeviceSize _size, 
+			void* data):
 			device(_device)
 		{
 			VkImageCreateInfo imageInfo = {VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO};
@@ -48,8 +60,17 @@ namespace Baal
 
 			VK_CHECK(vmaCreateImage(device.GetAllocator().GetVmaAllocator(), &imageInfo, &allocInfo, &vkImage, &vmaAllocation, nullptr), "vma allocating image memory");
 
-			// CommandBuffer commandBuffer(device.CreateCommandBuffer());
-			
+			VkImageViewCreateInfo viewInfo = {VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO};
+			viewInfo.image = vkImage;
+			viewInfo.viewType = viewType;
+			viewInfo.format = format;
+			viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+			viewInfo.subresourceRange.baseMipLevel = 0;
+			viewInfo.subresourceRange.levelCount = 1;
+			viewInfo.subresourceRange.baseArrayLayer = 0;
+			viewInfo.subresourceRange.layerCount = 1;
+
+			VK_CHECK(vkCreateImageView(device.GetVkDevice(), &viewInfo, nullptr, &vkImageView), "creating image view");
 		}
 
 		Image::Image(Image&& other) noexcept:
@@ -66,8 +87,51 @@ namespace Baal
 		{
 			if (vkImage != VK_NULL_HANDLE && vmaAllocation != VK_NULL_HANDLE)
 			{
+				vkDestroyImageView(device.GetVkDevice(), vkImageView, nullptr);
 				vmaDestroyImage(device.GetAllocator().GetVmaAllocator(), vkImage, vmaAllocation);
 			}
+		}
+
+		void Image::TransitionToLayout(Image& image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout)
+		{
+			CommandBuffer commandBuffer(image.device.CreateCommandBuffer());
+
+			VkImageMemoryBarrier barrier = { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER };
+			barrier.oldLayout = oldLayout;
+			barrier.newLayout = newLayout;
+
+			barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+			barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+
+			barrier.image = image.GetVkImage();
+			barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+			barrier.subresourceRange.baseMipLevel = 0;
+			barrier.subresourceRange.levelCount = 1;
+			barrier.subresourceRange.baseArrayLayer = 0;
+			barrier.subresourceRange.layerCount = 1;
+
+			VkPipelineStageFlags sourceStage = VK_PIPELINE_STAGE_NONE;
+			VkPipelineStageFlags destinationStage = VK_PIPELINE_STAGE_NONE;
+
+			if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
+				barrier.srcAccessMask = 0;
+				barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+
+				sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+				destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+			} 
+			else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) 
+			{
+				barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+				barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+				sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+				destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+			}
+
+			vkCmdPipelineBarrier(commandBuffer.GetVkCommandBuffer(), sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+
+			image.device.FlushCommandBuffer(commandBuffer, image.device.GetGraphicsQueue());
 		}
 	}
 }

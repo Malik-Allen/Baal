@@ -10,6 +10,7 @@
 #include "../src/core/vulkan/commands/CommandBuffer.h"
 #include "../src/core/vulkan/resource/Allocator.h"
 #include "../src/core/vulkan/resource/Buffer.h"
+#include "../src/core/vulkan/resource/Image.h"
 
 namespace Baal
 {
@@ -138,6 +139,33 @@ namespace Baal
 			VkBufferCopy copyRegion{};
 			copyRegion.size = size;
 			vkCmdCopyBuffer(commandBuffer.GetVkCommandBuffer(), source.GetVkBuffer(), destination.GetVkBuffer(), 1, &copyRegion);
+
+			FlushCommandBuffer(commandBuffer, GetGraphicsQueue());
+		}
+
+		void LogicalDevice::CopyBufferToImage(Buffer& source, Image& destination, const uint32_t width, const uint32_t height)
+		{
+			CommandBuffer commandBuffer(CreateCommandBuffer());
+
+			VkBufferImageCopy copyRegion{};
+			
+			copyRegion.bufferOffset = 0;
+			copyRegion.bufferRowLength = 0;
+			copyRegion.bufferImageHeight = 0;
+
+			copyRegion.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+			copyRegion.imageSubresource.mipLevel = 0;
+			copyRegion.imageSubresource.baseArrayLayer = 0;
+			copyRegion.imageSubresource.layerCount = 1;
+
+			copyRegion.imageOffset = {0, 0, 0};
+			copyRegion.imageExtent = {
+				width,
+				height,
+				1
+			};
+
+			vkCmdCopyBufferToImage(commandBuffer.GetVkCommandBuffer(), source.GetVkBuffer(), destination.GetVkImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
 
 			FlushCommandBuffer(commandBuffer, GetGraphicsQueue());
 		}

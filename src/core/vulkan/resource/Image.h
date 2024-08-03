@@ -16,7 +16,19 @@ namespace Baal
 		class Image
 		{
 		public:
-			explicit Image(LogicalDevice& _device, const uint32_t width, const uint32_t height, VkImageType type, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkSampleCountFlagBits samples, VkDeviceSize _size, void* data);
+			explicit Image(
+				LogicalDevice& _device, 
+				const uint32_t width, 
+				const uint32_t height, 
+				VkImageType type, 
+				VkFormat format, 
+				VkImageTiling tiling, 
+				VkImageUsageFlags usage, 
+				VkSampleCountFlagBits samples,
+				VkImageViewType viewType,
+				VkDeviceSize _size, 
+				void* data
+			);
 			Image(const Image&) = delete;
 			Image(Image&& other) noexcept;
 
@@ -25,10 +37,18 @@ namespace Baal
 			Image& operator=(const Image&) = delete;
 			Image& operator = (Image&&) = delete;
 
+			VkImage& GetVkImage() { return vkImage; }
+			VkImageView& GetVkImageView() { return vkImageView; }
+
+			static void TransitionToLayout(Image& image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+
 		private:
 			VkImage vkImage{ VK_NULL_HANDLE };
+			VkImageView vkImageView{ VK_NULL_HANDLE };
 			VmaAllocation vmaAllocation{ VK_NULL_HANDLE };
 			LogicalDevice& device;
+
+			
 		};
 	}
 }

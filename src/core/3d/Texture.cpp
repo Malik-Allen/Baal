@@ -5,6 +5,8 @@
 #include "../src/core/vulkan/debugging/Error.h"
 #include "../src/core/vulkan/devices/LogicalDevice.h"
 #include "../src/core/vulkan/resource/Image.h"
+#include "../src/core/vulkan/resource/Buffer.h"
+#include "../src/core/vulkan/commands/CommandBuffer.h"
 
 #include <string>
 
@@ -26,7 +28,7 @@ namespace Baal
 			int channels = 0;
 
 			stbi_uc* pixels = stbi_load(filePath.c_str(), &width, &height, &channels, STBI_rgb_alpha);
-			VkDeviceSize imageSize = width * height * channels;	// Channels represent the RGBA
+			VkDeviceSize imageSize = width * height * 4;	// Channels represent the RGBA 4 bytes of data per pixel
 
 			if (pixels == nullptr) 
 			{
@@ -35,13 +37,15 @@ namespace Baal
 			}
 
 			DEBUG_LOG(LOG::INFO, "Successfully loaded Texture: {} | [{}x{}] {} channel(s)", texture.fileName, width, height, channels);
-			
 
-			image = std::make_unique<Image>(device, static_cast<uint32_t>(width), static_cast<uint32_t>(height), texture.type, texture.format, texture.tiling, texture.usage, texture.samples, imageSize, pixels);
+			image = std::make_unique<Image>(device, static_cast<uint32_t>(width), static_cast<uint32_t>(height), texture.type, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_SAMPLE_COUNT_1_BIT, VK_IMAGE_VIEW_TYPE_2D, imageSize, pixels);
+
+			Buffer stagingBuffer = Buffer::CreateStagingBuffer(device.GetAllocator(), imageSize, pixels);
+			Image::TransitionToLayout(*image.get(), VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+			device.CopyBufferToImage(stagingBuffer, *image.get(), width, height);
+			Image::TransitionToLayout(*image.get(), VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
 			stbi_image_free(pixels);
-
-
 		}
 
 		TextureInstance::~TextureInstance()

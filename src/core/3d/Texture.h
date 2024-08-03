@@ -17,11 +17,7 @@ namespace Baal
 		{
 			const char* parentDirectory;
 			const char* fileName;
-			VkImageType type;
-			VkFormat format; 
-			VkImageUsageFlags usage;
-			VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL;
-			VkSampleCountFlagBits samples = VK_SAMPLE_COUNT_1_BIT;
+			VkImageType type;			
 		};
 
 		class TextureInstance
