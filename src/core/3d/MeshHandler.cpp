@@ -23,7 +23,7 @@ namespace Baal
 			loadedMeshMap.clear();
 		}
 
-		std::shared_ptr<Mesh> MeshHandler::LoadMeshResource(const char* parentDirectory, const char* meshFileName)
+		std::weak_ptr<Mesh> MeshHandler::LoadMeshResource(const char* parentDirectory, const char* meshFileName)
 		{
 			const std::string path = std::string(parentDirectory);
 			const std::string fileName = std::string(meshFileName);
@@ -31,14 +31,14 @@ namespace Baal
 
 			DEBUG_LOG(LOG::INFO, "Looking up existing Mesh Resource for: {}", completeFilePath);
 
-			std::shared_ptr<Mesh> mesh = loadedMeshMap[fileName];
+			std::shared_ptr<Mesh> mesh = loadedMeshMap[completeFilePath];
 
 			if (mesh == nullptr)
 			{
 				DEBUG_LOG(LOG::INFO, "Could not find existing Mesh Resource for {}... Attempting to create new Mesh Resource!", fileName);
 				mesh = std::make_shared<Mesh>(parentDirectory, meshFileName);
 				assert(mesh != nullptr);
-				loadedMeshMap[fileName] = mesh;
+				loadedMeshMap[completeFilePath] = mesh;
 				return mesh;
 			}
 
@@ -46,7 +46,7 @@ namespace Baal
 			return mesh;
 		}
 
-		std::shared_ptr<MeshInstance> MeshHandler::CreateMeshInstance(LogicalDevice& device, Mesh& resource)
+		std::weak_ptr<MeshInstance> MeshHandler::CreateMeshInstance(LogicalDevice& device, Mesh& resource)
 		{
 			const uint32_t id = static_cast<uint32_t>(meshInstances.size());
 			std::shared_ptr<MeshInstance> instance = std::make_shared<MeshInstance>(device, resource, id);
@@ -55,7 +55,5 @@ namespace Baal
 			subMeshInstances.insert(subMeshInstances.end(), instance->subMeshes.begin(), instance->subMeshes.end());
 			return instance;
 		}
-
-
 	}
 }

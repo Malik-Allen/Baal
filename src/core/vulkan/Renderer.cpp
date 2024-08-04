@@ -220,19 +220,20 @@ namespace Baal
 			instance.reset();
 		}
 
-		std::shared_ptr<Mesh> Renderer::LoadMeshResource(const char* parentDirectory, const char* meshFileName)
+		std::weak_ptr<Mesh> Renderer::LoadMeshResource(const char* parentDirectory, const char* meshFileName)
 		{
 			return meshHandler->LoadMeshResource(parentDirectory, meshFileName);
 		}
 
-		std::shared_ptr<MeshInstance> Renderer::AddMeshInstanceToScene(std::shared_ptr<Mesh> resource)
+		std::weak_ptr<MeshInstance> Renderer::AddMeshInstanceToScene(std::weak_ptr<Mesh> resource)
 		{
-			if (resource == nullptr) 
+			if (resource.expired()) 
 			{
 				DEBUG_LOG(LOG::ERRORLOG, "Failed to add Mesh Instance to scene! Resource Mesh is nullptr, please provide a valid Mesh.");
-				return nullptr;
+				return std::weak_ptr<MeshInstance>();
 			}
-			return meshHandler->CreateMeshInstance(GetDevice(), *resource.get());
+
+			return meshHandler->CreateMeshInstance(GetDevice(), *resource.lock());
 		}
 
 		std::vector<const char*> Renderer::GetRequiredInstanceExtenstions() const

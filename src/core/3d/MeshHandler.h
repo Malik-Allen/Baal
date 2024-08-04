@@ -33,8 +33,8 @@ namespace Baal
 			MeshHandler& operator=(const MeshHandler&) = delete;
 			MeshHandler& operator = (MeshHandler&&) = delete;
 
-			std::shared_ptr<Mesh> LoadMeshResource(const char* parentDirectory, const char* meshFileName);
-			std::shared_ptr<MeshInstance> CreateMeshInstance(LogicalDevice& device, Mesh& resource);
+			std::weak_ptr<Mesh> LoadMeshResource(const char* parentDirectory, const char* meshFileName);
+			std::weak_ptr<MeshInstance> CreateMeshInstance(LogicalDevice& device, Mesh& resource);
 
 			std::vector<std::shared_ptr<MeshInstance>>& GetMeshInstances() { return meshInstances; }
 			std::vector<std::shared_ptr<SubMeshInstance>>& GetSubMeshInstances() { return subMeshInstances; }

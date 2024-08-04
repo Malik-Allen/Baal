@@ -118,8 +118,8 @@ namespace Baal
 			void Render();
 			void Shutdown();
 
-			std::shared_ptr<Mesh> LoadMeshResource(const char* parentDirectory, const char* meshFileName);
-			std::shared_ptr<MeshInstance> AddMeshInstanceToScene(std::shared_ptr<Mesh> resource);
+			std::weak_ptr<Mesh> LoadMeshResource(const char* parentDirectory, const char* meshFileName);
+			std::weak_ptr<MeshInstance> AddMeshInstanceToScene(std::weak_ptr<Mesh> resource);
 		};
 	}
 }
