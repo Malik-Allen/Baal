@@ -37,8 +37,8 @@ namespace Baal
 		{
 			CreateDefaultCamera();
 
-			AddMeshInstanceToScene(*LoadMeshResource(BAAL_MODELS_DIR, "viking_room.obj").get());
-			texture = std::make_unique<TextureInstance>(GetDevice(), Texture(BAAL_TEXTURES_DIR, "viking_room.png", VK_IMAGE_TYPE_2D));
+			AddMeshInstanceToScene(*LoadMeshResource(BAAL_MODELS_DIR, "teapot.obj").get());
+			texture = std::make_unique<TextureInstance>(GetDevice(), Texture(BAAL_TEXTURES_DIR, "CheckerboardPattern.png", VK_IMAGE_TYPE_2D));
 			textureSampler = std::make_unique<Sampler>(GetDevice(), GetInstance().GetGPU());
 
 			CreateDescriptorPool();
@@ -123,10 +123,8 @@ namespace Baal
 			std::vector<std::shared_ptr<MeshInstance>>& meshInstances = GetMeshHandler().GetMeshInstances();
 			for (size_t i = 0; i < meshInstances.size(); ++i)
 			{
-				if (i % 2 == 0)
-				{
-					meshInstances[i]->matrices.model = Matrix4f::Translate(Vector3f(1.0f, 1.0f, 1.0f) * static_cast<float>(i)) * Matrix4f::Rotate(45.0f * static_cast<float>(i), Vector3f(0.0f, 1.0f, 0.0f)) * Matrix4f::Scale(Vector3f(2.0f));
-				}
+
+				meshInstances[i]->matrices.model = Matrix4f::Translate(Vector3f(1.0f, 1.0f, 1.0f) * static_cast<float>(i)) * Matrix4f::Rotate(45.0f * static_cast<float>(i), Vector3f(0.0f, 1.0f, 0.0f)) * Matrix4f::Scale(Vector3f(2.0f));
 			}
 
 			cameraUniformBuffer->Update(&camera->GetMatrices(), sizeof(CameraMatrices));
@@ -216,7 +214,14 @@ namespace Baal
 
 		void TestRenderer::CreateDefaultCamera()
 		{
-			camera = std::make_unique<Camera>();
+			camera = std::make_unique<Camera>(45.0f, AspectRatio::RATIO_4_3);
+
+			camera->SetPosition(Vector3f(0.0f, 15.0f, -15.0f));
+
+			Quatf orientation = camera->GetTransform().GetRotation();
+			Quatf xRotation(Vector3f(1.0f, 0.0f, 0.0f), 45.0f);
+			camera->SetRotation(orientation * xRotation);
+
 			cameraUniformBuffer = std::make_unique<Buffer>(GetAllocator(), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, sizeof(CameraMatrices), &camera->GetMatrices());
 		}
 
