@@ -25,9 +25,12 @@ namespace Baal
 		class Framebuffer;
 		class RenderPass;
 		class Allocator;
+		class Buffer;
 		class MeshHandler;
 		class Mesh;
 		class MeshInstance;
+		class Camera;
+		class RenderCameraResources;
 
 		class Renderer
 		{
@@ -65,6 +68,10 @@ namespace Baal
 			void CreateSwapChain();
 			void DestroySwapChain();
 
+			void CreateDefaultCamera();
+			void DestroyDefaultCamera();
+			void UpdateDefaultCamera();
+
 			std::unique_ptr<Instance> instance;
 			std::unique_ptr<LogicalDevice> device;
 
@@ -73,7 +80,6 @@ namespace Baal
 			std::unique_ptr<SwapChain> swapChain;
 			std::vector<VkImageView> swapChainImageViews;
 
-			
 			std::vector<CommandBuffer> drawCommands;
 			
 			std::unique_ptr<RenderPass> renderPass;
@@ -85,6 +91,7 @@ namespace Baal
 			uint32_t currentBuffer = 0;
 			
 			std::unique_ptr<MeshHandler> meshHandler;
+			std::unique_ptr<RenderCameraResources> cameraResources;
 
 		protected:
 			virtual void Initialize() = 0;
@@ -103,13 +110,16 @@ namespace Baal
 
 			MeshHandler& GetMeshHandler();
 
+			Camera& GetCamera();
+			Buffer& GetCameraUniformBuffer();
+
 		public:
 			void Startup();
 			void Render();
 			void Shutdown();
 
 			std::shared_ptr<Mesh> LoadMeshResource(const char* parentDirectory, const char* meshFileName);
-			std::shared_ptr<MeshInstance> AddMeshInstanceToScene(Mesh& resource);
+			std::shared_ptr<MeshInstance> AddMeshInstanceToScene(std::shared_ptr<Mesh> resource);
 		};
 	}
 }

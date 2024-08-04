@@ -16,6 +16,7 @@
 #include "../src/core/vulkan/resource/Allocator.h"
 #include "../src/core/3d/MeshHandler.h"
 #include "../src/core/3d/Mesh.h"
+#include "../src/core/3d/Camera.h"
 
 #include <vulkan/vulkan_core.h>
 #include <stdexcept>
@@ -88,6 +89,43 @@ namespace Baal
 			return *meshHandler.get();
 		}
 
+		void Renderer::CreateDefaultCamera()
+		{
+			cameraResources = std::make_unique<RenderCameraResources>();
+
+			cameraResources->camera = std::make_unique<Camera>(45.0f, AspectRatio::RATIO_4_3);
+
+			cameraResources->camera->SetPosition(Vector3f(0.0f, 15.0f, -15.0f));
+
+			Quatf orientation = cameraResources->camera->GetTransform().GetRotation();
+			Quatf xRotation(Vector3f(1.0f, 0.0f, 0.0f), 45.0f);
+			cameraResources->camera->SetRotation(orientation * xRotation);
+
+			cameraResources->uniformBuffer = std::make_unique<Buffer>(GetAllocator(), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, sizeof(CameraMatrices), &cameraResources->camera->GetMatrices());
+		}
+
+		void Renderer::DestroyDefaultCamera()
+		{
+			cameraResources->uniformBuffer.reset();
+			cameraResources->camera.reset();
+			cameraResources.reset();
+		}
+
+		void Renderer::UpdateDefaultCamera()
+		{
+			GetCameraUniformBuffer().Update(&GetCamera().GetMatrices(), sizeof(CameraMatrices));
+		}
+
+		Camera& Renderer::GetCamera()
+		{
+			return *cameraResources->camera.get();
+		}
+
+		Buffer& Renderer::GetCameraUniformBuffer()
+		{
+			return *cameraResources->uniformBuffer.get();
+		}
+
 		void Renderer::Startup()
 		{
 			CreateSwapChainImageViews();
@@ -95,11 +133,14 @@ namespace Baal
 			CreateFramebuffers();
 			CreateDrawCommandBuffers();
 			CreateSyncObjects();
+			CreateDefaultCamera();
 			Initialize();
 		}
 
 		void Renderer::Render()
 		{
+			UpdateDefaultCamera();
+
 			PreRender();
 
 			vkWaitForFences(device->GetVkDevice(), 1, &waitFence, VK_TRUE, UINT64_MAX);
@@ -166,6 +207,7 @@ namespace Baal
 		{
 			vkDeviceWaitIdle(device->GetVkDevice());
 			Destroy();
+			DestroyDefaultCamera();
 			DestroyDrawCommandBuffers();
 			DestroyFramebuffers();
 			renderPass.reset();
@@ -183,9 +225,14 @@ namespace Baal
 			return meshHandler->LoadMeshResource(parentDirectory, meshFileName);
 		}
 
-		std::shared_ptr<MeshInstance> Renderer::AddMeshInstanceToScene(Mesh& resource)
+		std::shared_ptr<MeshInstance> Renderer::AddMeshInstanceToScene(std::shared_ptr<Mesh> resource)
 		{
-			return meshHandler->CreateMeshInstance(GetDevice(), resource);
+			if (resource == nullptr) 
+			{
+				DEBUG_LOG(LOG::ERRORLOG, "Failed to add Mesh Instance to scene! Resource Mesh is nullptr, please provide a valid Mesh.");
+				return nullptr;
+			}
+			return meshHandler->CreateMeshInstance(GetDevice(), *resource.get());
 		}
 
 		std::vector<const char*> Renderer::GetRequiredInstanceExtenstions() const

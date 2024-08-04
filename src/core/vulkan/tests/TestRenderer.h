@@ -18,7 +18,6 @@ namespace Baal
 		class DescriptorPool;
 		class DescriptorSetLayout;
 		class DescriptorSet;
-		class Camera;
 		class TextureInstance;
 		class Sampler;
 
@@ -45,10 +44,7 @@ namespace Baal
 
 			std::unique_ptr<DescriptorPool> descriptorPool;
 			std::unique_ptr<DescriptorSetLayout> descriptorSetLayout;
-			std::unique_ptr<DescriptorSet> descriptorSet;			
-
-			std::unique_ptr<Camera> camera;
-			std::unique_ptr<Buffer> cameraUniformBuffer;
+			std::unique_ptr<DescriptorSet> descriptorSet;
 
 			std::unique_ptr<Image> image;
 			std::unique_ptr<TextureInstance> texture;
@@ -61,9 +57,6 @@ namespace Baal
 			void CreateDescriptorPool();
 			void CreateDescriptorSetLayout();
 			void CreateDescriptorSet();
-
-			void CreateDefaultCamera();
-			void DestroyDefaultCamera();
 		};
 	}
 }

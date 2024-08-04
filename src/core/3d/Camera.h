@@ -10,9 +10,7 @@ namespace Baal
 {
 	namespace VK
 	{
-		// TODO: Add enum to lock aspect ratio and unlock aspect ratio
-			// When locked, the window/viewport size will not be considered
-			// When unlocked, the window aspect ratio will be used explcitly
+		class Buffer;
 
 		enum class AspectRatio
 		{
@@ -67,6 +65,12 @@ namespace Baal
 			CameraMatrices matrices;
 
 			void Update();
+		};
+
+		struct RenderCameraResources
+		{
+			std::unique_ptr<Camera> camera;
+			std::unique_ptr<Buffer> uniformBuffer;
 		};
 	}
 }
