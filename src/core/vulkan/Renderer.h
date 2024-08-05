@@ -72,6 +72,9 @@ namespace Baal
 			void DestroyDefaultCamera();
 			void UpdateDefaultCamera();
 
+			void UpdateMeshHandler();
+			void CleanUpMeshHandler();
+
 			std::unique_ptr<Instance> instance;
 			std::unique_ptr<LogicalDevice> device;
 

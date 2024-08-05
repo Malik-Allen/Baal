@@ -18,6 +18,7 @@ namespace Baal
 
 		MeshHandler::~MeshHandler()
 		{
+			garbage.clear();
 			subMeshInstances.clear();
 			meshInstances.clear();
 			loadedMeshMap.clear();
@@ -54,6 +55,60 @@ namespace Baal
 			meshInstances.push_back(instance);
 			subMeshInstances.insert(subMeshInstances.end(), instance->subMeshes.begin(), instance->subMeshes.end());
 			return instance;
+		}
+
+		void MeshHandler::DestroyMeshInstance(std::weak_ptr<MeshInstance> mesh)
+		{
+			if (mesh.expired())
+			{
+				return; // Exit! A non-valid mesh instance cannot be destroyed!
+			}
+
+			std::shared_ptr<MeshInstance> meshToDestroy = mesh.lock();
+
+			const uint32_t lastIndex = meshInstances.size() - 1;
+			std::shared_ptr<MeshInstance> lastMesh = meshInstances[lastIndex];
+
+			lastMesh->id = meshToDestroy->id;	// Take the index for the mesh that is being removed from the vector
+			for (size_t i = 0; i < lastMesh->subMeshes.size(); ++i)
+			{
+				lastMesh->subMeshes[i]->parentId = lastMesh->id;
+			}
+			
+			meshInstances[lastMesh->id] = lastMesh;	// Move the last mesh into its new index.
+
+			// Clean up
+			meshInstances[lastIndex].reset();
+			meshInstances.pop_back();
+
+			// Destroy the target mesh
+			garbage.push_back(meshToDestroy);
+		}
+
+		void MeshHandler::CollectSubMeshesToRender()
+		{
+			subMeshInstances.clear();
+
+			for (size_t i = 0; i < meshInstances.size(); ++i)
+			{
+				for (size_t n = 0; n < meshInstances[i]->subMeshes.size(); ++n)
+				{
+					subMeshInstances.push_back(meshInstances[i]->subMeshes[n]);
+				}
+			}
+		}
+
+		bool MeshHandler::IsGarbageFull() const
+		{
+			return garbage.size() > 0;
+		}
+
+		void MeshHandler::TryEmptyGarbage()
+		{
+			if (IsGarbageFull())
+			{
+				garbage.clear();
+			}
 		}
 	}
 }

@@ -14,7 +14,7 @@ namespace Baal
 	{
 		class Mesh;
 		class MeshInstance;
-		struct SubMeshInstance;
+		class SubMeshInstance;
 		class LogicalDevice;
 
 		class MeshHandler
@@ -22,6 +22,7 @@ namespace Baal
 			std::unordered_map<std::string, std::shared_ptr<Mesh>> loadedMeshMap;
 			std::vector<std::shared_ptr<MeshInstance>> meshInstances;
 			std::vector<std::shared_ptr<SubMeshInstance>> subMeshInstances;
+			std::vector<std::shared_ptr<MeshInstance>> garbage;
 
 		public:
 			MeshHandler();
@@ -34,10 +35,17 @@ namespace Baal
 			MeshHandler& operator = (MeshHandler&&) = delete;
 
 			std::weak_ptr<Mesh> LoadMeshResource(const char* parentDirectory, const char* meshFileName);
+
 			std::weak_ptr<MeshInstance> CreateMeshInstance(LogicalDevice& device, Mesh& resource);
+			void DestroyMeshInstance(std::weak_ptr<MeshInstance> meshInstance);
+
+			void CollectSubMeshesToRender();
 
 			std::vector<std::shared_ptr<MeshInstance>>& GetMeshInstances() { return meshInstances; }
 			std::vector<std::shared_ptr<SubMeshInstance>>& GetSubMeshInstances() { return subMeshInstances; }
+
+			bool IsGarbageFull() const;
+			void TryEmptyGarbage();
 		};
 	}
 }

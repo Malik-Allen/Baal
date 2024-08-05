@@ -20,6 +20,7 @@ namespace Baal
 		class DescriptorSet;
 		class TextureInstance;
 		class Sampler;
+		class MeshInstance;
 
 		class TestRenderer : public Renderer
 		{
@@ -32,6 +33,8 @@ namespace Baal
 
 			TestRenderer& operator=(const TestRenderer&) = delete;
 			TestRenderer& operator = (TestRenderer&&) = delete;
+
+			void DestroyTarget();
 
 		private:
 			virtual void Initialize() override final;
@@ -49,6 +52,8 @@ namespace Baal
 			std::unique_ptr<Image> image;
 			std::unique_ptr<TextureInstance> texture;
 			std::unique_ptr<Sampler> textureSampler;
+
+			std::weak_ptr<MeshInstance> destroyTarget;
 
 			void CreatePipelines();
 			void DestroyPipelines();

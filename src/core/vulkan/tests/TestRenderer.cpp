@@ -33,11 +33,24 @@ namespace Baal
 		{
 		}
 
+		void TestRenderer::DestroyTarget()
+		{
+			GetMeshHandler().DestroyMeshInstance(destroyTarget);
+		}
+
 		void TestRenderer::Initialize()
 		{
 			AddMeshInstanceToScene(LoadMeshResource(BAAL_MODELS_DIR, "teapot.obj"));
 			AddMeshInstanceToScene(LoadMeshResource(BAAL_MODELS_DIR, "teapot.obj"));
+			destroyTarget = AddMeshInstanceToScene(LoadMeshResource(BAAL_MODELS_DIR, "teapot.obj"));
 			AddMeshInstanceToScene(LoadMeshResource(BAAL_MODELS_DIR, "teacup.obj"));
+			AddMeshInstanceToScene(LoadMeshResource(BAAL_MODELS_DIR, "teacup.obj"));
+			AddMeshInstanceToScene(LoadMeshResource(BAAL_MODELS_DIR, "teacup.obj"));
+			AddMeshInstanceToScene(LoadMeshResource(BAAL_MODELS_DIR, "teacup.obj"));
+			AddMeshInstanceToScene(LoadMeshResource(BAAL_MODELS_DIR, "teacup.obj"));
+			AddMeshInstanceToScene(LoadMeshResource(BAAL_MODELS_DIR, "teacup.obj"));
+			AddMeshInstanceToScene(LoadMeshResource(BAAL_MODELS_DIR, "teacup.obj"));
+
 			texture = std::make_unique<TextureInstance>(GetDevice(), Texture(BAAL_TEXTURES_DIR, "CheckerboardPattern.png", VK_IMAGE_TYPE_2D));
 			textureSampler = std::make_unique<Sampler>(GetDevice(), GetInstance().GetGPU());
 
@@ -101,14 +114,14 @@ namespace Baal
 			std::vector<std::shared_ptr<SubMeshInstance>>& subMeshes = GetMeshHandler().GetSubMeshInstances();
 			for (size_t i = 0; i < subMeshes.size(); ++i)
 			{
-				vkCmdBindVertexBuffers(commandBuffer.GetVkCommandBuffer(), 0, 1, &subMeshes[i]->vertexBuffer->GetVkBuffer(), offsets);
-				vkCmdBindIndexBuffer(commandBuffer.GetVkCommandBuffer(), subMeshes[i]->indexBuffer->GetVkBuffer(), 0, VK_INDEX_TYPE_UINT32);
+				vkCmdBindVertexBuffers(commandBuffer.GetVkCommandBuffer(), 0, 1, &subMeshes[i]->GetVertexBuffer().GetVkBuffer(), offsets);
+				vkCmdBindIndexBuffer(commandBuffer.GetVkCommandBuffer(), subMeshes[i]->GetIndexBuffer().GetVkBuffer(), 0, VK_INDEX_TYPE_UINT32);
 
-				vkCmdPushConstants(commandBuffer.GetVkCommandBuffer(), forwardPipeline->GetVkGraphicsPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(MeshMatrices), &GetMeshHandler().GetMeshInstances()[subMeshes[i]->parentId]->matrices);
+				vkCmdPushConstants(commandBuffer.GetVkCommandBuffer(), forwardPipeline->GetVkGraphicsPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(MeshMatrices), &GetMeshHandler().GetMeshInstances()[subMeshes[i]->GetParentId()]->matrices);
 
 				vkCmdBindDescriptorSets(commandBuffer.GetVkCommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, forwardPipeline->GetVkGraphicsPipelineLayout(), 0, 1, &descriptorSet->GetVkDescriptorSet(), 0, nullptr);
 
-				vkCmdDrawIndexed(commandBuffer.GetVkCommandBuffer(), subMeshes[i]->indexCount, 1, 0, 0, 0);
+				vkCmdDrawIndexed(commandBuffer.GetVkCommandBuffer(), subMeshes[i]->GetIndexCount(), 1, 0, 0, 0);
 			}
 
 			vkCmdEndRenderPass(commandBuffer.GetVkCommandBuffer());

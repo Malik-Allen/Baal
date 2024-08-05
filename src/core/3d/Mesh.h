@@ -48,13 +48,17 @@ namespace Baal
 			Mesh& operator = (Mesh&&) = delete;
 		};
 
-		struct SubMeshInstance
+		class SubMeshInstance
 		{
+			friend class MeshHandler;
+			friend class MeshInstance;
+
 			uint32_t id;
 			uint32_t parentId;
 			std::unique_ptr<Buffer> vertexBuffer;
 			std::unique_ptr<Buffer> indexBuffer;
 			uint32_t indexCount;
+		public:
 
 			explicit SubMeshInstance(const uint32_t _id, const uint32_t _parentId);
 			SubMeshInstance(const SubMeshInstance&) = delete;
@@ -64,6 +68,12 @@ namespace Baal
 
 			SubMeshInstance& operator=(const SubMeshInstance&) = delete;
 			SubMeshInstance& operator = (SubMeshInstance&&) = delete;
+
+			Buffer& GetVertexBuffer() { return *vertexBuffer.get(); }
+			Buffer& GetIndexBuffer() { return *indexBuffer.get(); }
+			uint32_t GetIndexCount() const { return indexCount; }
+			uint32_t GetId() const { return id; }
+			uint32_t GetParentId() const { return parentId; }
 		};
 		
 		struct MeshMatrices
@@ -74,8 +84,10 @@ namespace Baal
 		class MeshInstance
 		{
 			friend class MeshHandler;
+
 			uint32_t id;
 			std::vector<std::shared_ptr<SubMeshInstance>> subMeshes;
+
 		public:
 			MeshMatrices matrices;
 

@@ -116,6 +116,20 @@ namespace Baal
 			GetCameraUniformBuffer().Update(&GetCamera().GetMatrices(), sizeof(CameraMatrices));
 		}
 
+		void Renderer::UpdateMeshHandler()
+		{
+			meshHandler->CollectSubMeshesToRender();
+		}
+
+		void Renderer::CleanUpMeshHandler()
+		{
+			if (meshHandler->IsGarbageFull())
+			{
+				vkDeviceWaitIdle(GetDevice().GetVkDevice());
+				meshHandler->TryEmptyGarbage();
+			}
+		}
+
 		Camera& Renderer::GetCamera()
 		{
 			return *cameraResources->camera.get();
@@ -140,6 +154,8 @@ namespace Baal
 		void Renderer::Render()
 		{
 			UpdateDefaultCamera();
+
+			UpdateMeshHandler();
 
 			PreRender();
 
@@ -201,6 +217,8 @@ namespace Baal
 			}
 
 			PostRender();
+
+			CleanUpMeshHandler();
 		}
 
 		void Renderer::Shutdown()

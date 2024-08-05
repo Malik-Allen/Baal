@@ -30,6 +30,11 @@ int main()
 		{
 			DEBUG_LOG(LOG::INFO, "Hello FPS");
 		}
+
+		if (i == 500) 
+		{
+			renderer.DestroyTarget();
+		}
 	}
 	
 	renderer.Shutdown();
