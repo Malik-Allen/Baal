@@ -19,7 +19,7 @@
 #include "../src/core/3d/Mesh.h"
 #include "../src/core/3d/Camera.h"
 #include "../src/core/3d/Texture.h"
-#include "../src/core/vulkan/pipeline/Sampler.h"
+#include "../src/core/vulkan/resource/Sampler.h"
 
 namespace Baal
 {
