@@ -38,12 +38,29 @@ namespace Baal
 
 			DEBUG_LOG(LOG::INFO, "Successfully loaded Texture: {} | [{}x{}] {} channel(s)", texture.fileName, width, height, channels);
 
-			image = std::make_unique<Image>(device, static_cast<uint32_t>(width), static_cast<uint32_t>(height), texture.type, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_SAMPLE_COUNT_1_BIT, VK_IMAGE_VIEW_TYPE_2D, imageSize, pixels);
+			VkImageSubresourceRange subresourceRange = {};
+			subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+			subresourceRange.baseMipLevel = 0;
+			subresourceRange.levelCount = 1;
+			subresourceRange.baseArrayLayer = 0;
+			subresourceRange.layerCount = 1;
+
+			image = std::make_unique<Image>(
+				device, 
+				static_cast<uint32_t>(width), 
+				static_cast<uint32_t>(height), 
+				texture.type, 
+				VK_FORMAT_R8G8B8A8_SRGB, 
+				VK_IMAGE_TILING_OPTIMAL, 
+				VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, 
+				VK_SAMPLE_COUNT_1_BIT, 
+				VK_IMAGE_VIEW_TYPE_2D, 
+				subresourceRange);
 
 			Buffer stagingBuffer = Buffer::CreateStagingBuffer(device.GetAllocator(), imageSize, pixels);
-			Image::TransitionToLayout(*image.get(), VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+			Image::TransitionToLayout(*image.get(), VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, VK_ACCESS_TRANSFER_WRITE_BIT, subresourceRange);
 			device.CopyBufferToImage(stagingBuffer, *image.get(), width, height);
-			Image::TransitionToLayout(*image.get(), VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+			Image::TransitionToLayout(*image.get(), VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT, subresourceRange);
 
 			stbi_image_free(pixels);
 		}

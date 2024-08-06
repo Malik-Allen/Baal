@@ -26,8 +26,7 @@ namespace Baal
 				VkImageUsageFlags usage, 
 				VkSampleCountFlagBits samples,
 				VkImageViewType viewType,
-				VkDeviceSize _size, 
-				void* data
+				VkImageSubresourceRange subresourceRange
 			);
 			Image(const Image&) = delete;
 			Image(Image&& other) noexcept;
@@ -40,7 +39,16 @@ namespace Baal
 			VkImage& GetVkImage() { return vkImage; }
 			VkImageView& GetVkImageView() { return vkImageView; }
 
-			static void TransitionToLayout(Image& image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+			static void TransitionToLayout(
+				Image& image, 
+				VkFormat format,
+				VkImageLayout oldLayout, 
+				VkImageLayout newLayout, 
+				VkPipelineStageFlags srcStage,
+				VkPipelineStageFlags dstStage, 
+				VkAccessFlags srcAccessMask, 
+				VkAccessFlags dstAccessMask, 
+				VkImageSubresourceRange subresouceRange);
 
 		private:
 			VkImage vkImage{ VK_NULL_HANDLE };
