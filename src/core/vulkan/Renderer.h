@@ -23,6 +23,7 @@ namespace Baal
 		class CommandPool;
 		class CommandBuffer;
 		class Framebuffer;
+		class Image;
 		class RenderPass;
 		class Allocator;
 		class Buffer;
@@ -54,6 +55,10 @@ namespace Baal
 			void DestroySwapChainImageViews();
 
 			void CreateRenderPass();
+			void DestroyRenderPass();
+
+			void CreateDepthResources();
+			void DestroyDepthResources();
 
 			void CreateFramebuffers();
 			void DestroyFramebuffers();
@@ -85,6 +90,7 @@ namespace Baal
 
 			std::vector<CommandBuffer> drawCommands;
 			
+			std::unique_ptr<Image> depthImage;
 			std::unique_ptr<RenderPass> renderPass;
 			std::vector<Framebuffer> framebuffers;
 

@@ -14,6 +14,7 @@
 #include "../src/core/vulkan/pipeline/Framebuffer.h"
 #include "../src/core/vulkan/resource/Buffer.h"
 #include "../src/core/vulkan/resource/Allocator.h"
+#include "../src/core/vulkan/resource/Image.h"
 #include "../src/core/3d/MeshHandler.h"
 #include "../src/core/3d/Mesh.h"
 #include "../src/core/3d/Camera.h"
@@ -228,7 +229,7 @@ namespace Baal
 			DestroyDefaultCamera();
 			DestroyDrawCommandBuffers();
 			DestroyFramebuffers();
-			renderPass.reset();
+			DestroyRenderPass();
 			meshHandler.reset();
 			DestroySwapChainImageViews();
 			DestroySwapChain();
@@ -327,7 +328,40 @@ namespace Baal
 
 		void Renderer::CreateRenderPass()
 		{
-			std::vector<Attachment> attachments;
+			VkFormat depthFormat = GetInstance().GetGPU().GetSuitableDepthFormat({ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT });
+
+			VkImageSubresourceRange subresourceRange = {};
+			subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+			subresourceRange.baseMipLevel = 0;
+			subresourceRange.levelCount = 1;
+			subresourceRange.baseArrayLayer = 0;
+			subresourceRange.layerCount = 1;
+
+			depthImage = std::make_unique<Image>(
+				GetDevice(), 
+				GetSwapChain().GetExtent().width,
+				GetSwapChain().GetExtent().height,
+				VK_IMAGE_TYPE_2D, 
+				depthFormat, 
+				VK_IMAGE_TILING_OPTIMAL, 
+				VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, 
+				VK_SAMPLE_COUNT_1_BIT, 
+				VK_IMAGE_VIEW_TYPE_2D, 
+				subresourceRange);
+
+			CommandBuffer commandBuffer(GetDevice().CreateCommandBuffer());
+			Image::TransitionToLayout(
+				*depthImage.get(), 
+				depthFormat, 
+				VK_IMAGE_LAYOUT_UNDEFINED, 
+				VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+				VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 
+				VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT, 
+				0, 
+				VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT, 
+				subresourceRange);
+			GetDevice().FlushCommandBuffer(commandBuffer, GetDevice().GetGraphicsQueue());
+
 
 			Attachment colorAttachment;
 			colorAttachment.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
@@ -341,18 +375,49 @@ namespace Baal
 			colorAttachment.description.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 			colorAttachment.description.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
+			Attachment depthAttachment;
+			depthAttachment.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+			depthAttachment.description.flags = 0;
+			depthAttachment.description.format = depthFormat;
+			depthAttachment.description.samples = VK_SAMPLE_COUNT_1_BIT;
+			depthAttachment.description.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+			depthAttachment.description.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+			depthAttachment.description.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+			depthAttachment.description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+			depthAttachment.description.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+			depthAttachment.description.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+			std::vector<Attachment> attachments;
 			attachments.push_back(colorAttachment);
+			attachments.push_back(depthAttachment);
 
 			renderPass = std::make_unique<RenderPass>(*device.get(), attachments);
 		}
 
+		void Renderer::DestroyRenderPass()
+		{
+			renderPass.reset();
+			depthImage.reset();
+		}
+
+		void Renderer::CreateDepthResources()
+		{
+			
+		}
+
+		void Renderer::DestroyDepthResources()
+		{
+			
+		}
+
 		void Renderer::CreateFramebuffers()
 		{
-			std::vector<VkImageView> attachments(1);
+			std::vector<VkImageView> attachments(2);
 
 			for (size_t i = 0; i < swapChainImageViews.size(); ++i) 
 			{
 				attachments[0] = swapChainImageViews[i];
+				attachments[1] = depthImage->GetVkImageView();
 				framebuffers.push_back(Framebuffer(*device.get(), *renderPass.get(), attachments, swapChain->GetExtent().width, swapChain->GetExtent().height));
 			}
 		}

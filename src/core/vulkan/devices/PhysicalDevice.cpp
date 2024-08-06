@@ -1,7 +1,7 @@
 // MIT License, Copyright (c) 2024 Malik Allen
 
 #include "PhysicalDevice.h"
-#include "../src/utility/DebugLog.h"
+#include "../src/core/vulkan/debugging/Error.h"
 
 namespace Baal
 {
@@ -52,6 +52,32 @@ namespace Baal
 				}
 			}
 			throw std::runtime_error("Could not find matching queue family index");
+		}
+
+		VkFormat PhysicalDevice::GetSuitableDepthFormat(const std::vector<VkFormat>& inDepthformats)
+		{
+			VkFormat depthFormat = VK_FORMAT_UNDEFINED;
+
+			for (auto& format : inDepthformats)
+			{
+				VkFormatProperties properties;
+				vkGetPhysicalDeviceFormatProperties(vkPhysicalDevice, format, &properties);
+
+				// Format must support depth stencil attachment for optimal tiling
+				if (properties.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT)
+				{
+					depthFormat = format;
+					break;
+				}
+			}
+
+			if (depthFormat != VK_FORMAT_UNDEFINED)
+			{
+				DEBUG_LOG(LOG::INFO, "Depth format selected: {}", string_VkFormat(depthFormat));
+				return depthFormat;
+			}
+
+			throw std::runtime_error("No suitable depth format could be determined");
 		}
 	}
 }
