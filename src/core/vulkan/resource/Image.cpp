@@ -25,6 +25,8 @@ namespace Baal
 			VkImageSubresourceRange subresourceRange):
 			device(_device)
 		{
+			vkFormat = format;
+
 			VkImageCreateInfo imageInfo = {VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO};
 			imageInfo.extent.width = width;
 			imageInfo.extent.height = height;
@@ -72,9 +74,12 @@ namespace Baal
 			device(other.device)
 		{
 			vkImage = other.vkImage;
+			vkImageView = other.vkImageView;
 			vmaAllocation = other.vmaAllocation;
+			vkFormat = other.vkFormat;
 
 			other.vkImage = VK_NULL_HANDLE;
+			other.vkImageView = VK_NULL_HANDLE;
 			other.vmaAllocation = VK_NULL_HANDLE;
 		}
 

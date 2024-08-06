@@ -328,40 +328,7 @@ namespace Baal
 
 		void Renderer::CreateRenderPass()
 		{
-			VkFormat depthFormat = GetInstance().GetGPU().GetSuitableDepthFormat({ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT });
-
-			VkImageSubresourceRange subresourceRange = {};
-			subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
-			subresourceRange.baseMipLevel = 0;
-			subresourceRange.levelCount = 1;
-			subresourceRange.baseArrayLayer = 0;
-			subresourceRange.layerCount = 1;
-
-			depthImage = std::make_unique<Image>(
-				GetDevice(), 
-				GetSwapChain().GetExtent().width,
-				GetSwapChain().GetExtent().height,
-				VK_IMAGE_TYPE_2D, 
-				depthFormat, 
-				VK_IMAGE_TILING_OPTIMAL, 
-				VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, 
-				VK_SAMPLE_COUNT_1_BIT, 
-				VK_IMAGE_VIEW_TYPE_2D, 
-				subresourceRange);
-
-			CommandBuffer commandBuffer(GetDevice().CreateCommandBuffer());
-			Image::TransitionToLayout(
-				*depthImage.get(), 
-				depthFormat, 
-				VK_IMAGE_LAYOUT_UNDEFINED, 
-				VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-				VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 
-				VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT, 
-				0, 
-				VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT, 
-				subresourceRange);
-			GetDevice().FlushCommandBuffer(commandBuffer, GetDevice().GetGraphicsQueue());
-
+			CreateDepthResources();
 
 			Attachment colorAttachment;
 			colorAttachment.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
@@ -378,7 +345,7 @@ namespace Baal
 			Attachment depthAttachment;
 			depthAttachment.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
 			depthAttachment.description.flags = 0;
-			depthAttachment.description.format = depthFormat;
+			depthAttachment.description.format = depthImage->GetVkFormat();
 			depthAttachment.description.samples = VK_SAMPLE_COUNT_1_BIT;
 			depthAttachment.description.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 			depthAttachment.description.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -397,17 +364,49 @@ namespace Baal
 		void Renderer::DestroyRenderPass()
 		{
 			renderPass.reset();
-			depthImage.reset();
+			DestroyDepthResources();
 		}
 
 		void Renderer::CreateDepthResources()
 		{
-			
+			VkFormat depthFormat = GetInstance().GetGPU().GetSuitableDepthFormat({ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT });
+
+			VkImageSubresourceRange subresourceRange = {};
+			subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+			subresourceRange.baseMipLevel = 0;
+			subresourceRange.levelCount = 1;
+			subresourceRange.baseArrayLayer = 0;
+			subresourceRange.layerCount = 1;
+
+			depthImage = std::make_unique<Image>(
+				GetDevice(),
+				GetSwapChain().GetExtent().width,
+				GetSwapChain().GetExtent().height,
+				VK_IMAGE_TYPE_2D,
+				depthFormat,
+				VK_IMAGE_TILING_OPTIMAL,
+				VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+				VK_SAMPLE_COUNT_1_BIT,
+				VK_IMAGE_VIEW_TYPE_2D,
+				subresourceRange);
+
+			CommandBuffer commandBuffer(GetDevice().CreateCommandBuffer());
+			Image::TransitionToLayout(
+				*depthImage.get(),
+				depthFormat,
+				VK_IMAGE_LAYOUT_UNDEFINED,
+				VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+				VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+				VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
+				0,
+				VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
+				subresourceRange);
+			GetDevice().FlushCommandBuffer(commandBuffer, GetDevice().GetGraphicsQueue());
 		}
 
 		void Renderer::DestroyDepthResources()
 		{
-			
+			depthImage.reset();
 		}
 
 		void Renderer::CreateFramebuffers()

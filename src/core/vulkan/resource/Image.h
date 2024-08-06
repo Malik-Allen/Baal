@@ -38,6 +38,7 @@ namespace Baal
 
 			VkImage& GetVkImage() { return vkImage; }
 			VkImageView& GetVkImageView() { return vkImageView; }
+			VkFormat& GetVkFormat() { return vkFormat; }
 
 			static void TransitionToLayout(
 				Image& image, 
@@ -55,8 +56,7 @@ namespace Baal
 			VkImageView vkImageView{ VK_NULL_HANDLE };
 			VmaAllocation vmaAllocation{ VK_NULL_HANDLE };
 			LogicalDevice& device;
-
-			
+			VkFormat vkFormat;			
 		};
 	}
 }
