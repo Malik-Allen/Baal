@@ -411,13 +411,9 @@ namespace Baal
 
 		void Renderer::CreateFramebuffers()
 		{
-			std::vector<VkImageView> attachments(2);
-
 			for (size_t i = 0; i < swapChainImageViews.size(); ++i) 
 			{
-				attachments[0] = swapChainImageViews[i];
-				attachments[1] = depthImage->GetVkImageView();
-				framebuffers.push_back(Framebuffer(*device.get(), *renderPass.get(), attachments, swapChain->GetExtent().width, swapChain->GetExtent().height));
+				framebuffers.push_back(Framebuffer(*device.get(), *renderPass.get(), { swapChainImageViews[i], depthImage->GetVkImageView() }, swapChain->GetExtent().width, swapChain->GetExtent().height));
 			}
 		}
 
