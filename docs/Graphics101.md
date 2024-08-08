@@ -9,6 +9,7 @@ A fundamental understanding of the basics will take you a long way. Below are th
 - https://en.wikipedia.org/wiki/List_of_common_3D_test_models
 - https://en.wikipedia.org/wiki/Utah_teapot#
 - https://en.wikipedia.org/wiki/Level_of_detail_(computer_graphics)
+- https://en.wikipedia.org/wiki/Sunbeam
 
 # Computer Graphics
 Realistic rendering simulates light using models from physics and computer science to create images.
@@ -89,5 +90,30 @@ Remember, a Surface is single-sided. By convention, the `front` of a triangle is
 
 ![Indexed Triangle Mesh](resources/IndexedTriangleMesh.png)
 
+
 We use `Mesh Indecies` to maintain the order of Vertices of the triangles of mesh.
+
+# A Model of Light
+A digital camera is just a **measurement device**. It measures the amount of light at each pixel within its sensor and assigns a number value to it. 
+The resulting `Image` is a 2d array of measurements. Which we perceive as an image.
+
+Since images are measurements, rendering is a measurement problem.
+
+We can model a `Light Field` as a mathematical `Ray`. Where we define an `origin` and a `direction`. 
+
+## Crepuscular Rays
+Below is an example of `Crepuscular Rays`, or often called `God Rays`. Where we can see a path of rays coming from the sun towards the ground. 
+
+More precisely, the rays of light pass through many particles in the air, resulting in the scatter of light that we perceive as the path of the light rays from the sun to the ground.
+
+![Crepuscular Rays](resources/CrepuscularRays.jpg)
+
+## Simplifying the Model
+
+For simplicity we can assume the following:
+- Lights Rays in a Light Field are conserved along a path.
+- Light Rays are not absorbed along the path/
+- Light Rays do not collide with one another along paths.
+- Light operates on `instant time`, light is faster than our rendering porgram, so we can just assume that light travels instantly in our simulations
+- Frequency of visible light will be discrete and will be made of `RGB` spectrum, just like what we can see with the human eyes. (Unlike `fluorescent` lights, spectrum of light emmitted from the sun, etc.)
 
