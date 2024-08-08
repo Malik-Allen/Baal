@@ -27,27 +27,12 @@ namespace Baal
 {
 	namespace VK
 	{
-		Renderer::Renderer(const std::string& appName, GLFWwindow* _window)
+		Renderer::Renderer()
 		{
-			window = _window;
-
-			const std::vector<const char*> instanceExtensions = GetRequiredInstanceExtenstions();
-			const std::vector<const char*> deviceExtensions = GetRequiredDeviceExtenstions();
-
-			instance = std::make_unique<Instance>(appName, true, instanceExtensions);
-
-			surface = std::make_unique<Surface>(*instance.get(), window);
-
-			device = std::make_unique<LogicalDevice>(*instance.get(), *surface.get(), deviceExtensions);
-
-			CreateSwapChain();
-
-			meshHandler = std::make_unique<MeshHandler>();
 		}
 
 		Renderer::~Renderer() 
-		{
-			
+		{	
 		}
 
 		Instance& Renderer::GetInstance()
@@ -94,7 +79,7 @@ namespace Baal
 		{
 			cameraResources = std::make_unique<RenderCameraResources>();
 
-			cameraResources->camera = std::make_unique<Camera>(45.0f, AspectRatio::RATIO_4_3);
+			cameraResources->camera = std::make_unique<Camera>(45.0f, AspectRatio::CUSTOM_UNLOCKED, GetSwapChain().GetExtent().width, GetSwapChain().GetExtent().height);
 
 			cameraResources->camera->SetPosition(Vector3f(0.0f, 15.0f, -15.0f));
 
@@ -141,8 +126,9 @@ namespace Baal
 			return *cameraResources->uniformBuffer.get();
 		}
 
-		void Renderer::Startup()
+		void Renderer::Startup(const std::string& appName, GLFWwindow* _window)
 		{
+			Setup(appName, _window);
 			CreateSwapChainImageViews();
 			CreateRenderPass();
 			CreateFramebuffers();
@@ -282,6 +268,24 @@ namespace Baal
 		{
 			const std::vector<const char*> miscExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 			return miscExtensions;
+		}
+
+		void Renderer::Setup(const std::string& appName, GLFWwindow* _window)
+		{
+			window = _window;
+
+			const std::vector<const char*> instanceExtensions = GetRequiredInstanceExtenstions();
+			const std::vector<const char*> deviceExtensions = GetRequiredDeviceExtenstions();
+
+			instance = std::make_unique<Instance>(appName, true, instanceExtensions);
+
+			surface = std::make_unique<Surface>(*instance.get(), window);
+
+			device = std::make_unique<LogicalDevice>(*instance.get(), *surface.get(), deviceExtensions);
+
+			CreateSwapChain();
+
+			meshHandler = std::make_unique<MeshHandler>();
 		}
 
 		void Renderer::CreateSwapChainImageViews()
@@ -460,11 +464,18 @@ namespace Baal
 
 			DestroyFramebuffers();
 			DestroySwapChainImageViews();
+			DestroyDepthResources();
 			DestroySwapChain();
 
 			CreateSwapChain();
 			CreateSwapChainImageViews();
+			CreateDepthResources();
 			CreateFramebuffers();
+
+			if (GetCamera().IsAspectRatioDynamic())
+			{
+				GetCamera().SetAspectRatio(AspectRatio::CUSTOM_UNLOCKED, GetSwapChain().GetExtent().width, GetSwapChain().GetExtent().height);
+			}
 		}
 
 		void Renderer::CreateSwapChain()

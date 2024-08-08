@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <array>
 
 #include <vulkan/vulkan_core.h>
 
@@ -36,7 +37,7 @@ namespace Baal
 		class Renderer
 		{
 		public:
-			explicit Renderer(const std::string& appName, GLFWwindow* _window);
+			Renderer();
 			Renderer(const Renderer&) = delete;
 			Renderer(Renderer&&) = delete;
 
@@ -50,6 +51,8 @@ namespace Baal
 			std::vector<const char*> GetRequiredGLFWExtenstions() const;
 
 			std::vector<const char*> GetRequiredDeviceExtenstions() const;
+
+			void Setup(const std::string& appName, GLFWwindow* _window);
 
 			void CreateSwapChainImageViews();
 			void DestroySwapChainImageViews();
@@ -83,7 +86,7 @@ namespace Baal
 			std::unique_ptr<Instance> instance;
 			std::unique_ptr<LogicalDevice> device;
 
-			GLFWwindow* window;
+			GLFWwindow* window = nullptr;
 			std::unique_ptr<Surface> surface;
 			std::unique_ptr<SwapChain> swapChain;
 			std::vector<VkImageView> swapChainImageViews;
@@ -94,9 +97,9 @@ namespace Baal
 			std::unique_ptr<RenderPass> renderPass;
 			std::vector<Framebuffer> framebuffers;
 
-			VkSemaphore acquiredImageReady;
-			VkSemaphore renderComplete;
-			VkFence waitFence;
+			VkSemaphore acquiredImageReady{ VK_NULL_HANDLE };
+			VkSemaphore renderComplete{ VK_NULL_HANDLE };
+			VkFence waitFence{ VK_NULL_HANDLE };
 			uint32_t currentBuffer = 0;
 			
 			std::unique_ptr<MeshHandler> meshHandler;
@@ -123,7 +126,7 @@ namespace Baal
 			Buffer& GetCameraUniformBuffer();
 
 		public:
-			void Startup();
+			void Startup(const std::string& appName, GLFWwindow* _window);
 			void Render();
 			void Shutdown();
 

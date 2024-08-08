@@ -25,7 +25,7 @@ namespace Baal
 		class TestRenderer : public Renderer
 		{
 		public:
-			explicit TestRenderer(const std::string& appName, GLFWwindow* _window);
+			TestRenderer();
 			TestRenderer(const TestRenderer&) = delete;
 			TestRenderer(TestRenderer&&) = delete;
 
@@ -49,7 +49,6 @@ namespace Baal
 			std::unique_ptr<DescriptorSetLayout> descriptorSetLayout;
 			std::unique_ptr<DescriptorSet> descriptorSet;
 
-			std::unique_ptr<Image> image;
 			std::unique_ptr<TextureInstance> texture;
 			std::unique_ptr<Sampler> textureSampler;
 

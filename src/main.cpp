@@ -17,9 +17,9 @@ int main()
 	
 	window = glfwCreateWindow( 800, 600, "Vulkan", nullptr, nullptr );
 
-	VK::TestRenderer renderer("Test Flight", window);
+	VK::TestRenderer renderer;
 
-	renderer.Startup();
+	renderer.Startup("Test Flight", window);
 
 	for (int i = 0; i < 1000; ++i)
 	{

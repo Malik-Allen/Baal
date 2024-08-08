@@ -27,8 +27,7 @@ namespace Baal
 {
 	namespace VK
 	{
-		TestRenderer::TestRenderer(const std::string& appName, GLFWwindow* _window):
-			Renderer(appName, _window)
+		TestRenderer::TestRenderer()
 		{}
 
 		TestRenderer::~TestRenderer()
@@ -69,8 +68,6 @@ namespace Baal
 			descriptorPool.reset();
 
 			textureSampler.reset();
-
-			image.reset();
 			texture.reset();
 		}
 

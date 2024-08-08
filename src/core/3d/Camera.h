@@ -23,7 +23,8 @@ namespace Baal
 			RATIO_5_4,
 			RATIO_2_35_1,
 			RATIO_2_39_1,
-			CUSTOM
+			CUSTOM_LOCKED,
+			CUSTOM_UNLOCKED
 		};
 
 		struct CameraMatrices
@@ -52,6 +53,9 @@ namespace Baal
 
 			void SetPosition(Vector3f position);
 			void SetRotation(Quatf orientation);
+			void SetAspectRatio(const AspectRatio _aspectRatio = AspectRatio::RATIO_4_3, const uint32_t width = 0, const uint32_t height = 0);
+			void SetFOV(const float FOV);
+			bool IsAspectRatioDynamic() const;
 
 		private:
 			Transform transform;
@@ -64,7 +68,8 @@ namespace Baal
 
 			CameraMatrices matrices;
 
-			void Update();
+			void UpdateViewMatrix();
+			void UpdateProjectionMatrix();
 		};
 
 		struct RenderCameraResources
