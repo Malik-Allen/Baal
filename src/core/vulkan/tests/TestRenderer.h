@@ -4,6 +4,7 @@
 #define BAAL_VK_TEST_RENDERER_H
 
 #include "../src/core/vulkan/Renderer.h"
+#include "../src/core/3d/Light.h"
 
 namespace Baal
 {
@@ -54,6 +55,10 @@ namespace Baal
 
 			std::weak_ptr<MeshInstance> destroyTarget;
 
+			uint32_t dynamicAlignment;
+			std::unique_ptr<Buffer> lightsUBO;
+			std::vector<PointLight> lights;
+
 			void CreatePipelines();
 			void DestroyPipelines();
 			void CreateForwardPipeline();
@@ -61,6 +66,9 @@ namespace Baal
 			void CreateDescriptorPool();
 			void CreateDescriptorSetLayout();
 			void CreateDescriptorSet();
+
+			void CreateLights();
+			void DestroyLights();
 		};
 	}
 }

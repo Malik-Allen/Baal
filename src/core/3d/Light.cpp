@@ -6,11 +6,5 @@ namespace Baal
 {
 	namespace VK
 	{
-		Light::Light():
-			color(255, 255, 0)
-		{}
-
-		Light::~Light()
-		{}
 	}
 }

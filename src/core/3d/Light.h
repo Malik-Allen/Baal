@@ -9,27 +9,10 @@ namespace Baal
 {
 	namespace VK
 	{
-		// PointLight
-			// Vector3f origin;
-		// SpotLight
-			// Some cone like structure
-		// DirectionalLight
-			// Ray3Df ray;
-
-		class Light
+		struct alignas(16) PointLight
 		{
-		public:
-			Light();
-			Light(const Light&) = delete;
-			Light(Light&&) = delete;
-
-			~Light();
-
-			Light& operator=(const Light&) = delete;
-			Light& operator = (Light&&) = delete;
-
-		private:
-			Color color;
+			Vector3f positon;
+			Color color = Color(255, 255, 255);
 		};
 	}
 }
