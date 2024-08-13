@@ -154,6 +154,12 @@ namespace Baal
 			GetDirectionalLight().color.b += 3;
 
 			GetDirectionalLightUniformBuffer().Update(&GetDirectionalLight(), GetDirectionalLightUniformBuffer().GetSize());
+
+			GetPointLight(3).color.r -= 1;
+			GetPointLight(3).color.g -= 2;
+			GetPointLight(3).color.b -= 3;
+
+			GetPointLightsUniformBuffer().Update(&GetPointLight(3), sizeof(PointLight), 3 * sizeof(PointLight));
 		}
 
 		void TestRenderer::PostRender()
@@ -185,7 +191,7 @@ namespace Baal
 			poolSizes.push_back(DescriptorPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1));
 			poolSizes.push_back(DescriptorPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1));
 			poolSizes.push_back(DescriptorPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1));
-			poolSizes.push_back(DescriptorPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1));
+			poolSizes.push_back(DescriptorPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 2));
 
 			descriptorPool = std::make_unique<DescriptorPool>(GetDevice(), poolSizes);
 		}
@@ -197,6 +203,7 @@ namespace Baal
 			bindings.push_back(DescriptorSetBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, VK_SHADER_STAGE_VERTEX_BIT, 1, 1));
 			bindings.push_back(DescriptorSetBinding(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 2, 1));
 			bindings.push_back(DescriptorSetBinding(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, 3, 1));
+			bindings.push_back(DescriptorSetBinding(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, 4, 1));
 			
 			descriptorSetLayout = std::make_unique<DescriptorSetLayout>(GetDevice(), bindings);
 		}
@@ -265,11 +272,27 @@ namespace Baal
 			dlightDescWrite.pImageInfo = nullptr; // Optional
 			dlightDescWrite.pTexelBufferView = nullptr; // Optional
 
+			VkDescriptorBufferInfo plightInfo{};
+			plightInfo.buffer = GetPointLightsUniformBuffer().GetVkBuffer();
+			plightInfo.offset = 0;
+			plightInfo.range = GetPointLightsUniformBuffer().GetSize();
+
+			VkWriteDescriptorSet plightDescWrite = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
+			plightDescWrite.dstSet = descriptorSet->GetVkDescriptorSet();
+			plightDescWrite.dstBinding = 4;
+			plightDescWrite.dstArrayElement = 0;
+			plightDescWrite.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			plightDescWrite.descriptorCount = 1;
+			plightDescWrite.pBufferInfo = &plightInfo;
+			plightDescWrite.pImageInfo = nullptr; // Optional
+			plightDescWrite.pTexelBufferView = nullptr; // Optional
+
 			std::vector<VkWriteDescriptorSet> descriptorWrites;
 			descriptorWrites.push_back(camDescWrite);
 			descriptorWrites.push_back(lightDescWrite);
 			descriptorWrites.push_back(imageDescWrite);
 			descriptorWrites.push_back(dlightDescWrite);
+			descriptorWrites.push_back(plightDescWrite);
 
 			vkUpdateDescriptorSets(GetDevice().GetVkDevice(), descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
 		}
@@ -313,6 +336,8 @@ namespace Baal
 			{
 				lightsUBO->Update(&lights[i], dynamicAlignment, (i * dynamicAlignment));
 			}
+
+
 		}
 
 		void TestRenderer::DestroyLights()

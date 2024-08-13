@@ -1,5 +1,7 @@
 #version 450
 
+#define MAX_LIGHTS 8
+
 layout(binding = 0) uniform CameraMatrices {
     mat4 model;
     mat4 view;
@@ -8,6 +10,8 @@ layout(binding = 0) uniform CameraMatrices {
 
 struct PointLight {
     uint color;
+    float intensity;
+    float attenuation;
     vec3 position;
 };
 
@@ -32,6 +36,10 @@ layout(binding = 3) buffer direcLighting {
     DirectionalLight directionalLight;
 };
 
+layout(binding = 4) buffer pointLighting {
+    PointLight pointLights[MAX_LIGHTS];
+};
+
 layout(push_constant) uniform constants {
     mat4 model;
 } mesh;
@@ -47,7 +55,8 @@ layout(location = 1) out vec2 fragTexCoord;
 void main() {
     gl_Position = camera.proj * camera.view * mesh.model * vec4(inPos, 1.0);
 
-    DirectionalLight light = directionalLight;
+    // DirectionalLight light = directionalLight;
+    PointLight light = pointLights[7];
     float r = float((light.color >> 0) & 0xFF) / 255.0;
     float g = float((light.color >> 8) & 0xFF) / 255.0;
     float b = float((light.color >> 16) & 0xFF) / 255.0;
