@@ -9,7 +9,7 @@ namespace Baal
 {
 	namespace VK
 	{
-		Buffer::Buffer(Allocator& _allocator, VkBufferUsageFlags usage, VkMemoryPropertyFlags memoryProperties, VkDeviceSize _size, void* data, std::vector<uint32_t> queueFamilyIndicies /*= {}*/):
+		Buffer::Buffer(Allocator& _allocator, VkBufferUsageFlags usage, VkMemoryPropertyFlags memoryProperties, VkDeviceSize _size, std::vector<uint32_t> queueFamilyIndicies /*= {}*/):
 			allocator(_allocator),
 			size(_size)
 		{
@@ -36,14 +36,9 @@ namespace Baal
 			allocInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
 			allocInfo.requiredFlags = memoryProperties;
 
-			VK_CHECK(vmaCreateBuffer(allocator.GetVmaAllocator(), &bufferInfo, &allocInfo, &vkBuffer, &vmaAllocation, nullptr), "vma allocating buffer memory");
+			bIsCoherent = (memoryProperties & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) == VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
 
-			if (data != nullptr) 
-			{
-				VK_CHECK(vmaMapMemory(allocator.GetVmaAllocator(), vmaAllocation, reinterpret_cast<void**>(&mappedData)), "vma mapping buffer memory");
-				memcpy(mappedData, data, (size_t)bufferInfo.size);
-				bIsMapped = true;
-			}
+			VK_CHECK(vmaCreateBuffer(allocator.GetVmaAllocator(), &bufferInfo, &allocInfo, &vkBuffer, &vmaAllocation, nullptr), "vma allocating buffer memory");
 		}
 
 		Buffer::Buffer(Buffer&& other) noexcept :
@@ -61,25 +56,25 @@ namespace Baal
 		{
 			if (vkBuffer != VK_NULL_HANDLE && vmaAllocation != VK_NULL_HANDLE)
 			{
-				if(bIsMapped)
-				{
-					vmaUnmapMemory(allocator.GetVmaAllocator(), vmaAllocation);
-				}
+				Unmap();
 				vmaDestroyBuffer(allocator.GetVmaAllocator(), vkBuffer, vmaAllocation);
 				bIsMapped = false;
 			}
 		}
 
-		void Buffer::Update(void* data, const size_t _size)
+		size_t Buffer::Update(void* data, const size_t _size, size_t offset /*= 0*/)
 		{
 			Map();
-			size = _size;
-			memcpy(mappedData, data, size);
+			memcpy(mappedData + offset, data, _size);
+			Flush();
+			Unmap();
+			return _size;
 		}
 
 		Buffer Buffer::CreateStagingBuffer(Allocator& allocator, VkDeviceSize _size, void* data)
 		{
-			Buffer outBuffer(allocator, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, _size, data);
+			Buffer outBuffer(allocator, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, _size);
+			outBuffer.Update(data, _size);
 			return outBuffer;
 		}
 
@@ -89,6 +84,23 @@ namespace Baal
 			{
 				VK_CHECK(vmaMapMemory(allocator.GetVmaAllocator(), vmaAllocation, reinterpret_cast<void**>(&mappedData)), "vma mapping buffer memory");
 				bIsMapped = true;
+			}
+		}
+
+		void Buffer::Unmap()
+		{
+			if(bIsMapped)
+			{
+				vmaUnmapMemory(allocator.GetVmaAllocator(), vmaAllocation);
+				bIsMapped = false;
+			}
+		}
+
+		void Buffer::Flush()
+		{
+			if(!bIsCoherent)
+			{
+				VK_CHECK(vmaFlushAllocation(allocator.GetVmaAllocator(), vmaAllocation, 0, size), "flushing buffer memory allocation");
 			}
 		}
 	}

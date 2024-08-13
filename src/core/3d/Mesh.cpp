@@ -121,13 +121,13 @@ namespace Baal
 				// Staging vertex data from CPU to GPU memory
 				const VkDeviceSize vertexBufferSize = sizeof(resource.subMeshes[i].vertices[0]) * resource.subMeshes[i].vertices.size();
 				Buffer vertexStagingBuffer = Buffer::CreateStagingBuffer(device.GetAllocator(), vertexBufferSize, resource.subMeshes[i].vertices.data());
-				subMesh->vertexBuffer = std::make_unique<Buffer>(device.GetAllocator(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBufferSize, nullptr);
+				subMesh->vertexBuffer = std::make_unique<Buffer>(device.GetAllocator(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBufferSize);
 				device.CopyBuffer(vertexStagingBuffer, *subMesh->vertexBuffer.get(), vertexBufferSize);
 
 				// Staging index data from CPU to GPU memory
 				const VkDeviceSize indexBufferSize = sizeof(resource.subMeshes[i].indices[0]) * resource.subMeshes[i].indices.size();
 				Buffer indexStagingBuffer = Buffer::CreateStagingBuffer(device.GetAllocator(), indexBufferSize, resource.subMeshes[i].indices.data());
-				subMesh->indexBuffer = std::make_unique<Buffer>(device.GetAllocator(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBufferSize, nullptr);
+				subMesh->indexBuffer = std::make_unique<Buffer>(device.GetAllocator(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBufferSize);
 				device.CopyBuffer(indexStagingBuffer, *subMesh->indexBuffer.get(), indexBufferSize);
 
 				subMesh->indexCount = static_cast<const uint32_t>(resource.subMeshes[i].indices.size());
