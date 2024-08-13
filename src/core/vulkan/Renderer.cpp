@@ -18,6 +18,7 @@
 #include "../src/core/3d/MeshHandler.h"
 #include "../src/core/3d/Mesh.h"
 #include "../src/core/3d/Camera.h"
+#include "../src/core/3d/Light.h"
 
 #include <vulkan/vulkan_core.h>
 #include <stdexcept>
@@ -116,6 +117,34 @@ namespace Baal
 			}
 		}
 
+		void Renderer::CreateLightSources()
+		{
+			directionalLight = std::make_unique<DirectionalLightSource>();
+			const VkDeviceSize direcBufferSize = sizeof(directionalLight->light);
+			Buffer direcStagingBuffer = Buffer::CreateStagingBuffer(GetAllocator(), direcBufferSize, &directionalLight->light);
+			directionalLight->buffer = std::make_unique<Buffer>(GetAllocator(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, direcBufferSize);
+			GetDevice().CopyBuffer(direcStagingBuffer, *directionalLight->buffer.get(), direcBufferSize);
+
+			pointLights = std::make_unique<PointLightSourceArray>();
+			const VkDeviceSize pointBufferSize = sizeof(pointLights->lights[0]) * pointLights->lights.size();
+			Buffer pointStagingBuffer = Buffer::CreateStagingBuffer(GetAllocator(), pointBufferSize, pointLights->lights.data());
+			pointLights->buffer = std::make_unique<Buffer>(GetAllocator(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, pointBufferSize);
+			GetDevice().CopyBuffer(pointStagingBuffer, *pointLights->buffer.get(), pointBufferSize);
+
+			spotLights = std::make_unique<SpotLightSourceArray>();
+			const VkDeviceSize spotBufferSize = sizeof(spotLights->lights[0]) * spotLights->lights.size();
+			Buffer spotStagingBuffer = Buffer::CreateStagingBuffer(GetAllocator(), spotBufferSize, spotLights->lights.data());
+			spotLights->buffer = std::make_unique<Buffer>(GetAllocator(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, spotBufferSize);
+			GetDevice().CopyBuffer(spotStagingBuffer, *spotLights->buffer.get(), spotBufferSize);
+		}
+
+		void Renderer::DestroyLightSources()
+		{
+			directionalLight->buffer.reset();
+			pointLights->buffer.reset();
+			spotLights->buffer.reset();
+		}
+
 		Camera& Renderer::GetCamera()
 		{
 			return *cameraResources->camera.get();
@@ -124,6 +153,49 @@ namespace Baal
 		Buffer& Renderer::GetCameraUniformBuffer()
 		{
 			return *cameraResources->uniformBuffer.get();
+		}
+
+		DirectionalLight& Renderer::GetDirectionalLight()
+		{
+			return directionalLight->light;
+		}
+
+		Buffer& Renderer::GetDirectionalLightUniformBuffer()
+		{
+			return *directionalLight->buffer.get();
+		}
+
+		PointLight& Renderer::GetPointLight(uint32_t index)
+		{
+			assert(index <= BAAL_MAX_LIGHTS);
+			return pointLights->lights[index];
+		}
+
+		Buffer& Renderer::GetPointLightsUniformBuffer()
+		{
+			return *pointLights->buffer.get();
+		}
+
+		SpotLight& Renderer::GetSpotLight(uint32_t index)
+		{
+			assert(index <= BAAL_MAX_LIGHTS);
+			return spotLights->lights[index];
+		}
+
+		Buffer& Renderer::GetSpotLightsUniformBuffer()
+		{
+			return *spotLights->buffer.get();
+		}
+
+		size_t Renderer::GetUniformBufferOffsetAlignment(size_t size)
+		{
+			size_t minUniformBufferOffsetAlignment = static_cast<size_t>(GetInstance().GetGPU().GetProperties().limits.minUniformBufferOffsetAlignment);
+			size_t dynamicAlignment = size;
+			if (minUniformBufferOffsetAlignment > 0)
+			{
+				dynamicAlignment = (dynamicAlignment + minUniformBufferOffsetAlignment - 1) & ~(minUniformBufferOffsetAlignment - 1);
+			}
+			return dynamicAlignment;
 		}
 
 		void Renderer::Startup(const std::string& appName, GLFWwindow* _window)
@@ -135,6 +207,7 @@ namespace Baal
 			CreateDrawCommandBuffers();
 			CreateSyncObjects();
 			CreateDefaultCamera();
+			CreateLightSources();
 			Initialize();
 		}
 
@@ -212,6 +285,7 @@ namespace Baal
 		{
 			vkDeviceWaitIdle(device->GetVkDevice());
 			Destroy();
+			DestroyLightSources();
 			DestroyDefaultCamera();
 			DestroyDrawCommandBuffers();
 			DestroyFramebuffers();

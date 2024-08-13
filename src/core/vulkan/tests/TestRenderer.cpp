@@ -20,6 +20,7 @@
 #include "../src/core/3d/Mesh.h"
 #include "../src/core/3d/Camera.h"
 #include "../src/core/3d/Texture.h"
+#include "../src/core/3d/Light.h"
 #include "../src/core/vulkan/resource/Sampler.h"
 
 #include <array>
@@ -124,14 +125,10 @@ namespace Baal
 
 				vkCmdPushConstants(commandBuffer.GetVkCommandBuffer(), forwardPipeline->GetVkGraphicsPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(MeshMatrices), &GetMeshHandler().GetMeshInstances()[subMeshes[i]->GetParentId()]->matrices);
 
-				for(size_t n = 0; n < lights.size(); ++n)
-				{
-					uint32_t dynamicOffset = n * static_cast<uint32_t>(dynamicAlignment);
+				uint32_t dynamicOffset = 3 * static_cast<uint32_t>(dynamicAlignment);
 
-					vkCmdBindDescriptorSets(commandBuffer.GetVkCommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, forwardPipeline->GetVkGraphicsPipelineLayout(), 0, 1, &descriptorSet->GetVkDescriptorSet(), 1, &dynamicOffset);
-
-					vkCmdDrawIndexed(commandBuffer.GetVkCommandBuffer(), subMeshes[i]->GetIndexCount(), 1, 0, 0, 0);
-				}
+				vkCmdBindDescriptorSets(commandBuffer.GetVkCommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, forwardPipeline->GetVkGraphicsPipelineLayout(), 0, 1, &descriptorSet->GetVkDescriptorSet(), 1, &dynamicOffset);
+				vkCmdDrawIndexed(commandBuffer.GetVkCommandBuffer(), subMeshes[i]->GetIndexCount(), 1, 0, 0, 0);
 			}
 
 			vkCmdEndRenderPass(commandBuffer.GetVkCommandBuffer());
@@ -149,6 +146,12 @@ namespace Baal
 					meshInstances[i]->matrices.model = Matrix4f::Translate(Vector3f(1.0f, 1.0f, 1.0f) * static_cast<float>(i)) * Matrix4f::Rotate(45.0f * static_cast<float>(i), Vector3f(0.0f, 1.0f, 0.0f)) * Matrix4f::Scale(Vector3f(2.0f));
 				}
 			}
+
+			GetDirectionalLight().color.r += 1;
+			GetDirectionalLight().color.g += 2;
+			GetDirectionalLight().color.b += 3;
+
+			GetDirectionalLightUniformBuffer().Update(&GetDirectionalLight(), GetDirectionalLightUniformBuffer().GetSize());
 		}
 
 		void TestRenderer::PostRender()
@@ -180,6 +183,7 @@ namespace Baal
 			poolSizes.push_back(DescriptorPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1));
 			poolSizes.push_back(DescriptorPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1));
 			poolSizes.push_back(DescriptorPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1));
+			poolSizes.push_back(DescriptorPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1));
 
 			descriptorPool = std::make_unique<DescriptorPool>(GetDevice(), poolSizes);
 		}
@@ -190,7 +194,8 @@ namespace Baal
 			bindings.push_back(DescriptorSetBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, 0, 1));
 			bindings.push_back(DescriptorSetBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, VK_SHADER_STAGE_VERTEX_BIT, 1, 1));
 			bindings.push_back(DescriptorSetBinding(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 2, 1));
-
+			bindings.push_back(DescriptorSetBinding(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, 3, 1));
+			
 			descriptorSetLayout = std::make_unique<DescriptorSetLayout>(GetDevice(), bindings);
 		}
 
@@ -243,10 +248,26 @@ namespace Baal
 			imageDescWrite.pImageInfo = &imageInfo; // Optional
 			imageDescWrite.pTexelBufferView = nullptr; // Optional
 
+			VkDescriptorBufferInfo dlightInfo{};
+			dlightInfo.buffer = GetDirectionalLightUniformBuffer().GetVkBuffer();
+			dlightInfo.offset = 0;
+			dlightInfo.range = GetDirectionalLightUniformBuffer().GetSize();
+
+			VkWriteDescriptorSet dlightDescWrite = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
+			dlightDescWrite.dstSet = descriptorSet->GetVkDescriptorSet();
+			dlightDescWrite.dstBinding = 3;
+			dlightDescWrite.dstArrayElement = 0;
+			dlightDescWrite.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			dlightDescWrite.descriptorCount = 1;
+			dlightDescWrite.pBufferInfo = &dlightInfo;
+			dlightDescWrite.pImageInfo = nullptr; // Optional
+			dlightDescWrite.pTexelBufferView = nullptr; // Optional
+
 			std::vector<VkWriteDescriptorSet> descriptorWrites;
 			descriptorWrites.push_back(camDescWrite);
 			descriptorWrites.push_back(lightDescWrite);
 			descriptorWrites.push_back(imageDescWrite);
+			descriptorWrites.push_back(dlightDescWrite);
 
 			vkUpdateDescriptorSets(GetDevice().GetVkDevice(), descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
 		}
@@ -254,11 +275,20 @@ namespace Baal
 		void TestRenderer::CreateLights()
 		{
 			PointLight p;
-			lights.push_back(p);
-			// p.color = Color::Magenta;
-			lights.push_back(p);
-			lights.push_back(p);
-			lights.push_back(p);
+			p.color = Color::Blue;
+			lights.reserve(6);
+			lights.push_back(PointLight());
+			lights.push_back(PointLight());
+			lights.push_back(PointLight());
+			lights.push_back(PointLight());
+			lights.push_back(PointLight());
+			lights.push_back(PointLight());
+
+			lights[0].color = Color::White;
+			lights[1].color = Color::Yellow;
+			lights[2].color = Color::White;
+			lights[3].color = Color::Yellow;
+			lights[4].color = Color::Red;
 
 			size_t minUniformBufferOffsetAlignment = static_cast<size_t>(GetInstance().GetGPU().GetProperties().limits.minUniformBufferOffsetAlignment);
 			dynamicAlignment = sizeof(PointLight);
@@ -269,8 +299,18 @@ namespace Baal
 
 			const VkDeviceSize bufferSize = dynamicAlignment * lights.size();
 			Buffer stagingBuffer = Buffer::CreateStagingBuffer(GetAllocator(), bufferSize, lights.data());
-			lightsUBO = std::make_unique<Buffer>(GetAllocator(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, bufferSize, nullptr);
+			
+
+			lightsUBO = std::make_unique<Buffer>(GetAllocator(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, bufferSize);
 			GetDevice().CopyBuffer(stagingBuffer, *lightsUBO.get(), bufferSize);
+
+
+			lights[0].color = Color::Cyan;
+
+			for (size_t i = 0; i < lights.size(); i++) 
+			{
+				lightsUBO->Update(&lights[i], dynamicAlignment, (i * dynamicAlignment));
+			}
 		}
 
 		void TestRenderer::DestroyLights()

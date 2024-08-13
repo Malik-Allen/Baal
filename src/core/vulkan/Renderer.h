@@ -33,6 +33,16 @@ namespace Baal
 		class MeshInstance;
 		class Camera;
 		class RenderCameraResources;
+		template<typename T>
+		class LightSource;
+		template<typename T>
+		class LightSourceArray;
+		class DirectionalLight;
+		class PointLight;
+		class SpotLight;
+		using DirectionalLightSource = LightSource<DirectionalLight>;
+		using PointLightSourceArray = LightSourceArray<PointLight>;
+		using SpotLightSourceArray = LightSourceArray<SpotLight>;;
 
 		class Renderer
 		{
@@ -83,6 +93,9 @@ namespace Baal
 			void UpdateMeshHandler();
 			void CleanUpMeshHandler();
 
+			void CreateLightSources();
+			void DestroyLightSources();
+
 			std::unique_ptr<Instance> instance;
 			std::unique_ptr<LogicalDevice> device;
 
@@ -105,6 +118,10 @@ namespace Baal
 			std::unique_ptr<MeshHandler> meshHandler;
 			std::unique_ptr<RenderCameraResources> cameraResources;
 
+			std::unique_ptr<DirectionalLightSource> directionalLight;
+			std::unique_ptr<PointLightSourceArray> pointLights;
+			std::unique_ptr<SpotLightSourceArray> spotLights;
+
 		protected:
 			virtual void Initialize() = 0;
 			virtual void Destroy() = 0;
@@ -124,6 +141,17 @@ namespace Baal
 
 			Camera& GetCamera();
 			Buffer& GetCameraUniformBuffer();
+
+			DirectionalLight& GetDirectionalLight();
+			Buffer& GetDirectionalLightUniformBuffer();
+
+			PointLight& GetPointLight(uint32_t index);
+			Buffer& GetPointLightsUniformBuffer();
+
+			SpotLight& GetSpotLight(uint32_t index);
+			Buffer& GetSpotLightsUniformBuffer();
+
+			size_t GetUniformBufferOffsetAlignment(size_t size);
 
 		public:
 			void Startup(const std::string& appName, GLFWwindow* _window);

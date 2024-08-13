@@ -19,14 +19,14 @@ namespace Baal
 				VkDescriptorPoolSize descPoolSize = {};
 				descPoolSize.type = poolSize.type;
 				descPoolSize.descriptorCount = poolSize.count;
-
+				
 				descriptorPoolSizes.push_back(descPoolSize);
 			}
 
 			poolInfo.poolSizeCount = descriptorPoolSizes.size();
 			poolInfo.pPoolSizes = descriptorPoolSizes.data();
 			poolInfo.maxSets = 10;
-
+			
 			VK_CHECK(vkCreateDescriptorPool(device.GetVkDevice(), &poolInfo, nullptr, &vkDescriptorPool), "creating descriptor pool");
 		}
 

@@ -4,7 +4,6 @@
 #define BAAL_VK_TEST_RENDERER_H
 
 #include "../src/core/vulkan/Renderer.h"
-#include "../src/core/3d/Light.h"
 
 namespace Baal
 {
@@ -22,6 +21,7 @@ namespace Baal
 		class TextureInstance;
 		class Sampler;
 		class MeshInstance;
+		class PointLight;
 
 		class TestRenderer : public Renderer
 		{

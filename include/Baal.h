@@ -22,5 +22,6 @@
 #include "../src/core/3d/MeshHandler.h"
 #include "../src/core/3d/Mesh.h"
 #include "../src/core/3d/Camera.h"
+#include "../src/core/3d/Light.h"
 
 #endif // BAAL_H
