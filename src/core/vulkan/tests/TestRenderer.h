@@ -46,6 +46,8 @@ namespace Baal
 
 			std::unique_ptr<GraphicsPipeline> forwardPipeline;
 
+			float rotation = 0.0f;
+
 			std::unique_ptr<DescriptorPool> descriptorPool;
 			std::unique_ptr<DescriptorSetLayout> descriptorSetLayout;
 			std::unique_ptr<DescriptorSet> descriptorSet;
