@@ -39,8 +39,7 @@ namespace Baal
 			{
 				for (const auto& shape : shapes)
 				{
-					std::vector<Vertex> vertices;
-					std::vector<int> indices;
+					SubMesh subMesh;
 					for (const auto& index : shape.mesh.indices)
 					{
 						Vertex v;
@@ -71,12 +70,32 @@ namespace Baal
 							v.color.z = attrib.colors[3 * index.vertex_index + 2];
 						}
 
-						vertices.push_back(v);
+						subMesh.vertices.push_back(v);
 
-						indices.push_back(indices.size());
+						subMesh.indices.push_back(subMesh.indices.size());
 					}
 
-					subMeshes.push_back(SubMesh(vertices, indices));
+					if(!materials.empty())
+					{
+						Material mat;
+						mat.ambient.x = materials[shape.mesh.material_ids[0]].ambient[0];
+						mat.ambient.y = materials[shape.mesh.material_ids[0]].ambient[1];
+						mat.ambient.z = materials[shape.mesh.material_ids[0]].ambient[2];
+
+						mat.diffuse.x = materials[shape.mesh.material_ids[0]].diffuse[0];
+						mat.diffuse.y = materials[shape.mesh.material_ids[0]].diffuse[1];
+						mat.diffuse.z = materials[shape.mesh.material_ids[0]].diffuse[2];
+
+						mat.specular.x = materials[shape.mesh.material_ids[0]].specular[0];
+						mat.specular.y = materials[shape.mesh.material_ids[0]].specular[1];
+						mat.specular.z = materials[shape.mesh.material_ids[0]].specular[2];
+
+						mat.shininess = materials[shape.mesh.material_ids[0]].shininess;
+
+						subMesh.material = mat;
+					}
+
+					subMeshes.push_back(subMesh);
 				}
 
 				if (!warn.empty())
@@ -131,6 +150,7 @@ namespace Baal
 				device.CopyBuffer(indexStagingBuffer, *subMesh->indexBuffer.get(), indexBufferSize);
 
 				subMesh->indexCount = static_cast<const uint32_t>(resource.subMeshes[i].indices.size());
+				subMesh->material = resource.subMeshes[i].material;
 
 				subMeshes.push_back(subMesh);					
 			}

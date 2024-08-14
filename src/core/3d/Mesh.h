@@ -25,10 +25,19 @@ namespace Baal
 			Vector3f color;
 		};
 
+		struct Material
+		{
+			Vector3f ambient;
+			Vector3f diffuse;
+			Vector3f specular;
+			float shininess = 0.0f;
+		};
+
 		struct SubMesh
 		{
 			std::vector<Vertex> vertices;
 			std::vector<int> indices;
+			Material material;
 		};
 
 		// Mesh is made up of multiple Sub Meshes / Shapes
@@ -58,6 +67,7 @@ namespace Baal
 			std::unique_ptr<Buffer> vertexBuffer;
 			std::unique_ptr<Buffer> indexBuffer;
 			uint32_t indexCount;
+			Material material;
 		public:
 
 			explicit SubMeshInstance(const uint32_t _id, const uint32_t _parentId);
@@ -74,6 +84,7 @@ namespace Baal
 			uint32_t GetIndexCount() const { return indexCount; }
 			uint32_t GetId() const { return id; }
 			uint32_t GetParentId() const { return parentId; }
+			Material& GetMaterial() { return material; }
 		};
 		
 		struct MeshMatrices

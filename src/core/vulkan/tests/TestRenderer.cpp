@@ -43,7 +43,7 @@ namespace Baal
 
 		void TestRenderer::Initialize()
 		{
-			AddMeshInstanceToScene(LoadMeshResource(BAAL_MODELS_DIR, "teapot.obj"));
+			AddMeshInstanceToScene(LoadMeshResource(BAAL_MODELS_DIR, "solids.obj"));
 			AddMeshInstanceToScene(LoadMeshResource(BAAL_MODELS_DIR, "teapot.obj"));
 			destroyTarget = AddMeshInstanceToScene(LoadMeshResource(BAAL_MODELS_DIR, "teapot.obj"));
 			AddMeshInstanceToScene(LoadMeshResource(BAAL_MODELS_DIR, "teacup.obj"));
