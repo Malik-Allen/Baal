@@ -57,7 +57,7 @@ namespace Baal
 
 			std::weak_ptr<MeshInstance> destroyTarget;
 
-			uint32_t dynamicAlignment;
+			uint32_t dynamicAlignment = 0;
 			std::unique_ptr<Buffer> lightsUBO;
 			std::vector<PointLight> lights;
 
@@ -68,6 +68,9 @@ namespace Baal
 			void CreateDescriptorPool();
 			void CreateDescriptorSetLayout();
 			void CreateDescriptorSet();
+
+			void CreateTextures();
+			void DestroyTextures();
 
 			void CreateLights();
 			void DestroyLights();

@@ -54,8 +54,7 @@ namespace Baal
 			AddMeshInstanceToScene(LoadMeshResource(BAAL_MODELS_DIR, "teacup.obj"));
 			AddMeshInstanceToScene(LoadMeshResource(BAAL_MODELS_DIR, "teacup.obj"));
 
-			texture = std::make_unique<TextureInstance>(GetDevice(), Texture(BAAL_TEXTURES_DIR, "CheckerboardPattern.png", VK_IMAGE_TYPE_2D));
-			textureSampler = std::make_unique<Sampler>(GetDevice(), GetInstance().GetGPU());
+			CreateTextures();
 
 			CreateLights();
 
@@ -71,8 +70,7 @@ namespace Baal
 			descriptorSetLayout.reset();
 			descriptorPool.reset();
 
-			textureSampler.reset();
-			texture.reset();
+			DestroyTextures();
 			
 			DestroyLights();
 		}
@@ -295,6 +293,36 @@ namespace Baal
 			descriptorWrites.push_back(plightDescWrite);
 
 			vkUpdateDescriptorSets(GetDevice().GetVkDevice(), descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
+		}
+
+		void TestRenderer::CreateTextures()
+		{
+			texture = std::make_unique<TextureInstance>(GetDevice(), Texture(BAAL_TEXTURES_DIR, "CheckerboardPattern.png", VK_IMAGE_TYPE_2D));
+
+			VkSamplerCreateInfo samplerInfo = {VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO};
+			samplerInfo.magFilter = VK_FILTER_LINEAR;
+			samplerInfo.minFilter = VK_FILTER_LINEAR;
+			samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+			samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+			samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+			samplerInfo.anisotropyEnable = VK_FALSE;
+			samplerInfo.maxAnisotropy = 1.0f;
+			samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+			samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+			samplerInfo.compareEnable = VK_FALSE;
+			samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+			samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+			samplerInfo.mipLodBias = 0.0f;
+			samplerInfo.minLod = 0.0f;
+			samplerInfo.maxLod = 0.0f;
+
+			textureSampler = std::make_unique<Sampler>(GetDevice(), GetInstance().GetGPU(), samplerInfo);
+		}
+
+		void TestRenderer::DestroyTextures()
+		{
+			textureSampler.reset();
+			texture.reset();
 		}
 
 		void TestRenderer::CreateLights()

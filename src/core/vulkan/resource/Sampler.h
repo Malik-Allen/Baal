@@ -15,7 +15,7 @@ namespace Baal
 		class Sampler
 		{
 		public:
-			explicit Sampler(LogicalDevice& _device, PhysicalDevice& gpu);
+			explicit Sampler(LogicalDevice& _device, PhysicalDevice& gpu, VkSamplerCreateInfo& samplerCreateInfo);
 			Sampler(const Sampler&) = delete;
 			Sampler(Sampler&&) noexcept = delete;
 
