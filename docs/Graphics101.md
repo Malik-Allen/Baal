@@ -1,16 +1,6 @@
 # Intro
 A fundamental understanding of the basics will take you a long way. Below are the core concepts of Computer Graphics and Renderering techniques used to achieve it.
 
-## Resources
-- https://graphicscodex.com/app/app.html?page=_rn_preface
-- https://en.wikipedia.org/wiki/Physically_based_rendering
-- https://en.wikipedia.org/wiki/Rendering_equation
-- https://learnopengl.com/Introduction
-- https://en.wikipedia.org/wiki/List_of_common_3D_test_models
-- https://en.wikipedia.org/wiki/Utah_teapot#
-- https://en.wikipedia.org/wiki/Level_of_detail_(computer_graphics)
-- https://en.wikipedia.org/wiki/Sunbeam
-
 # Computer Graphics
 Realistic rendering simulates light using models from physics and computer science to create images.
 
@@ -117,3 +107,17 @@ For simplicity we can assume the following:
 - Light operates on `instant time`, light is faster than our rendering porgram, so we can just assume that light travels instantly in our simulations
 - Frequency of visible light will be discrete and will be made of `RGB` spectrum, just like what we can see with the human eyes. (Unlike `fluorescent` lights, spectrum of light emmitted from the sun, etc.)
 
+
+# Resources
+- https://graphicscodex.com/app/app.html?page=_rn_preface
+- https://en.wikipedia.org/wiki/Physically_based_rendering
+- https://en.wikipedia.org/wiki/Rendering_equation
+- https://learnopengl.com/Introduction
+- https://en.wikipedia.org/wiki/List_of_common_3D_test_models
+- https://en.wikipedia.org/wiki/Utah_teapot#
+- https://en.wikipedia.org/wiki/Level_of_detail_(computer_graphics)
+- https://en.wikipedia.org/wiki/Sunbeam
+
+## Materials
+- http://devernay.free.fr/cours/opengl/materials.html
+- http://www.it.hiof.no/~borres/j3d/explain/light/p-materials.html

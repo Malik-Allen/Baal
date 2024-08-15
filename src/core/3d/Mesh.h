@@ -30,7 +30,7 @@ namespace Baal
 			alignas(16) Vector4f ambient;
 			Vector3f diffuse;
 			alignas(16) Vector3f specular;
-			float shininess = 3.0f;
+			float shininess = 0.0f;
 		};
 
 		struct SubMesh
