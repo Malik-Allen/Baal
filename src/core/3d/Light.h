@@ -15,29 +15,29 @@ namespace Baal
 	{
 		class Buffer;
 		
-		struct alignas(16) DirectionalLight
+		struct DirectionalLight
 		{
-			Color color = Color(255, 255, 255);
+			alignas(16) Color color = Color(255, 255, 255);
+			alignas(16) Vector3f direction = Vector3f::ForwardVector;
 			float intensity = 1.0f;
-			Vector3f direction;
 		};
 
-		struct alignas(16) PointLight
+		struct PointLight
 		{
-			Color color = Color(255, 255, 255);
+			alignas(16) Color color = Color(255, 255, 255);
+			alignas(16) Vector3f positon;
 			float intensity = 1.0f;
 			float attenuation  = 1.0f;
-			Vector3f positon;
 		};
 
-		struct alignas(16) SpotLight
+		struct SpotLight
 		{
-			Color color = Color(255, 255, 255);
+			alignas(16) Color color = Color(255, 255, 255);
+			alignas(16) Vector3f direction = Vector3f::ForwardVector;
 			float intensity = 1.0f;
+			alignas(16) Vector3f positon;
 			float attenuation  = 1.0f;
 			// Cone Angle (Inner/ Outer)
-			Vector3f positon;
-			Vector3f direction;
 		};
 
 		template<typename T>

@@ -27,10 +27,10 @@ namespace Baal
 
 		struct Material
 		{
-			Vector3f ambient;
+			alignas(16) Vector4f ambient;
 			Vector3f diffuse;
-			Vector3f specular;
-			float shininess = 0.0f;
+			alignas(16) Vector3f specular;
+			float shininess = 3.0f;
 		};
 
 		struct SubMesh

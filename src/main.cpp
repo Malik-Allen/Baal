@@ -15,7 +15,7 @@ int main()
 	
 	glfwWindowHint( GLFW_CLIENT_API, GLFW_NO_API );
 	
-	window = glfwCreateWindow( 800, 600, "Vulkan", nullptr, nullptr );
+	window = glfwCreateWindow( 1200, 720, "Vulkan", nullptr, nullptr );
 
 	VK::TestRenderer renderer;
 

@@ -28,11 +28,15 @@ layout(location = 3) in vec3 inColor;
 
 layout(location = 0) out vec3 fragColor;
 layout(location = 1) out vec2 fragTexCoord;
-layout(location = 2) out vec3 outNorm;
+layout(location = 2) out vec3 fragPos;
+layout(location = 3) out vec3 outNorm;
+layout(location = 4) out vec3 eyePos;
 
 void main() {
     gl_Position = camera.proj * camera.view * vertConsts.model * vec4(inPos, 1.0);
     fragColor = inColor;
     fragTexCoord = inTexCoords;
-    outNorm = inNorm;
+    fragPos = vec3(vertConsts.model * vec4(inPos, 1.0));
+    outNorm = mat3(transpose(inverse(vertConsts.model))) * inNorm;  // In order to apply any tranformation applied to the model, to its normals as well
+    eyePos = vec3(camera.pos);
 }

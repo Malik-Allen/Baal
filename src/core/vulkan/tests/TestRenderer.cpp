@@ -144,15 +144,24 @@ namespace Baal
 			{
 				if (i % 2 == 0)
 				{
-					rotation += 0.3f;
+					modelRotation += 0.3f;
 
-					meshInstances[i]->model = Matrix4f::Translate(Vector3f(1.0f, 1.0f, 1.0f) * static_cast<float>(i)) * Matrix4f::Rotate(rotation * static_cast<float>(i), Vector3f(0.0f, 1.0f, 0.0f)) * Matrix4f::Scale(Vector3f(2.0f));
+					meshInstances[i]->model = Matrix4f::Translate(Vector3f(1.0f, 1.0f, 1.0f) * static_cast<float>(i)) * Matrix4f::Rotate(modelRotation * static_cast<float>(i), Vector3f(0.0f, 1.0f, 0.0f)) * Matrix4f::Scale(Vector3f(2.0f));
 				}
 			}
 
 			GetDirectionalLight().color.r += 1;
 			GetDirectionalLight().color.g += 2;
 			GetDirectionalLight().color.b += 3;
+
+			lightRotation += 3.0f;
+
+			Quatf quat;
+			quat.RotateAxis(Vector3f(0.5f, 1.0f, 0.0f), lightRotation);
+			Vector3f direction = quat.RotateVector(Vector3f::ForwardVector);
+
+			GetDirectionalLight().color = Color::White;
+			GetDirectionalLight().direction = direction;
 
 			GetDirectionalLightUniformBuffer().Update(&GetDirectionalLight(), GetDirectionalLightUniformBuffer().GetSize());
 
