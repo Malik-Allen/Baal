@@ -45,12 +45,11 @@ namespace Baal
 			AddMeshInstanceToScene(LoadMeshResource(BAAL_MODELS_DIR, "spoon.obj"));
 			AddMeshInstanceToScene(LoadMeshResource(BAAL_MODELS_DIR, "spoon.obj"));
 			destroyTarget = AddMeshInstanceToScene(LoadMeshResource(BAAL_MODELS_DIR, "spoon.obj"));
-			AddMeshInstanceToScene(LoadMeshResource(BAAL_MODELS_DIR, "viking_room.obj"));
 			AddMeshInstanceToScene(LoadMeshResource(BAAL_MODELS_DIR, "teacup.obj"));
 			AddMeshInstanceToScene(LoadMeshResource(BAAL_MODELS_DIR, "teacup.obj"));
 			AddMeshInstanceToScene(LoadMeshResource(BAAL_MODELS_DIR, "teacup.obj"));
-			AddMeshInstanceToScene(LoadMeshResource(BAAL_MODELS_DIR, "teacup.obj"));
-			AddMeshInstanceToScene(LoadMeshResource(BAAL_MODELS_DIR, "teacup.obj"));
+			AddMeshInstanceToScene(LoadMeshResource(BAAL_MODELS_DIR, "spoon.obj"));
+			AddMeshInstanceToScene(LoadMeshResource(BAAL_MODELS_DIR, "teapot.obj"));
 			AddMeshInstanceToScene(LoadMeshResource(BAAL_MODELS_DIR, "teacup.obj"));
 
 			CreateTextures();
@@ -154,7 +153,7 @@ namespace Baal
 			GetDirectionalLight().color.g += 2;
 			GetDirectionalLight().color.b += 3;
 
-			lightRotation += 3.0f;
+			lightRotation = 133.0f;
 
 			Quatf quat;
 			quat.RotateAxis(Vector3f(0.5f, 1.0f, 0.0f), lightRotation);
