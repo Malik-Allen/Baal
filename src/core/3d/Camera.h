@@ -27,11 +27,12 @@ namespace Baal
 			CUSTOM_UNLOCKED
 		};
 
-		struct CameraMatrices
+		struct CameraMatrix
 		{
 			Matrix4f model;
 			Matrix4f view;
 			Matrix4f proj;
+			Vector4f pos;	// Using vec4 for 16 bytes alignment, w is not used
 		};
 
 		class Camera
@@ -46,9 +47,9 @@ namespace Baal
 			Camera& operator=(const Camera&) = delete;
 			Camera& operator = (Camera&&) = delete;
 
-			Matrix4f GetViewMatrix() const { return matrices.view; }
-			Matrix4f GetProjectionMatrix() const { return matrices.proj; }
-			CameraMatrices& GetMatrices() { return matrices; }
+			Matrix4f GetViewMatrix() const { return matrix.view; }
+			Matrix4f GetProjectionMatrix() const { return matrix.proj; }
+			CameraMatrix& GetMatrices() { return matrix; }
 			Transform GetTransform() const { return transform; }
 
 			void SetPosition(Vector3f position);
@@ -66,7 +67,7 @@ namespace Baal
 			float nearPlane;
 			float farPlane;
 
-			CameraMatrices matrices;
+			CameraMatrix matrix;
 
 			void UpdateViewMatrix();
 			void UpdateProjectionMatrix();

@@ -88,7 +88,7 @@ namespace Baal
 			Quatf xRotation(Vector3f(1.0f, 0.0f, 0.0f), 45.0f);
 			cameraResources->camera->SetRotation(orientation * xRotation);
 
-			cameraResources->uniformBuffer = std::make_unique<Buffer>(GetAllocator(), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, sizeof(CameraMatrices));
+			cameraResources->uniformBuffer = std::make_unique<Buffer>(GetAllocator(), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, sizeof(CameraMatrix));
 		}
 
 		void Renderer::DestroyDefaultCamera()
@@ -100,7 +100,7 @@ namespace Baal
 
 		void Renderer::UpdateDefaultCamera()
 		{
-			GetCameraUniformBuffer().Update(&GetCamera().GetMatrices(), sizeof(CameraMatrices));
+			GetCameraUniformBuffer().Update(&GetCamera().GetMatrices(), sizeof(CameraMatrix));
 		}
 
 		void Renderer::UpdateMeshHandler()

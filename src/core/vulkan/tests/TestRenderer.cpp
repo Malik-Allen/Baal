@@ -33,8 +33,7 @@ namespace Baal
 		{}
 
 		TestRenderer::~TestRenderer()
-		{
-		}
+		{}
 
 		void TestRenderer::DestroyTarget()
 		{
@@ -56,7 +55,7 @@ namespace Baal
 
 			CreateTextures();
 
-			CreateLights();
+			CreateTestLights();
 
 			CreateDescriptorPool();
 			CreateDescriptorSetLayout();
@@ -72,7 +71,7 @@ namespace Baal
 
 			DestroyTextures();
 			
-			DestroyLights();
+			DestroyTestLights();
 		}
 
 		void TestRenderer::RecordDrawCommandBuffer(CommandBuffer& commandBuffer, Framebuffer& frameBuffer)
@@ -181,8 +180,8 @@ namespace Baal
 		void TestRenderer::CreateForwardPipeline()
 		{
 			std::vector<ShaderInfo> shaderInfo;
-			shaderInfo.push_back(ShaderInfo(VK_SHADER_STAGE_VERTEX_BIT, BAAL_SHADERS_DIR, "DynamicLights.vert"));
-			shaderInfo.push_back(ShaderInfo(VK_SHADER_STAGE_FRAGMENT_BIT, BAAL_SHADERS_DIR, "DynamicLights.frag"));
+			shaderInfo.push_back(ShaderInfo(VK_SHADER_STAGE_VERTEX_BIT, BAAL_SHADERS_DIR, "Phong.vert"));
+			shaderInfo.push_back(ShaderInfo(VK_SHADER_STAGE_FRAGMENT_BIT, BAAL_SHADERS_DIR, "Phong.frag"));
 
 
 			VkPushConstantRange vertPushConstant = {};
@@ -205,10 +204,9 @@ namespace Baal
 		void TestRenderer::CreateDescriptorPool()
 		{
 			std::vector<DescriptorPoolSize> poolSizes;
-			poolSizes.push_back(DescriptorPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1));
 			poolSizes.push_back(DescriptorPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1));
 			poolSizes.push_back(DescriptorPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1));
-			poolSizes.push_back(DescriptorPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 2));
+			poolSizes.push_back(DescriptorPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 3));
 
 			descriptorPool = std::make_unique<DescriptorPool>(GetDevice(), poolSizes);
 		}
@@ -216,11 +214,11 @@ namespace Baal
 		void TestRenderer::CreateDescriptorSetLayout()
 		{
 			std::vector<DescriptorSetBinding> bindings;
-			bindings.push_back(DescriptorSetBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, 0, 1));
-			bindings.push_back(DescriptorSetBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, VK_SHADER_STAGE_VERTEX_BIT, 1, 1));
-			bindings.push_back(DescriptorSetBinding(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 2, 1));
-			bindings.push_back(DescriptorSetBinding(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, 3, 1));
-			bindings.push_back(DescriptorSetBinding(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, 4, 1));
+			bindings.push_back(DescriptorSetBinding(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, 0, 1));	// Camera
+			bindings.push_back(DescriptorSetBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, VK_SHADER_STAGE_VERTEX_BIT, 1, 1));	// Test Lights
+			bindings.push_back(DescriptorSetBinding(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 2, 1));	// Texture Sampler
+			bindings.push_back(DescriptorSetBinding(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT, 3, 1));	// Directional Light 
+			bindings.push_back(DescriptorSetBinding(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT, 4, 1));	// Point Light
 			
 			descriptorSetLayout = std::make_unique<DescriptorSetLayout>(GetDevice(), bindings);
 		}
@@ -238,7 +236,7 @@ namespace Baal
 			camDescWrite.dstSet = descriptorSet->GetVkDescriptorSet();
 			camDescWrite.dstBinding = 0;
 			camDescWrite.dstArrayElement = 0;
-			camDescWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			camDescWrite.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 			camDescWrite.descriptorCount = 1;
 			camDescWrite.pBufferInfo = &camInfo;
 			camDescWrite.pImageInfo = nullptr; // Optional
@@ -344,7 +342,7 @@ namespace Baal
 			texture.reset();
 		}
 
-		void TestRenderer::CreateLights()
+		void TestRenderer::CreateTestLights()
 		{
 			PointLight p;
 			p.color = Color::Blue;
@@ -383,11 +381,9 @@ namespace Baal
 			{
 				lightsUBO->Update(&lights[i], dynamicAlignment, (i * dynamicAlignment));
 			}
-
-
 		}
 
-		void TestRenderer::DestroyLights()
+		void TestRenderer::DestroyTestLights()
 		{
 			lightsUBO.reset();
 			lights.clear();

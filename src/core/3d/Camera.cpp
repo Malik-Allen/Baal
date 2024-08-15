@@ -103,13 +103,16 @@ namespace Baal
 		void Camera::UpdateViewMatrix()
 		{
 			const Vector3f rotatedFowardVector = transform.GetRotation().RotateVector(Vector3f::ForwardVector);	// Rotate the forward vector to face the direction of the orientaion
-			matrices.view = Matrix4f::LookAt(transform.GetPosition(), rotatedFowardVector + transform.GetPosition(), Vector3f::UpVector);
+			matrix.view = Matrix4f::LookAt(transform.GetPosition(), rotatedFowardVector + transform.GetPosition(), Vector3f::UpVector);
+
+            const Vector3f pos = transform.GetPosition();
+            matrix.pos = Vector4f(pos.x, pos.y, pos.z, 1.0f);
 		}
 
         void Camera::UpdateProjectionMatrix()
         {
-            matrices.proj = Matrix4f::PerspectiveMatrix(fieldOfView, ratio, nearPlane, farPlane);
-            matrices.proj = matrices.proj * Matrix4f::Scale(Vector3f(1.0f, -1.0f, 1.0f)); // Flip y-axis to render in vulkan, up-side up
+            matrix.proj = Matrix4f::PerspectiveMatrix(fieldOfView, ratio, nearPlane, farPlane);
+            matrix.proj = matrix.proj * Matrix4f::Scale(Vector3f(1.0f, -1.0f, 1.0f)); // Flip y-axis to render in vulkan, up-side up
         }
 	}
 }

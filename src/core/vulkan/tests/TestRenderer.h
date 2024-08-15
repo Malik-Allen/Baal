@@ -72,8 +72,8 @@ namespace Baal
 			void CreateTextures();
 			void DestroyTextures();
 
-			void CreateLights();
-			void DestroyLights();
+			void CreateTestLights();
+			void DestroyTestLights();
 		};
 	}
 }
