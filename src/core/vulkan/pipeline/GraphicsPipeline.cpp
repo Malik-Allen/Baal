@@ -18,6 +18,7 @@ namespace Baal
 			std::vector<ShaderInfo>& shaderInfo,
 			RenderPass& renderPass,
 			DescriptorSetLayout& descriptorSetLayout,
+			std::vector<VkPushConstantRange>& pushConstants,
 			const uint32_t width,
 			const uint32_t height)
 			: device(_device)
@@ -138,14 +139,8 @@ namespace Baal
 			VkPipelineLayoutCreateInfo pipelineLayoutInfo = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
 			pipelineLayoutInfo.setLayoutCount = 1;
 			pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout.GetVkDescriptorSetLayout();
-
-			VkPushConstantRange pushConstantRange = {};
-			pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-			pushConstantRange.offset = 0;
-			pushConstantRange.size = sizeof(MeshMatrices);
-
-			pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
-			pipelineLayoutInfo.pushConstantRangeCount = 1;
+			pipelineLayoutInfo.pushConstantRangeCount = pushConstants.size();
+			pipelineLayoutInfo.pPushConstantRanges = pushConstants.data();
 
 			VK_CHECK(vkCreatePipelineLayout(device.GetVkDevice(), &pipelineLayoutInfo, nullptr, &layout), "creating graphics pipeline layout");
 

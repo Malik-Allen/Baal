@@ -42,7 +42,7 @@ layout(binding = 4) buffer pointLighting {
 
 layout(push_constant) uniform constants {
     mat4 model;
-} mesh;
+} vertConstants;
 
 layout(location = 0) in vec3 inPos;
 layout(location = 1) in vec3 inNorm;
@@ -53,7 +53,7 @@ layout(location = 0) out vec3 fragColor;
 layout(location = 1) out vec2 fragTexCoord;
 
 void main() {
-    gl_Position = camera.proj * camera.view * mesh.model * vec4(inPos, 1.0);
+    gl_Position = camera.proj * camera.view * vertConstants.model * vec4(inPos, 1.0);
 
     // DirectionalLight light = directionalLight;
     PointLight light = pointLights[7];

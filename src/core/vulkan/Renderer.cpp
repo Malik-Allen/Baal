@@ -82,7 +82,7 @@ namespace Baal
 
 			cameraResources->camera = std::make_unique<Camera>(45.0f, AspectRatio::CUSTOM_UNLOCKED, GetSwapChain().GetExtent().width, GetSwapChain().GetExtent().height);
 
-			cameraResources->camera->SetPosition(Vector3f(0.0f, 15.0f, -15.0f));
+			cameraResources->camera->SetPosition(Vector3f(0.0f, 25.0f, -25.0f));
 
 			Quatf orientation = cameraResources->camera->GetTransform().GetRotation();
 			Quatf xRotation(Vector3f(1.0f, 0.0f, 0.0f), 45.0f);

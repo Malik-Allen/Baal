@@ -46,7 +46,7 @@ namespace Baal
 			AddMeshInstanceToScene(LoadMeshResource(BAAL_MODELS_DIR, "solids.obj"));
 			AddMeshInstanceToScene(LoadMeshResource(BAAL_MODELS_DIR, "teapot.obj"));
 			destroyTarget = AddMeshInstanceToScene(LoadMeshResource(BAAL_MODELS_DIR, "teapot.obj"));
-			AddMeshInstanceToScene(LoadMeshResource(BAAL_MODELS_DIR, "teacup.obj"));
+			AddMeshInstanceToScene(LoadMeshResource(BAAL_MODELS_DIR, "viking_room.obj"));
 			AddMeshInstanceToScene(LoadMeshResource(BAAL_MODELS_DIR, "teacup.obj"));
 			AddMeshInstanceToScene(LoadMeshResource(BAAL_MODELS_DIR, "teacup.obj"));
 			AddMeshInstanceToScene(LoadMeshResource(BAAL_MODELS_DIR, "teacup.obj"));
@@ -121,11 +121,15 @@ namespace Baal
 				vkCmdBindVertexBuffers(commandBuffer.GetVkCommandBuffer(), 0, 1, &subMeshes[i]->GetVertexBuffer().GetVkBuffer(), offsets);
 				vkCmdBindIndexBuffer(commandBuffer.GetVkCommandBuffer(), subMeshes[i]->GetIndexBuffer().GetVkBuffer(), 0, VK_INDEX_TYPE_UINT32);
 
-				vkCmdPushConstants(commandBuffer.GetVkCommandBuffer(), forwardPipeline->GetVkGraphicsPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(MeshMatrices), &GetMeshHandler().GetMeshInstances()[subMeshes[i]->GetParentId()]->matrices);
+				VertexPushConstants vertConstants(GetMeshHandler().GetMeshInstances()[subMeshes[i]->GetParentId()]->model);
+				vkCmdPushConstants(commandBuffer.GetVkCommandBuffer(), forwardPipeline->GetVkGraphicsPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(VertexPushConstants), &vertConstants);
 
+				FragmentPushConstants fragConstants(subMeshes[i]->GetMaterial());
+				vkCmdPushConstants(commandBuffer.GetVkCommandBuffer(), forwardPipeline->GetVkGraphicsPipelineLayout(), VK_SHADER_STAGE_FRAGMENT_BIT, sizeof(VertexPushConstants), sizeof(FragmentPushConstants), &fragConstants);
+				
 				uint32_t dynamicOffset = 3 * static_cast<uint32_t>(dynamicAlignment);
-
 				vkCmdBindDescriptorSets(commandBuffer.GetVkCommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, forwardPipeline->GetVkGraphicsPipelineLayout(), 0, 1, &descriptorSet->GetVkDescriptorSet(), 1, &dynamicOffset);
+
 				vkCmdDrawIndexed(commandBuffer.GetVkCommandBuffer(), subMeshes[i]->GetIndexCount(), 1, 0, 0, 0);
 			}
 
@@ -143,7 +147,7 @@ namespace Baal
 				{
 					rotation += 0.3f;
 
-					meshInstances[i]->matrices.model = Matrix4f::Translate(Vector3f(1.0f, 1.0f, 1.0f) * static_cast<float>(i)) * Matrix4f::Rotate(rotation * static_cast<float>(i), Vector3f(0.0f, 1.0f, 0.0f)) * Matrix4f::Scale(Vector3f(2.0f));
+					meshInstances[i]->model = Matrix4f::Translate(Vector3f(1.0f, 1.0f, 1.0f) * static_cast<float>(i)) * Matrix4f::Rotate(rotation * static_cast<float>(i), Vector3f(0.0f, 1.0f, 0.0f)) * Matrix4f::Scale(Vector3f(2.0f));
 				}
 			}
 
@@ -180,7 +184,22 @@ namespace Baal
 			shaderInfo.push_back(ShaderInfo(VK_SHADER_STAGE_VERTEX_BIT, BAAL_SHADERS_DIR, "DynamicLights.vert"));
 			shaderInfo.push_back(ShaderInfo(VK_SHADER_STAGE_FRAGMENT_BIT, BAAL_SHADERS_DIR, "DynamicLights.frag"));
 
-			forwardPipeline = std::make_unique<GraphicsPipeline>(GetDevice(), shaderInfo, GetRenderPass(), *descriptorSetLayout.get(), GetSwapChain().GetExtent().width, GetSwapChain().GetExtent().height);
+
+			VkPushConstantRange vertPushConstant = {};
+			vertPushConstant.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+			vertPushConstant.offset = 0;
+			vertPushConstant.size = sizeof(VertexPushConstants);
+
+			VkPushConstantRange fragPushConstant = {};
+			fragPushConstant.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+			fragPushConstant.offset = sizeof(VertexPushConstants);
+			fragPushConstant.size = sizeof(FragmentPushConstants);
+
+			std::vector<VkPushConstantRange> pushConstants;
+			pushConstants.push_back(vertPushConstant);
+			pushConstants.push_back(fragPushConstant);
+
+			forwardPipeline = std::make_unique<GraphicsPipeline>(GetDevice(), shaderInfo, GetRenderPass(), *descriptorSetLayout.get(), pushConstants, GetSwapChain().GetExtent().width, GetSwapChain().GetExtent().height);
 		}
 
 		void TestRenderer::CreateDescriptorPool()

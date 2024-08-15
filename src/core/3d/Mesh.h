@@ -40,6 +40,16 @@ namespace Baal
 			Material material;
 		};
 
+		struct VertexPushConstants
+		{
+			Matrix4f model;
+		};
+
+		struct FragmentPushConstants
+		{
+			Material material;
+		};
+
 		// Mesh is made up of multiple Sub Meshes / Shapes
 		// SubMeshes can be used to assign different materiels, animations, textures, etc.
 		class Mesh
@@ -68,8 +78,8 @@ namespace Baal
 			std::unique_ptr<Buffer> indexBuffer;
 			uint32_t indexCount;
 			Material material;
-		public:
 
+		public:
 			explicit SubMeshInstance(const uint32_t _id, const uint32_t _parentId);
 			SubMeshInstance(const SubMeshInstance&) = delete;
 			SubMeshInstance(SubMeshInstance&&) noexcept = delete;
@@ -86,11 +96,6 @@ namespace Baal
 			uint32_t GetParentId() const { return parentId; }
 			Material& GetMaterial() { return material; }
 		};
-		
-		struct MeshMatrices
-		{
-			Matrix4f model;
-		};
 
 		class MeshInstance
 		{
@@ -100,8 +105,6 @@ namespace Baal
 			std::vector<std::shared_ptr<SubMeshInstance>> subMeshes;
 
 		public:
-			MeshMatrices matrices;
-
 			explicit MeshInstance(LogicalDevice& device, Mesh& resource, const uint32_t _id);
 			MeshInstance(const MeshInstance&) = delete;
 			MeshInstance(MeshInstance&&) noexcept = delete;
@@ -110,6 +113,8 @@ namespace Baal
 
 			MeshInstance& operator=(const MeshInstance&) = delete;
 			MeshInstance& operator = (MeshInstance&&) = delete;
+
+			Matrix4f model;
 		};
 	}	
 }
