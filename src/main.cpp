@@ -15,33 +15,37 @@ int main()
 	
 	glfwWindowHint( GLFW_CLIENT_API, GLFW_NO_API );
 	
-	window = glfwCreateWindow( 1200, 720, "Vulkan", nullptr, nullptr );
+	window = glfwCreateWindow( 1280, 720, "Vulkan", nullptr, nullptr );
 
 	VK::TestRenderer renderer;
 
 	renderer.Startup("Test Flight", window);
 
-	for (int i = 0; i < 1000; ++i)
+	int i = 0;
+	bool bIsRunning = true;
+	while(bIsRunning)
 	{
 		glfwPollEvents();
-		renderer.Render();
-
-		if (i % 60 == 0)
-		{
-			DEBUG_LOG(LOG::INFO, "Hello FPS");
-		}
 
 		if (i == 500) 
 		{
 			renderer.DestroyTarget();
+			i = 0;
 		}
+
+		renderer.Render();
+
+		if(glfwWindowShouldClose(window) == true || glfwGetKey(window, static_cast<int>(GLFW_KEY_ESCAPE)) == GLFW_PRESS)
+		{
+			bIsRunning = false;
+		}
+		++i;
 	}
 	
 	renderer.Shutdown();
 
 	glfwDestroyWindow(window);
 	glfwTerminate();
-
 
 	return 0;
 }
