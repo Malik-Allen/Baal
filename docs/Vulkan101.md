@@ -5,17 +5,6 @@ I've tried my best to keep things as simple and straight-forward as possible. (T
 
 I've used the Vulkan Specs as the primary resource for all the below information. All resources can be found below:
 
-## Resources
-### Vulkan Sources:
-- https://registry.khronos.org/vulkan/specs/1.3/html/
-- https://vulkan-tutorial.com/
-- https://vkguide.dev/
-
-### Other Sources:
-- https://en.wikipedia.org/wiki/Z-buffering
-- https://en.wikipedia.org/wiki/Back-face_culling
-- https://en.wikipedia.org/wiki/Multisample_anti-aliasing
-
 # Vulkan
 ## Instance
 The Vulkan `Instance`, simply put, when a `VkInstance` is created, the Vulkan library is initialized.
@@ -270,3 +259,14 @@ A descriptor is structure that represents a shader resource. (Buffer, Image, Sam
 
 ## Constants
 Constants can be used pushed to data to shader at any given stage. To pass in constant to be used within the shader.
+
+# Resources
+## Vulkan Sources:
+- https://registry.khronos.org/vulkan/specs/1.3/html/
+- https://vulkan-tutorial.com/
+- https://vkguide.dev/
+
+## Other Sources:
+- https://en.wikipedia.org/wiki/Z-buffering
+- https://en.wikipedia.org/wiki/Back-face_culling
+- https://en.wikipedia.org/wiki/Multisample_anti-aliasing
