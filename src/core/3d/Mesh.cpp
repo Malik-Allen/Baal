@@ -77,7 +77,7 @@ namespace Baal
 
 					if(!materials.empty())
 					{
-						// If we ever find ourself with material id entries with -1, we will just use the first index in the material array
+						// If we ever find ourself with material id entry is -1, we will just use the first index in the material array
 						const bool bMaterialIdsAvailable = !shape.mesh.material_ids.empty() && shape.mesh.material_ids[0] != -1;
 						int index = bMaterialIdsAvailable ? shape.mesh.material_ids[0] : 0;
 
