@@ -26,6 +26,7 @@ namespace Baal
 				std::vector<ShaderInfo>& shaderInfo, 
 				RenderPass& renderPass, 
 				DescriptorSetLayout& descriptorSetLayout,
+				VkPipelineRasterizationStateCreateInfo& rasterizerInfo,
 				std::vector<VkPushConstantRange>& pushConstants,
 				const uint32_t width, 
 				const uint32_t height);
