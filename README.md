@@ -20,6 +20,17 @@ These are the outcomes that I want from this renderer:
 - Simple implementation of ImGUI
 - A go to resource for my Graphics explorations
 
+## Screenshots
+Here are screenshots of meshes loaded into the renderer. 
+
+>**Note:** Animated GIFs do no reflect the renderer's FPS.
+
+![Jade Dragon](docs/resources/jade-dragon.gif)
+
+![Gold Lion](docs/resources/gold-lion.gif)
+
+![Chrome Teapot](docs/resources/chrome-teapot.gif)
+
 # Dependancies
 Dependancies should be present in an adjascent directory to the parent directory of this project, I don't want to use submodules for this work flow, at this time.
 
