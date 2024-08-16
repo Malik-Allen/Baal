@@ -77,20 +77,24 @@ namespace Baal
 
 					if(!materials.empty())
 					{
+						// If we ever find ourself with material id entries with -1, we will just use the first index in the material array
+						const bool bMaterialIdsAvailable = !shape.mesh.material_ids.empty() && shape.mesh.material_ids[0] != -1;
+						int index = bMaterialIdsAvailable ? shape.mesh.material_ids[0] : 0;
+
 						Material mat;
-						mat.ambient.x = materials[shape.mesh.material_ids[0]].ambient[0];
-						mat.ambient.y = materials[shape.mesh.material_ids[0]].ambient[1];
-						mat.ambient.z = materials[shape.mesh.material_ids[0]].ambient[2];
+						mat.ambient.x = materials[index].ambient[0];
+						mat.ambient.y = materials[index].ambient[1];
+						mat.ambient.z = materials[index].ambient[2];
 
-						mat.diffuse.x = materials[shape.mesh.material_ids[0]].diffuse[0];
-						mat.diffuse.y = materials[shape.mesh.material_ids[0]].diffuse[1];
-						mat.diffuse.z = materials[shape.mesh.material_ids[0]].diffuse[2];
+						mat.diffuse.x = materials[index].diffuse[0];
+						mat.diffuse.y = materials[index].diffuse[1];
+						mat.diffuse.z = materials[index].diffuse[2];
 
-						mat.specular.x = materials[shape.mesh.material_ids[0]].specular[0];
-						mat.specular.y = materials[shape.mesh.material_ids[0]].specular[1];
-						mat.specular.z = materials[shape.mesh.material_ids[0]].specular[2];
+						mat.specular.x = materials[index].specular[0];
+						mat.specular.y = materials[index].specular[1];
+						mat.specular.z = materials[index].specular[2];
 
-						mat.shininess = materials[shape.mesh.material_ids[0]].shininess;
+						mat.shininess = materials[index].shininess;
 
 						subMesh.material = mat;
 					}
