@@ -13,7 +13,7 @@ namespace Baal
 {
 	namespace VK
 	{
-		SwapChain::SwapChain(PhysicalDevice& _gpu, LogicalDevice& _device, Surface& _surface, uint32_t width, uint32_t height):
+		SwapChain::SwapChain(PhysicalDevice& _gpu, LogicalDevice& _device, Surface& _surface, VkPresentModeKHR presentMode, uint32_t width, uint32_t height):
 			gpu(_gpu),
 			device(_device),
 			surface(_surface)
@@ -28,7 +28,7 @@ namespace Baal
 			QuerySurfacePresentModes(presentModes);
 
 			surfaceFormat = SelectSurfaceFormat(formats);
-			const VkPresentModeKHR selectedPresentMode = SelectPresentMode(presentModes);
+			const VkPresentModeKHR selectedPresentMode = SelectPresentMode(presentModes, presentMode);
 
 			VkSwapchainCreateInfoKHR swapChainInfo = { VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR };
 			swapChainInfo.surface = surface.GetVkSurface();
@@ -127,12 +127,12 @@ namespace Baal
 			return formats[0];
 		}
 
-		VkPresentModeKHR SwapChain::SelectPresentMode(const std::vector<VkPresentModeKHR>& presentModes)
+		VkPresentModeKHR SwapChain::SelectPresentMode(const std::vector<VkPresentModeKHR>& presentModes, VkPresentModeKHR desiredMode)
 		{
 			// For now this will work to get things going, in the future we can create a priority list to select the desired present mode
 			for (size_t i = 0; i < presentModes.size(); ++i)
 			{
-				if (presentModes[i] == VK_PRESENT_MODE_FIFO_KHR)
+				if (presentModes[i] == desiredMode)
 				{
 					return presentModes[i];
 				}

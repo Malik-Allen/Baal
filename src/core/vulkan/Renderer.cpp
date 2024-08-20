@@ -573,7 +573,7 @@ namespace Baal
 
 			vkDeviceWaitIdle(device->GetVkDevice());
 
-			swapChain = std::make_unique<SwapChain>(instance->GetGPU(), *device.get(), *surface.get(), static_cast<uint32_t>(width), static_cast<uint32_t>(height));
+			swapChain = std::make_unique<SwapChain>(instance->GetGPU(), *device.get(), *surface.get(), VK_PRESENT_MODE_FIFO_KHR, static_cast<uint32_t>(width), static_cast<uint32_t>(height));
 		}
 
 		void Renderer::DestroySwapChain()
