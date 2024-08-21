@@ -75,7 +75,7 @@ namespace Baal
 
 		struct RenderCameraResources
 		{
-			std::unique_ptr<Camera> camera;
+			std::shared_ptr<Camera> camera;
 			std::unique_ptr<Buffer> uniformBuffer;
 		};
 	}

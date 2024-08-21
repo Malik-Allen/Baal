@@ -87,8 +87,8 @@ namespace Baal
 			void DestroySwapChain();
 
 			void CreateDefaultCamera();
-			void DestroyDefaultCamera();
-			void UpdateDefaultCamera();
+			void DestroyCamera();
+			void UpdateCamera();
 
 			void UpdateMeshHandler();
 			void CleanUpMeshHandler();
@@ -139,6 +139,7 @@ namespace Baal
 
 			MeshHandler& GetMeshHandler();
 
+			void SetCamera(std::shared_ptr<Camera> camera);
 			Camera& GetCamera();
 			Buffer& GetCameraUniformBuffer();
 

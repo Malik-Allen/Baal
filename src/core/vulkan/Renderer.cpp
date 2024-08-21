@@ -80,7 +80,7 @@ namespace Baal
 		{
 			cameraResources = std::make_unique<RenderCameraResources>();
 
-			cameraResources->camera = std::make_unique<Camera>(45.0f, AspectRatio::CUSTOM_UNLOCKED, GetSwapChain().GetExtent().width, GetSwapChain().GetExtent().height);
+			cameraResources->camera = std::make_shared<Camera>(45.0f, AspectRatio::CUSTOM_UNLOCKED, GetSwapChain().GetExtent().width, GetSwapChain().GetExtent().height);
 
 			cameraResources->camera->SetPosition(Vector3f(0.0f, 25.0f, -25.0f));
 
@@ -91,16 +91,22 @@ namespace Baal
 			cameraResources->uniformBuffer = std::make_unique<Buffer>(GetAllocator(), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, sizeof(CameraMatrix));
 		}
 
-		void Renderer::DestroyDefaultCamera()
+		void Renderer::DestroyCamera()
 		{
 			cameraResources->uniformBuffer.reset();
 			cameraResources->camera.reset();
 			cameraResources.reset();
 		}
 
-		void Renderer::UpdateDefaultCamera()
+		void Renderer::UpdateCamera()
 		{
 			GetCameraUniformBuffer().Update(&GetCamera().GetMatrices(), sizeof(CameraMatrix));
+		}
+
+		void Renderer::SetCamera(std::shared_ptr<Camera> camera)
+		{
+			cameraResources->camera = camera;
+			UpdateCamera();
 		}
 
 		void Renderer::UpdateMeshHandler()
@@ -213,7 +219,7 @@ namespace Baal
 
 		void Renderer::Render()
 		{
-			UpdateDefaultCamera();
+			UpdateCamera();
 
 			UpdateMeshHandler();
 
@@ -286,7 +292,7 @@ namespace Baal
 			vkDeviceWaitIdle(device->GetVkDevice());
 			Destroy();
 			DestroyLightSources();
-			DestroyDefaultCamera();
+			DestroyCamera();
 			DestroyDrawCommandBuffers();
 			DestroyFramebuffers();
 			DestroyRenderPass();
