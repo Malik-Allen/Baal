@@ -112,7 +112,7 @@ namespace Baal
         void Camera::UpdateProjectionMatrix()
         {
             matrix.proj = Matrix4f::PerspectiveMatrix(fieldOfView, ratio, nearPlane, farPlane);
-            matrix.proj = matrix.proj * Matrix4f::Scale(Vector3f(1.0f, -1.0f, 1.0f)); // Flip y-axis to render in vulkan, up-side up
+            matrix.proj = matrix.proj * Matrix4f::Scale(Vector3f(-1.0f, -1.0f, 1.0f)); // We flip x and y axes to follow the right-hand rule of vulkan
         }
 	}
 }
